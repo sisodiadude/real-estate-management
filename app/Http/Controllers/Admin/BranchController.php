@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 // Base Controller
 use App\Http\Controllers\Controller;
-
+use App\Models\Admin;
 // Models
 use App\Models\City;
 use App\Models\State;
@@ -296,6 +296,8 @@ class BranchController extends Controller
             'user' => $request->user,
             'userType' => $request->userType,
             'hasPermissions' => $request->user->permissions,
+            'countries' => Country::orderBy('name', 'asc')->get(),
+            'userGroups' => ["admins" => Admin::orderBy('first_name', 'asc')->get()],
         ]);
     }
 

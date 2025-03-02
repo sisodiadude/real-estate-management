@@ -19,7 +19,7 @@ return new class extends Migration
              * ------------------------------- */
             $table->string('username', 50)->unique()->comment('Unique username for admin');
             $table->string('first_name', 50)->comment('Admin first name');
-            $table->string('last_name', 50)->comment('Admin last name');
+            $table->string('last_name', 50)->nullable()->comment('Admin last name');
             $table->string('designation', 100)->comment('Admin job designation');
             $table->date('date_of_birth')->nullable()->comment('Date of birth');
             $table->enum('gender', ['male', 'female', 'other'])->nullable()->comment('Gender');
