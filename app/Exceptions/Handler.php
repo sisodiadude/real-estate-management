@@ -37,6 +37,16 @@ class Handler extends ExceptionHandler
                     'exception' => $exception
                 ], Response::HTTP_FORBIDDEN);
             }
+
+            if ($exception->getStatusCode() == 404) {
+                // Check if the user came from an "admin" route
+                $redirectRoute = $request->is('admin/*') ? 'admin.dashboard' : 'dashboard';
+
+                return response()->view('error.404', [
+                    'exception' => $exception,
+                    'redirectRoute' => $redirectRoute
+                ], Response::HTTP_NOT_FOUND);
+            }
         }
 
         return parent::render($request, $exception);

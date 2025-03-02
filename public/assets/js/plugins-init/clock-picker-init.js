@@ -1,4 +1,4 @@
-(function($) {
+(function ($) {
     "use strict"
 
     // Clock pickers
@@ -11,8 +11,15 @@
 
     $('.clockpicker').clockpicker({
         donetext: 'Done',
+        autoclose: true,
+        afterDone: function () {
+            // let selectedTime = $(this).find('input').val();
+            // console.log("Time selected:", selectedTime);
+        }
     }).find('input').change(function () {
-        console.log(this.value);
+        if (!this.value.trim()) {
+            this.value = "19:00"; // Set default value if empty
+        }
     });
 
     $('#check-minutes').on('click', function (e) {

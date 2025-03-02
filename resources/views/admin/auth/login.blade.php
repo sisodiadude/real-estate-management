@@ -457,73 +457,85 @@
                     const password = document.querySelector('input[name="password"]').value;
                     const rememberMyChoice = document.getElementById('remember_my_choice').checked;
 
-                    getCurrentLocation((location) => {
-                        console.log("Successfully fetched location:", location);
+                    getCurrentLocation(
+                        (location) => {
+                            console.log("Successfully fetched location:", location);
 
-                        const {
-                            latitude,
-                            longitude
-                        } = location;
+                            const {
+                                latitude,
+                                longitude
+                            } = location;
 
-                        fetch("{{ route('admin.auth.verify_otp.submit') }}", {
-                                method: "POST",
-                                headers: {
-                                    "Content-Type": "application/json",
-                                    "X-Requested-With": "XMLHttpRequest", // Recognized as an AJAX request
-                                    "X-CSRF-TOKEN": "{{ csrf_token() }}" // CSRF token for security
-                                },
-                                body: JSON.stringify({
-                                    login_otp: otpValue,
-                                    username: username,
-                                    password: password,
-                                    latitude: latitude,
-                                    longitude: longitude,
-                                    remember_my_choice: rememberMyChoice
+                            fetch("{{ route('admin.auth.verify_otp.submit') }}", {
+                                    method: "POST",
+                                    headers: {
+                                        "Content-Type": "application/json",
+                                        "X-Requested-With": "XMLHttpRequest", // Recognized as an AJAX request
+                                        "X-CSRF-TOKEN": "{{ csrf_token() }}" // CSRF token for security
+                                    },
+                                    body: JSON.stringify({
+                                        login_otp: otpValue,
+                                        username: username,
+                                        password: password,
+                                        latitude: latitude,
+                                        longitude: longitude,
+                                        remember_my_choice: rememberMyChoice
+                                    })
                                 })
-                            })
-                            .then(response => response.json()) // Convert response to JSON
-                            .then(data => {
-                                console.log("Response data:", data);
+                                .then(response => response.json()) // Convert response to JSON
+                                .then(data => {
+                                    console.log("Response data:", data);
 
-                                if (data.status) {
-                                    console.log("OTP verified successfully!");
-                                    Swal.fire({
-                                        title: "Success!",
-                                        text: data.message || "OTP Verified! Redirecting...",
-                                        icon: "success",
-                                        timer: 2000,
-                                        showConfirmButton: false
-                                    });
+                                    if (data.status) {
+                                        console.log("OTP verified successfully!");
+                                        Swal.fire({
+                                            title: "Success!",
+                                            text: data.message || "OTP Verified! Redirecting...",
+                                            icon: "success",
+                                            timer: 2000,
+                                            showConfirmButton: false
+                                        });
 
-                                    setTimeout(() => {
-                                        console.log("Redirecting to:", data.redirect_url ||
-                                            "/admin");
-                                        window.location.href = data.redirect_url ||
-                                            "/admin";
-                                    }, 2000);
-                                } else {
-                                    console.log("Invalid OTP entered.");
+                                        setTimeout(() => {
+                                            console.log("Redirecting to:", data.redirect_url ||
+                                                "/admin");
+                                            window.location.href = data.redirect_url ||
+                                                "/admin";
+                                        }, 2000);
+                                    } else {
+                                        console.log("Invalid OTP entered.");
+                                        Swal.fire({
+                                            title: "Error",
+                                            text: data.message ||
+                                                "The OTP entered is incorrect. Please try again.",
+                                            icon: "error"
+                                        });
+                                    }
+                                })
+                                .catch(error => {
+                                    console.error("Error verifying OTP:", error);
                                     Swal.fire({
                                         title: "Error",
-                                        text: data.message ||
-                                            "The OTP entered is incorrect. Please try again.",
+                                        text: "Something went wrong. Please try again later.",
                                         icon: "error"
                                     });
-                                }
-                            })
-                            .catch(error => {
-                                console.error("Error verifying OTP:", error);
-                                Swal.fire({
-                                    title: "Error",
-                                    text: "Something went wrong. Please try again later.",
-                                    icon: "error"
+                                })
+                                .finally(() => {
+                                    toggleButton(twoFactorBtn, twoFactorSpinner, false);
+                                    console.log("OTP verification request completed.");
                                 });
-                            })
-                            .finally(() => {
-                                toggleButton(twoFactorBtn, twoFactorSpinner, false);
-                                console.log("OTP verification request completed.");
+                        },
+                        (errorMessage) => {
+                            toggleButton(twoFactorBtn, twoFactorSpinner, false);
+                            console.error("Error fetching location:", errorMessage);
+                            Swal.fire({
+                                icon: "error",
+                                title: "Location Error",
+                                text: errorMessage,
+                                confirmButtonText: "OK"
                             });
-                    });
+                        }
+                    );
                 } else {
                     Swal.fire({
                         title: "Error",
@@ -573,102 +585,114 @@
                 // Disable button & show spinner
                 toggleButton(loginBtn, spinner, true);
 
-                getCurrentLocation((location) => {
-                    console.log("Successfully fetched location:", location);
+                getCurrentLocation(
+                    (location) => {
+                        console.log("Successfully fetched location:", location);
 
-                    const {
-                        latitude,
-                        longitude
-                    } = location;
+                        const {
+                            latitude,
+                            longitude
+                        } = location;
 
-                    // Get the form data and convert it to an object
-                    let formData = Object.fromEntries(new FormData(document.getElementById("login-form")));
+                        // Get the form data and convert it to an object
+                        let formData = Object.fromEntries(new FormData(document.getElementById("login-form")));
 
-                    // Append latitude and longitude
-                    formData.latitude = latitude;
-                    formData.longitude = longitude;
+                        // Append latitude and longitude
+                        formData.latitude = latitude;
+                        formData.longitude = longitude;
 
-                    fetch("{{ route('admin.auth.login.submit') }}", {
-                            method: "POST",
-                            headers: {
-                                "Content-Type": "application/json",
-                                "X-Requested-With": "XMLHttpRequest", // Recognized as an AJAX request
-                                "X-CSRF-TOKEN": "{{ csrf_token() }}" // CSRF token for security
-                            },
-                            body: JSON.stringify(formData) // Convert the object to JSON
-                        })
-                        .then(response => response.json())
-                        .then(data => {
-                            if (data.status) {
-                                if (data.message.toLowerCase().includes("otp")) {
-                                    Swal.fire({
-                                        title: "OTP Required",
-                                        text: data.message ||
-                                            "Please enter the OTP sent to your email.",
-                                        icon: "info"
-                                    });
+                        fetch("{{ route('admin.auth.login.submit') }}", {
+                                method: "POST",
+                                headers: {
+                                    "Content-Type": "application/json",
+                                    "X-Requested-With": "XMLHttpRequest", // Recognized as an AJAX request
+                                    "X-CSRF-TOKEN": "{{ csrf_token() }}" // CSRF token for security
+                                },
+                                body: JSON.stringify(formData) // Convert the object to JSON
+                            })
+                            .then(response => response.json())
+                            .then(data => {
+                                if (data.status) {
+                                    if (data.message.toLowerCase().includes("otp")) {
+                                        Swal.fire({
+                                            title: "OTP Required",
+                                            text: data.message ||
+                                                "Please enter the OTP sent to your email.",
+                                            icon: "info"
+                                        });
 
-                                    // Show the OTP modal
-                                    handleOtpModal("twoFactorAuthenticationModal", "open");
+                                        // Show the OTP modal
+                                        handleOtpModal("twoFactorAuthenticationModal", "open");
+
+                                    } else {
+                                        Swal.fire({
+                                            title: "Success!",
+                                            text: data.message ||
+                                                "Login successful! Redirecting...",
+                                            icon: "success",
+                                            timer: 2000,
+                                            showConfirmButton: false
+                                        });
+
+                                        setTimeout(() => {
+                                            window.location.href = data.redirect_url ||
+                                                "/admin"; // Redirect if provided
+                                        }, 2000);
+                                    }
 
                                 } else {
-                                    Swal.fire({
-                                        title: "Success!",
-                                        text: data.message ||
-                                            "Login successful! Redirecting...",
-                                        icon: "success",
-                                        timer: 2000,
-                                        showConfirmButton: false
-                                    });
+                                    if (data.errors) {
+                                        Object.entries(data.errors).forEach(([key, value]) => {
+                                            let input = document.querySelector(`[name="${key}"]`);
+                                            if (input) {
+                                                input.classList.add("is-invalid");
 
-                                    setTimeout(() => {
-                                        window.location.href = data.redirect_url ||
-                                            "/admin"; // Redirect if provided
-                                    }, 2000);
-                                }
-
-                            } else {
-                                if (data.errors) {
-                                    Object.entries(data.errors).forEach(([key, value]) => {
-                                        let input = document.querySelector(`[name="${key}"]`);
-                                        if (input) {
-                                            input.classList.add("is-invalid");
-
-                                            let feedbackElement = input.closest(".form-group")
-                                                ?.querySelector(".invalid-feedback");
-                                            if (feedbackElement) {
-                                                feedbackElement.textContent = value[
-                                                    0]; // Show first error message
-                                            } else {
-                                                input.insertAdjacentHTML("afterend",
-                                                    `<div class="invalid-feedback">${value[0]}</div>`
-                                                );
+                                                let feedbackElement = input.closest(".form-group")
+                                                    ?.querySelector(".invalid-feedback");
+                                                if (feedbackElement) {
+                                                    feedbackElement.textContent = value[
+                                                        0]; // Show first error message
+                                                } else {
+                                                    input.insertAdjacentHTML("afterend",
+                                                        `<div class="invalid-feedback">${value[0]}</div>`
+                                                    );
+                                                }
                                             }
-                                        }
-                                    });
-                                } else {
-                                    Swal.fire({
-                                        title: "Error",
-                                        text: data.message ||
-                                            "Login failed. Please check your credentials.",
-                                        icon: "error"
-                                    });
+                                        });
+                                    } else {
+                                        Swal.fire({
+                                            title: "Error",
+                                            text: data.message ||
+                                                "Login failed. Please check your credentials.",
+                                            icon: "error"
+                                        });
+                                    }
                                 }
-                            }
-                        })
-                        .catch(error => {
-                            console.error("Error:", error);
-                            Swal.fire({
-                                title: "Oops!",
-                                text: "Something went wrong. Please try again later.",
-                                icon: "error"
+                            })
+                            .catch(error => {
+                                console.error("Error:", error);
+                                Swal.fire({
+                                    title: "Oops!",
+                                    text: "Something went wrong. Please try again later.",
+                                    icon: "error"
+                                });
+                            })
+                            .finally(() => {
+                                // Enable button & hide spinner
+                                toggleButton(loginBtn, spinner, false);
                             });
-                        })
-                        .finally(() => {
-                            // Enable button & hide spinner
-                            toggleButton(loginBtn, spinner, false);
+                    },
+                    (errorMessage) => {
+                        toggleButton(loginBtn, spinner, false);
+                        console.error("Error fetching location:", errorMessage);
+                        Swal.fire({
+                            icon: "error",
+                            title: "Location Error",
+                            text: errorMessage,
+                            confirmButtonText: "OK"
                         });
-                });
+                    }
+                );
 
             }
         });

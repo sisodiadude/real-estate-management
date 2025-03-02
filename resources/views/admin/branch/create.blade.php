@@ -48,9 +48,7 @@
 
 <body>
 
-    <!--*******************
-        Preloader start
-    ********************-->
+    <!-- Preloader Start -->
     <div id="preloader">
         <div class="sk-three-bounce">
             <div class="sk-child sk-bounce1"></div>
@@ -58,13 +56,9 @@
             <div class="sk-child sk-bounce3"></div>
         </div>
     </div>
-    <!--*******************
-        Preloader end
-    ********************-->
+    <!-- Preloader End -->
 
-    <!--**********************************
-        Main wrapper start
-    ***********************************-->
+    <!-- Main Wrapper Start -->
     <div id="main-wrapper">
 
         <!-- Navigation Header Start -->
@@ -211,8 +205,21 @@
                                                     class="text-danger">*</span></label>
                                             <input type="text" id="postal_code" name="postal_code"
                                                 class="form-control" placeholder="Enter postal code" required
-                                                maxlength="20">
+                                                maxlength="10">
                                             <div class="invalid-feedback">Postal code is required.</div>
+                                        </div>
+
+                                        <div class="col-md-3">
+                                            <label for="latitude" class="form-label fw-bold">Latitude</label>
+                                            <input type="number" step="0.0000001" id="latitude" name="latitude"
+                                                class="form-control" placeholder="e.g., 12.9716">
+                                            <div class="invalid-feedback">Please enter a valid latitude.</div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <label for="longitude" class="form-label fw-bold">Longitude</label>
+                                            <input type="number" step="0.0000001" id="longitude" name="longitude"
+                                                class="form-control" placeholder="e.g., 77.5946">
+                                            <div class="invalid-feedback">Please enter a valid longitude.</div>
                                         </div>
 
                                         <!-- Section: Operating Hours -->
@@ -233,7 +240,7 @@
                                                                 data-placement="bottom" data-align="top"
                                                                 data-autobtn-close="true">
                                                                 <input type="text" class="form-control"
-                                                                    value="13:14"
+                                                                    value="10:00"
                                                                     name="operating_hours[{{ strtolower($day) }}][start]"
                                                                     placeholder="Start Time">
                                                                 <span class="input-group-text"><i
@@ -246,7 +253,7 @@
                                                                 data-placement="bottom" data-align="top"
                                                                 data-autobtn-close="true">
                                                                 <input type="text" class="form-control"
-                                                                    value="13:14"
+                                                                    value="19:00"
                                                                     name="operating_hours[{{ strtolower($day) }}][end]"
                                                                     placeholder="End Time">
                                                                 <span class="input-group-text"><i
@@ -856,7 +863,7 @@
                         const startInput = document.querySelector(
                             `[name="operating_hours[${day}][start]"]`);
                         const endInput = document.querySelector(
-                        `[name="operating_hours[${day}][end]"]`);
+                            `[name="operating_hours[${day}][end]"]`);
                         const closedCheckbox = document.querySelector(
                             `[name="operating_hours[${day}][closed]"]`);
 

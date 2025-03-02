@@ -22,10 +22,10 @@
                         <span class="nav-text">Branches</span>
                     </a>
                     <ul aria-expanded="false">
-                        @if ($user->canPerform('Admin Branch', 'Create'))
+                        @if ($user->canPerform('Admin Branch', 'create'))
                             <li><a href="{{ route('admin.branches.create') }}">Add Branch</a></li>
                         @endif
-                        @if ($user->canPerform('Admin Branch', 'View All'))
+                        @if ($user->canPerform('Admin Branch', 'view_all'))
                             <li><a href="{{ route('admin.branches.index') }}">All Branches</a></li>
                         @endif
                     </ul>

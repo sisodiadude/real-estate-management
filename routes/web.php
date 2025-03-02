@@ -72,7 +72,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
             // Project CRUD
             Route::get('create', [AdminBranchController::class, 'create'])->name('create'); // Create branch form
             Route::post('store', [AdminBranchController::class, 'store'])->name('store'); // Store branch
-            Route::get('all', [AdminBranchController::class, 'index'])->name('index'); // List all branches
+            Route::get('/', [AdminBranchController::class, 'index'])->name('index'); // List all branches
             Route::get('data', [AdminBranchController::class, 'getBranches'])->name('getBranches');
 
             // Project Details

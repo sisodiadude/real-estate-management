@@ -17,6 +17,7 @@ return new class extends Migration
             /** -------------------------------
              *  Basic Information
              * ------------------------------- */
+            $table->string('branch_unique_id')->unique()->comment('Uniqe ID of Branch');
             $table->string('name')->comment('Unique branch name');
             $table->string('slug')->unique()->comment('SEO-friendly unique identifier');
             $table->text('description')->nullable()->comment('Brief branch description');
@@ -49,10 +50,23 @@ return new class extends Migration
              * ------------------------------- */
             $table->string('address_line1', 255)->comment('Primary address line');
             $table->string('address_line2', 255)->nullable()->comment('Secondary address line');
-            $table->foreignId('city_id')->constrained('cities')->nullOnDelete()->comment('City reference');
-            $table->foreignId('state_id')->constrained('states')->nullOnDelete()->comment('State reference');
-            $table->foreignId('country_id')->constrained('countries')->nullOnDelete()->comment('Country reference');
+
+            $table->unsignedBigInteger('city_id')->nullable()->comment('City reference');
+            $table->foreign('city_id')->references('id')->on('cities')->onDelete('SET NULL');
+
+            $table->unsignedBigInteger('state_id')->nullable()->comment('State reference');
+            $table->foreign('state_id')->references('id')->on('states')->onDelete('SET NULL');
+
+            $table->unsignedBigInteger('country_id')->nullable()->comment('Country reference');
+            $table->foreign('country_id')->references('id')->on('countries')->onDelete('SET NULL');
+
             $table->string('postal_code', 10)->comment('Postal or ZIP code');
+
+            /** -------------------------------
+             *  Geographic Location
+             * ------------------------------- */
+            $table->decimal('latitude', 10, 7)->nullable()->comment('Branch latitude coordinate');
+            $table->decimal('longitude', 10, 7)->nullable()->comment('Branch longitude coordinate');
 
             /** -------------------------------
              *  Tax & Compliance
