@@ -691,30 +691,25 @@
                 '.smtpFields'); // Get all elements with the class 'smtpFields'
 
             if (this.checked) {
-                // Loop through each field and remove 'd-none' to show the fields
                 smtpFields.forEach(function(field) {
                     field.classList.remove('d-none');
 
-                    // Add the 'required' attribute if the field is visible
-                    const input = field.querySelector(
-                        'input, select'); // Select input or select inside the field
-                    if (input && !input.hasAttribute('required')) {
-                        input.setAttribute('required', true);
-                    }
+                    // Add the 'required' attribute to all inputs and selects inside the field
+                    field.querySelectorAll('input, select').forEach(function(input) {
+                        if (!input.hasAttribute('required')) {
+                            input.setAttribute('required', true);
+                        }
+                    });
                 });
             } else {
                 console.log("Disabled"); // Log when the checkbox is unchecked
-                // Loop through each field and add 'd-none' to hide the fields
                 smtpFields.forEach(function(field) {
                     field.classList.add('d-none');
 
-                    // Remove the 'required' attribute if the field is hidden
-                    const input = field.querySelector(
-                        'input, select'); // Select input or select inside the field
-                    if (input && input.hasAttribute('required')) {
+                    // Remove the 'required' attribute from all inputs and selects inside the field
+                    field.querySelectorAll('input, select').forEach(function(input) {
                         input.removeAttribute('required');
-                        // input.value = "";
-                    }
+                    });
                 });
             }
         });
@@ -992,16 +987,18 @@
                     platformInput.classList.remove("is-invalid");
                     urlInput.classList.remove("is-invalid");
 
-                    let platformFeedback = platformInput.nextElementSibling;
-                    let urlFeedback = urlInput.nextElementSibling;
-
-                    if (!platformFeedback || !platformFeedback.classList.contains(
-                            "invalid-feedback")) {
+                    // Ensure platformFeedback is placed correctly
+                    let platformFeedback = platformInput.parentNode.querySelector(
+                        ".platform-feedback");
+                    if (!platformFeedback) {
                         platformFeedback = document.createElement("div");
-                        platformFeedback.className = "invalid-feedback";
-                        platformInput.after(platformFeedback);
+                        platformFeedback.className = "invalid-feedback platform-feedback";
+                        platformInput.parentNode.appendChild(
+                            platformFeedback); // Append inside parent container
                     }
 
+                    // Ensure urlFeedback is placed correctly
+                    let urlFeedback = urlInput.nextElementSibling;
                     if (!urlFeedback || !urlFeedback.classList.contains("invalid-feedback")) {
                         urlFeedback = document.createElement("div");
                         urlFeedback.className = "invalid-feedback";
@@ -1029,13 +1026,36 @@
                 });
 
 
-                if (!isTaxValid || !isSocialValid) {
-                    toggleSubmitBtn(false);
-                    return;
-                }
 
                 if (!form.checkValidity()) {
                     form.classList.add("was-validated");
+
+                    // Find the first invalid input field
+                    const firstInvalidInput = form.querySelector(":invalid");
+
+                    if (firstInvalidInput) {
+                        firstInvalidInput.scrollIntoView({
+                            behavior: "smooth",
+                            block: "center"
+                        }); // Scroll to the field
+                        firstInvalidInput.focus(); // Set focus
+                    }
+
+                    return;
+                }
+
+                if (!isTaxValid || !isSocialValid) {
+                    // Scroll to first invalid input if any
+                    const firstInvalidField = document.querySelector(".is-invalid");
+
+                    if (firstInvalidField) {
+                        firstInvalidField.scrollIntoView({
+                            behavior: "smooth",
+                            block: "center"
+                        });
+                        firstInvalidField.focus();
+                    }
+                    toggleSubmitBtn(false);
                     return;
                 }
 
