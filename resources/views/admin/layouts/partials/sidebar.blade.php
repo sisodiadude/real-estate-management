@@ -28,6 +28,9 @@
                         @if ($user->canPerform('Admin Branch', 'view_all'))
                             <li><a href="{{ route('admin.branches.index') }}">All Branches</a></li>
                         @endif
+                        @if ($user->canPerform('Admin Branch', 'view_all_trashed'))
+                            <li><a href="{{ route('admin.branches.trash') }}">All Trashed Branches</a></li>
+                        @endif
                     </ul>
                 </li>
             @endif

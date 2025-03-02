@@ -106,7 +106,7 @@ return new class extends Migration
             /** -------------------------------
              *  Branch Status
              * ------------------------------- */
-            $table->enum('branch_status', ['active', 'inactive', 'suspended', 'archived'])
+            $table->enum('status', ['active', 'inactive', 'suspended', 'archived'])
                 ->default('active')
                 ->comment('Branch current status');
 

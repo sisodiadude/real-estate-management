@@ -69,17 +69,22 @@ Route::prefix('admin')->name('admin.')->group(function () {
         // ========================
         Route::prefix('branches')->name('branches.')->group(function () {
 
-            // Project CRUD
+            // Branch CRUD
             Route::get('create', [AdminBranchController::class, 'create'])->name('create'); // Create branch form
             Route::post('store', [AdminBranchController::class, 'store'])->name('store'); // Store branch
             Route::get('/', [AdminBranchController::class, 'index'])->name('index'); // List all branches
             Route::get('data', [AdminBranchController::class, 'getBranches'])->name('getBranches');
 
-            // Project Details
-            Route::get('{branch}/profile', [AdminBranchController::class, 'show'])->name('profile'); // View branch profile
-            Route::get('{branch}/edit', [AdminBranchController::class, 'edit'])->name('edit'); // Edit branch form
-            Route::put('{branch}/edit', [AdminBranchController::class, 'update'])->name('update'); // Update branch
-            Route::delete('{branch}', [AdminBranchController::class, 'destroy'])->name('delete'); // Delete branch
+            // Branch Details
+            Route::get('{branchSlug}/edit', [AdminBranchController::class, 'edit'])->name('edit'); // Edit branch form
+            Route::put('{branchSlug}/edit', [AdminBranchController::class, 'update'])->name('update'); // Update branch
+            Route::delete('{branchSlug}', [AdminBranchController::class, 'delete'])->name('delete'); // Delete branch
+
+            // Soft Deleted Branches
+            Route::get('trash', [AdminBranchController::class, 'trash'])->name('trash'); // View soft-deleted branches
+            Route::get('trash/data', [AdminBranchController::class, 'getTrashedBranches'])->name('trash.data'); // AJAX DataTables for soft-deleted branches
+            Route::post('{branchSlug}/restore', [AdminBranchController::class, 'restore'])->name('restore'); // Restore soft-deleted branch
+            Route::delete('{branchSlug}/destroy', [AdminBranchController::class, 'destroy'])->name('destroy'); // Delete branch
         });
 
         // Logout

@@ -83,7 +83,7 @@
                 <div class="page-titles">
                     <ol class="breadcrumb">
                         <li class="breadcrumb-item"><a href="{{ route('admin.branches.index') }}">Branches</a></li>
-                        <li class="breadcrumb-item active"><a href="javascript:void(0)">Add Branch</a></li>
+                        <li class="breadcrumb-item active"><a href="javascript:void(0)">Edit Branch</a></li>
                     </ol>
                 </div>
                 <!-- row -->
@@ -94,57 +94,77 @@
                                 <h4 class="card-title">Add Branch</h4>
                             </div>
                             <div class="card-body">
-                                <form action="{{ route('admin.branches.store') }}" method="POST"
-                                    class="needs-validation" id="branchForm" novalidate>
+                                <form action="{{ route('admin.branches.edit', ['branchSlug' => $branch->slug]) }}"
+                                    method="POST" class="needs-validation" id="branchForm" novalidate>
                                     @csrf
+                                    @method('PUT')
                                     <div class="row g-3">
                                         <!-- Section: Basic Details -->
                                         <div class="col-12">
                                             <h5 class="text-primary fw-bold mb-3">Basic Details</h5>
                                         </div>
+
                                         <div class="col-md-4">
                                             <label for="name" class="form-label fw-bold">Name <span
                                                     class="text-danger">*</span></label>
                                             <input type="text" id="name" name="name" class="form-control"
-                                                placeholder="Enter name" required>
+                                                placeholder="Enter name" value="{{ old('name', $branch->name) }}"
+                                                required>
                                             <div class="invalid-feedback">Name is required.</div>
                                         </div>
+
                                         <div class="col-md-4">
                                             <label for="email" class="form-label fw-bold">Email <span
                                                     class="text-danger">*</span></label>
                                             <input type="email" id="email" name="email" class="form-control"
-                                                placeholder="Enter email" required>
+                                                placeholder="Enter email" value="{{ old('email', $branch->email) }}"
+                                                required>
                                             <div class="invalid-feedback">Valid email is required.</div>
                                         </div>
+
                                         <div class="col-md-4">
                                             <label for="mobile" class="form-label fw-bold">Mobile <span
                                                     class="text-danger">*</span></label>
                                             <input type="text" id="mobile" name="mobile" class="form-control"
-                                                placeholder="Enter mobile" required>
+                                                placeholder="Enter mobile"
+                                                value="{{ old('mobile', $branch->mobile) }}" required>
                                             <div class="invalid-feedback">Mobile number is required.</div>
                                         </div>
+
                                         <div class="col-md-4">
                                             <label for="date_of_start" class="form-label fw-bold">Date of
                                                 Start</label>
                                             <input type="date" id="date_of_start" name="date_of_start"
-                                                class="form-control">
+                                                class="form-control"
+                                                value="{{ old('date_of_start', $branch->date_of_start) }}">
                                         </div>
+
                                         <div class="col-md-4">
                                             <label for="status" class="form-label fw-bold">Status <span
                                                     class="text-danger">*</span></label>
                                             <select id="status" name="status" class="form-select" required>
                                                 <option value="">Select Status</option>
-                                                <option value="active" selected>Active</option>
-                                                <option value="inactive">Inactive</option>
-                                                <option value="suspended">Suspended</option>
-                                                <option value="archived">Archived</option>
+                                                <option value="active"
+                                                    {{ old('status', $branch->status) == 'active' ? 'selected' : '' }}>
+                                                    Active</option>
+                                                <option value="inactive"
+                                                    {{ old('status', $branch->status) == 'inactive' ? 'selected' : '' }}>
+                                                    Inactive</option>
+                                                <option value="suspended"
+                                                    {{ old('status', $branch->status) == 'suspended' ? 'selected' : '' }}>
+                                                    Suspended</option>
+                                                <option value="archived"
+                                                    {{ old('status', $branch->status) == 'archived' ? 'selected' : '' }}>
+                                                    Archived</option>
                                             </select>
                                             <div class="invalid-feedback">Status is required.</div>
                                         </div>
+
                                         <div class="col-md-8">
                                             <label for="description" class="form-label fw-bold">Description</label>
-                                            <textarea id="description" name="description" class="form-control" rows="3" placeholder="Enter description"></textarea>
+                                            <textarea id="description" name="description" class="form-control" rows="3" placeholder="Enter description">{{ old('description', $branch->description) }}</textarea>
                                         </div>
+
                                         <div class="col-12 mt-4">
                                             <label for="logo" class="form-label fw-bold">Logo</label>
                                             <input type="file" id="logo" name="logo" class="form-control"
@@ -155,21 +175,26 @@
                                         <div class="col-12 mt-4">
                                             <h5 class="text-primary fw-bold mb-3">Address Details</h5>
                                         </div>
+
                                         <div class="col-md-6">
                                             <label for="address_line1" class="form-label fw-bold">Address Line 1 <span
                                                     class="text-danger">*</span></label>
                                             <input type="text" id="address_line1" name="address_line1"
-                                                class="form-control" placeholder="Enter address line 1" required
-                                                maxlength="100">
+                                                class="form-control" placeholder="Enter address line 1"
+                                                value="{{ old('address_line1', $branch->address_line1 ?? '') }}"
+                                                required maxlength="100">
                                             <div class="invalid-feedback">Primary address line is required.</div>
                                         </div>
+
                                         <div class="col-md-6">
                                             <label for="address_line2" class="form-label fw-bold">Address Line
                                                 2</label>
                                             <input type="text" id="address_line2" name="address_line2"
                                                 class="form-control" placeholder="Enter address line 2"
+                                                value="{{ old('address_line2', $branch->address_line2 ?? '') }}"
                                                 maxlength="100">
                                         </div>
+
                                         <div class="col-md-4">
                                             <label for="country" class="form-label fw-bold">Country <span
                                                     class="text-danger">*</span></label>
@@ -177,34 +202,53 @@
                                                 class="form-select dropdown-select" required>
                                                 <option value="">Select Country</option>
                                                 @foreach ($countries as $country)
-                                                    <option value="{{ $country->id }}">{{ $country->name }}</option>
+                                                    <option value="{{ $country->id }}"
+                                                        {{ old('country_id', $branch->country_id ?? '') == $country->id ? 'selected' : '' }}>
+                                                        {{ $country->name }}
+                                                    </option>
                                                 @endforeach
                                             </select>
                                             <div class="invalid-feedback">Country is required.</div>
                                         </div>
+
                                         <div class="col-md-4">
                                             <label for="state" class="form-label fw-bold">State <span
                                                     class="text-danger">*</span></label>
                                             <select id="state" name="state_id"
                                                 class="form-select dropdown-select" required>
                                                 <option value="">Select State</option>
+                                                @foreach ($states as $state)
+                                                    <option value="{{ $state->id }}"
+                                                        {{ old('state_id', $branch->state_id ?? '') == $state->id ? 'selected' : '' }}>
+                                                        {{ $state->name }}
+                                                    </option>
+                                                @endforeach
                                             </select>
                                             <div class="invalid-feedback">State is required.</div>
                                         </div>
+
                                         <div class="col-md-4">
                                             <label for="city" class="form-label fw-bold">City <span
                                                     class="text-danger">*</span></label>
                                             <select id="city" name="city_id" class="form-select dropdown-select"
                                                 required>
                                                 <option value="">Select City</option>
+                                                @foreach ($cities as $city)
+                                                    <option value="{{ $city->id }}"
+                                                        {{ old('city_id', $branch->city_id ?? '') == $city->id ? 'selected' : '' }}>
+                                                        {{ $city->name }}
+                                                    </option>
+                                                @endforeach
                                             </select>
                                             <div class="invalid-feedback">City is required.</div>
                                         </div>
+
                                         <div class="col-md-6">
                                             <label for="postal_code" class="form-label fw-bold">Postal Code <span
                                                     class="text-danger">*</span></label>
                                             <input type="text" id="postal_code" name="postal_code"
-                                                class="form-control" placeholder="Enter postal code" required
+                                                class="form-control" placeholder="Enter postal code"
+                                                value="{{ old('postal_code', $branch->postal_code ?? '') }}" required
                                                 maxlength="10">
                                             <div class="invalid-feedback">Postal code is required.</div>
                                         </div>
@@ -212,13 +256,16 @@
                                         <div class="col-md-3">
                                             <label for="latitude" class="form-label fw-bold">Latitude</label>
                                             <input type="number" step="0.0000001" id="latitude" name="latitude"
-                                                class="form-control" placeholder="e.g., 12.9716">
+                                                class="form-control" placeholder="e.g., 12.9716"
+                                                value="{{ old('latitude', $branch->latitude ?? '') }}">
                                             <div class="invalid-feedback">Please enter a valid latitude.</div>
                                         </div>
+
                                         <div class="col-md-3">
                                             <label for="longitude" class="form-label fw-bold">Longitude</label>
                                             <input type="number" step="0.0000001" id="longitude" name="longitude"
-                                                class="form-control" placeholder="e.g., 77.5946">
+                                                class="form-control" placeholder="e.g., 77.5946"
+                                                value="{{ old('longitude', $branch->longitude ?? '') }}">
                                             <div class="invalid-feedback">Please enter a valid longitude.</div>
                                         </div>
 
@@ -226,10 +273,26 @@
                                         <div class="col-12 mt-4">
                                             <h5 class="text-primary fw-bold mb-3">Operating Hours</h5>
                                         </div>
+
+                                        @php
+                                            $operatingHours = json_decode($branch->operating_hours, true) ?? [];
+                                        @endphp
+
                                         <div class="col-12">
                                             <label class="form-label fw-bold">Set Operating Hours by Day</label>
                                             <div id="operatingHoursContainer">
                                                 @foreach (['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'] as $day)
+                                                    @php
+                                                        $dayKey = strtolower($day);
+                                                        $start = $operatingHours[$dayKey]['start'] ?? '10:00';
+                                                        $end = $operatingHours[$dayKey]['end'] ?? '19:00';
+                                                        $closed =
+                                                            isset($operatingHours[$dayKey]['closed']) &&
+                                                            $operatingHours[$dayKey]['closed']
+                                                                ? 'checked'
+                                                                : '';
+                                                    @endphp
+
                                                     <div class="row g-2 mb-2">
                                                         <div class="col-md-3">
                                                             <label
@@ -240,8 +303,8 @@
                                                                 data-placement="bottom" data-align="top"
                                                                 data-autobtn-close="true">
                                                                 <input type="text" class="form-control"
-                                                                    value="10:00"
-                                                                    name="operating_hours[{{ strtolower($day) }}][start]"
+                                                                    name="operating_hours[{{ $dayKey }}][start]"
+                                                                    value="{{ $start }}"
                                                                     placeholder="Start Time">
                                                                 <span class="input-group-text"><i
                                                                         class="far fa-clock"></i></span>
@@ -253,8 +316,8 @@
                                                                 data-placement="bottom" data-align="top"
                                                                 data-autobtn-close="true">
                                                                 <input type="text" class="form-control"
-                                                                    value="19:00"
-                                                                    name="operating_hours[{{ strtolower($day) }}][end]"
+                                                                    name="operating_hours[{{ $dayKey }}][end]"
+                                                                    value="{{ $end }}"
                                                                     placeholder="End Time">
                                                                 <span class="input-group-text"><i
                                                                         class="far fa-clock"></i></span>
@@ -266,17 +329,18 @@
                                                             class="col-md-3 d-flex align-items-center justify-content-center">
                                                             <div class="form-check">
                                                                 <input class="form-check-input" type="checkbox"
-                                                                    name="operating_hours[{{ strtolower($day) }}][closed]"
-                                                                    value="1"
-                                                                    id="closed_{{ strtolower($day) }}">
+                                                                    name="operating_hours[{{ $dayKey }}][closed]"
+                                                                    value="1" id="closed_{{ $dayKey }}"
+                                                                    {{ $closed }}>
                                                                 <label class="form-check-label"
-                                                                    for="closed_{{ strtolower($day) }}">Closed</label>
+                                                                    for="closed_{{ $dayKey }}">Closed</label>
                                                             </div>
                                                         </div>
                                                     </div>
                                                 @endforeach
                                             </div>
                                         </div>
+
 
                                         <!-- Section: Social Media Links -->
                                         <div class="col-12 mt-4">
@@ -285,50 +349,126 @@
                                         <div class="col-12">
                                             <label class="form-label fw-bold">Add Social Media Profiles</label>
                                             <div id="socialContainer">
-                                                <div class="row g-2 mb-2 social-entry">
-                                                    <div class="col-md-4">
-                                                        <select class="form-select dropdown-select"
-                                                            name="social_links[0][platform]">
-                                                            <option value="">Select Platform</option>
-                                                            <option value="facebook"
-                                                                data-image="{{ asset('assets/images/iconly/social/circle/facebook.png') }}">
-                                                                Facebook</option>
-                                                            <option value="linkedin"
-                                                                data-image="{{ asset('assets/images/iconly/social/circle/linkedin.png') }}">
-                                                                LinkedIn</option>
-                                                            <option value="twitter"
-                                                                data-image="{{ asset('assets/images/iconly/social/circle/twitter.png') }}">
-                                                                Twitter</option>
-                                                            <option value="instagram"
-                                                                data-image="{{ asset('assets/images/iconly/social/circle/instagram.png') }}">
-                                                                Instagram</option>
-                                                            <option value="youtube"
-                                                                data-image="{{ asset('assets/images/iconly/social/circle/youtube.png') }}">
-                                                                YouTube</option>
-                                                            <option value="telegram"
-                                                                data-image="{{ asset('assets/images/iconly/social/circle/telegram.png') }}">
-                                                                Telegram</option>
-                                                            <option value="snapchat"
-                                                                data-image="{{ asset('assets/images/iconly/social/circle/snapchat.png') }}">
-                                                                Snapchat</option>
-                                                        </select>
+                                                @php
+                                                    $socialLinks = json_decode($branch->social_links, true) ?? [];
+                                                @endphp
+
+                                                @foreach ($socialLinks as $index => $socialLink)
+                                                    <div class="row g-2 mb-2 social-entry">
+                                                        <div class="col-md-4">
+                                                            <select class="form-select dropdown-select"
+                                                                name="social_links[{{ $index }}][platform]">
+                                                                <option value="">Select Platform</option>
+                                                                <option value="facebook"
+                                                                    {{ old("social_links.$index.platform", $socialLink['platform'] ?? '') == 'facebook' ? 'selected' : '' }}
+                                                                    data-image="{{ asset('assets/images/iconly/social/circle/facebook.png') }}">
+                                                                    Facebook
+                                                                </option>
+                                                                <option value="linkedin"
+                                                                    {{ old("social_links.$index.platform", $socialLink['platform'] ?? '') == 'linkedin' ? 'selected' : '' }}
+                                                                    data-image="{{ asset('assets/images/iconly/social/circle/linkedin.png') }}">
+                                                                    LinkedIn
+                                                                </option>
+                                                                <option value="twitter"
+                                                                    {{ old("social_links.$index.platform", $socialLink['platform'] ?? '') == 'twitter' ? 'selected' : '' }}
+                                                                    data-image="{{ asset('assets/images/iconly/social/circle/twitter.png') }}">
+                                                                    Twitter
+                                                                </option>
+                                                                <option value="instagram"
+                                                                    {{ old("social_links.$index.platform", $socialLink['platform'] ?? '') == 'instagram' ? 'selected' : '' }}
+                                                                    data-image="{{ asset('assets/images/iconly/social/circle/instagram.png') }}">
+                                                                    Instagram
+                                                                </option>
+                                                                <option value="youtube"
+                                                                    {{ old("social_links.$index.platform", $socialLink['platform'] ?? '') == 'youtube' ? 'selected' : '' }}
+                                                                    data-image="{{ asset('assets/images/iconly/social/circle/youtube.png') }}">
+                                                                    YouTube
+                                                                </option>
+                                                                <option value="telegram"
+                                                                    {{ old("social_links.$index.platform", $socialLink['platform'] ?? '') == 'telegram' ? 'selected' : '' }}
+                                                                    data-image="{{ asset('assets/images/iconly/social/circle/telegram.png') }}">
+                                                                    Telegram
+                                                                </option>
+                                                                <option value="snapchat"
+                                                                    {{ old("social_links.$index.platform", $socialLink['platform'] ?? '') == 'snapchat' ? 'selected' : '' }}
+                                                                    data-image="{{ asset('assets/images/iconly/social/circle/snapchat.png') }}">
+                                                                    Snapchat
+                                                                </option>
+                                                            </select>
+                                                        </div>
+                                                        <div class="col-md-6">
+                                                            <input type="url" class="form-control"
+                                                                name="social_links[{{ $index }}][url]"
+                                                                value="{{ old("social_links.$index.url", $socialLink['url'] ?? '') }}"
+                                                                placeholder="Enter URL (e.g., https://facebook.com/yourpage)">
+                                                        </div>
+                                                        <div class="col-md-2 text-center">
+                                                            @if ($index == 0)
+                                                                <button type="button" id="addSocialBtn"
+                                                                    class="btn p-2 rounded-circle">
+                                                                    <img src="{{ asset('assets/images/iconly/action/plus.png') }}"
+                                                                        alt="Add" class="img-fluid"
+                                                                        style="max-width: 20px;">
+                                                                </button>
+                                                            @else
+                                                                <button type="button"
+                                                                    class="btn remove-social p-2 rounded-circle">
+                                                                    <img src="{{ asset('assets/images/iconly/action/remove.png') }}"
+                                                                        alt="Delete" class="img-fluid"
+                                                                        style="max-width: 20px;">
+                                                                </button>
+                                                            @endif
+                                                        </div>
                                                     </div>
-                                                    <div class="col-md-6">
-                                                        <input type="url" class="form-control"
-                                                            name="social_links[0][url]"
-                                                            placeholder="Enter URL (e.g., https://facebook.com/yourpage)">
+                                                @endforeach
+
+                                                @if (empty($socialLinks))
+                                                    <div class="row g-2 mb-2 social-entry">
+                                                        <div class="col-md-4">
+                                                            <select class="form-select dropdown-select"
+                                                                name="social_links[0][platform]">
+                                                                <option value="">Select Platform</option>
+                                                                <option value="facebook"
+                                                                    data-image="{{ asset('assets/images/iconly/social/circle/facebook.png') }}">
+                                                                    Facebook</option>
+                                                                <option value="linkedin"
+                                                                    data-image="{{ asset('assets/images/iconly/social/circle/linkedin.png') }}">
+                                                                    LinkedIn</option>
+                                                                <option value="twitter"
+                                                                    data-image="{{ asset('assets/images/iconly/social/circle/twitter.png') }}">
+                                                                    Twitter</option>
+                                                                <option value="instagram"
+                                                                    data-image="{{ asset('assets/images/iconly/social/circle/instagram.png') }}">
+                                                                    Instagram</option>
+                                                                <option value="youtube"
+                                                                    data-image="{{ asset('assets/images/iconly/social/circle/youtube.png') }}">
+                                                                    YouTube</option>
+                                                                <option value="telegram"
+                                                                    data-image="{{ asset('assets/images/iconly/social/circle/telegram.png') }}">
+                                                                    Telegram</option>
+                                                                <option value="snapchat"
+                                                                    data-image="{{ asset('assets/images/iconly/social/circle/snapchat.png') }}">
+                                                                    Snapchat</option>
+                                                            </select>
+                                                        </div>
+                                                        <div class="col-md-6">
+                                                            <input type="url" class="form-control"
+                                                                name="social_links[0][url]"
+                                                                placeholder="Enter URL (e.g., https://facebook.com/yourpage)">
+                                                        </div>
+                                                        <div class="col-md-2 text-center">
+                                                            <button type="button" id="addSocialBtn"
+                                                                class="btn p-2 rounded-circle">
+                                                                <img src="{{ asset('assets/images/iconly/action/plus.png') }}"
+                                                                    alt="Add" class="img-fluid"
+                                                                    style="max-width: 20px;">
+                                                            </button>
+                                                        </div>
                                                     </div>
-                                                    <div class="col-md-2 text-center">
-                                                        <button type="button" id="addSocialBtn"
-                                                            class="btn p-2 rounded-circle">
-                                                            <img src="{{ asset('assets/images/iconly/action/plus.png') }}"
-                                                                alt="Add" class="img-fluid"
-                                                                style="max-width: 20px;">
-                                                        </button>
-                                                    </div>
-                                                </div>
+                                                @endif
                                             </div>
                                         </div>
+
 
                                         <!-- Section: Tax Configuration -->
                                         <div class="col-12 mt-4">
@@ -337,29 +477,69 @@
                                         <div class="col-md-4">
                                             <label for="gstin" class="form-label fw-bold">GSTIN</label>
                                             <input type="text" id="gstin" name="gstin" class="form-control"
-                                                placeholder="Enter GSTIN">
+                                                placeholder="Enter GSTIN"
+                                                value="{{ old('gstin', $branch->gstin ?? '') }}">
                                         </div>
                                         <div class="col-12">
                                             <label class="form-label fw-bold">Tax Details</label>
                                             <div id="taxContainer">
-                                                <div class="row g-2 mb-2 tax-entry">
-                                                    <div class="col-md-5">
-                                                        <input type="text" class="form-control tax-title"
-                                                            placeholder="Tax Title (e.g., CGST)">
+                                                @php
+                                                    $taxDetails = json_decode($branch->tax_details, true) ?? [];
+                                                @endphp
+
+                                                @foreach ($taxDetails as $index => $tax)
+                                                    <div class="row g-2 mb-2 tax-entry">
+                                                        <div class="col-md-5">
+                                                            <input type="text" class="form-control tax-title"
+                                                                name="tax_title[]"
+                                                                value="{{ old('tax_title.' . $index, $tax['title'] ?? '') }}"
+                                                                placeholder="Tax Title (e.g., CGST)">
+                                                        </div>
+                                                        <div class="col-md-5">
+                                                            <input type="number" class="form-control tax-percentage"
+                                                                name="tax_percentage[]"
+                                                                value="{{ old('tax_percentage.' . $index, $tax['percentage'] ?? '') }}"
+                                                                placeholder="Percentage (e.g., 9)">
+                                                        </div>
+                                                        <div class="col-md-2 text-center">
+                                                            @if ($index == 0)
+                                                                <button type="button" id="addTaxBtn"
+                                                                    class="btn p-2 rounded-circle">
+                                                                    <img src="{{ asset('assets/images/iconly/action/plus.png') }}"
+                                                                        alt="Add" class="img-fluid"
+                                                                        style="max-width: 20px;">
+                                                                </button>
+                                                            @else
+                                                                <button type="button"
+                                                                    class="btn btn-danger p-2 rounded-circle removeTaxBtn">
+                                                                    <img src="{{ asset('assets/images/iconly/action/minus.png') }}"
+                                                                        alt="Remove" class="img-fluid"
+                                                                        style="max-width: 20px;">
+                                                                </button>
+                                                            @endif
+                                                        </div>
                                                     </div>
-                                                    <div class="col-md-5">
-                                                        <input type="number" class="form-control tax-percentage"
-                                                            placeholder="Percentage (e.g., 9)">
+                                                @endforeach
+                                                @if (empty($taxDetails))
+                                                    <div class="row g-2 mb-2 tax-entry">
+                                                        <div class="col-md-5">
+                                                            <input type="text" class="form-control tax-title"
+                                                                placeholder="Tax Title (e.g., CGST)">
+                                                        </div>
+                                                        <div class="col-md-5">
+                                                            <input type="number" class="form-control tax-percentage"
+                                                                placeholder="Percentage (e.g., 9)">
+                                                        </div>
+                                                        <div class="col-md-2 text-center">
+                                                            <button type="button" id="addTaxBtn"
+                                                                class="btn  p-2 rounded-circle">
+                                                                <img src="{{ asset('assets/images/iconly/action/plus.png') }}"
+                                                                    alt="Add" class="img-fluid"
+                                                                    style="max-width: 20px;">
+                                                            </button>
+                                                        </div>
                                                     </div>
-                                                    <div class="col-md-2 text-center">
-                                                        <button type="button" id="addTaxBtn"
-                                                            class="btn  p-2 rounded-circle">
-                                                            <img src="{{ asset('assets/images/iconly/action/plus.png') }}"
-                                                                alt="Add" class="img-fluid"
-                                                                style="max-width: 20px;">
-                                                        </button>
-                                                    </div>
-                                                </div>
+                                                @endif
                                             </div>
                                         </div>
 
@@ -371,33 +551,41 @@
                                             <div class="form-check form-switch mb-3">
                                                 <input class="form-check-input" type="checkbox"
                                                     id="use_branch_smtp_credentials"
-                                                    name="use_branch_smtp_credentials" value="1">
+                                                    name="use_branch_smtp_credentials"
+                                                    {{ $branch->use_branch_smtp_credentials ? 'checked' : '' }}>
                                                 <label class="form-check-label fw-bold"
                                                     for="use_branch_smtp_credentials">Use Branch SMTP
                                                     Credentials</label>
                                             </div>
                                         </div>
-                                        <div class="smtpFields d-none">
+                                        <div
+                                            class="smtpFields {{ $branch->use_branch_smtp_credentials ? '' : 'd-none' }}">
                                             <div class="row g-3">
                                                 <div class="col-md-4">
                                                     <label for="smtp_host" class="form-label fw-bold">SMTP Host <span
                                                             class="text-danger">*</span></label>
                                                     <input type="text" id="smtp_host" name="smtp_host"
-                                                        class="form-control" placeholder="Enter SMTP host">
+                                                        class="form-control" placeholder="Enter SMTP host"
+                                                        {{ $branch->use_branch_smtp_credentials ? 'required' : '' }}
+                                                        value="{{ old('smtp_host', $branch->smtp_host ?? '') }}">
                                                     <div class="invalid-feedback">Please enter a valid SMTP Host.</div>
                                                 </div>
                                                 <div class="col-md-4">
                                                     <label for="smtp_port" class="form-label fw-bold">SMTP Port <span
                                                             class="text-danger">*</span></label>
                                                     <input type="number" id="smtp_port" name="smtp_port"
-                                                        class="form-control" placeholder="Enter SMTP port">
+                                                        class="form-control" placeholder="Enter SMTP port"
+                                                        {{ $branch->use_branch_smtp_credentials ? 'required' : '' }}
+                                                        value="{{ old('smtp_port', $branch->smtp_port ?? '') }}">
                                                     <div class="invalid-feedback">Please enter a valid SMTP Port.</div>
                                                 </div>
                                                 <div class="col-md-4">
                                                     <label for="smtp_username" class="form-label fw-bold">SMTP
                                                         Username <span class="text-danger">*</span></label>
                                                     <input type="text" id="smtp_username" name="smtp_username"
-                                                        class="form-control" placeholder="Enter SMTP username">
+                                                        class="form-control" placeholder="Enter SMTP username"
+                                                        {{ $branch->use_branch_smtp_credentials ? 'required' : '' }}
+                                                        value="{{ old('smtp_username', $branch->smtp_username ?? '') }}">
                                                     <div class="invalid-feedback">Please enter a valid SMTP Username.
                                                     </div>
                                                 </div>
@@ -405,7 +593,9 @@
                                                     <label for="smtp_password" class="form-label fw-bold">SMTP
                                                         Password <span class="text-danger">*</span></label>
                                                     <input type="password" id="smtp_password" name="smtp_password"
-                                                        class="form-control" placeholder="Enter SMTP password">
+                                                        class="form-control" placeholder="Enter SMTP password"
+                                                        {{ $branch->use_branch_smtp_credentials ? 'required' : '' }}
+                                                        value="{{ old('smtp_password', $branch->smtp_password ?? '') }}">
                                                     <div class="invalid-feedback">Please enter a valid SMTP Password.
                                                     </div>
                                                 </div>
@@ -413,10 +603,15 @@
                                                     <label for="smtp_encryption" class="form-label fw-bold">SMTP
                                                         Encryption <span class="text-danger">*</span></label>
                                                     <select id="smtp_encryption" name="smtp_encryption"
-                                                        class="form-select dropdown-select">
+                                                        class="form-select dropdown-select"
+                                                        {{ $branch->use_branch_smtp_credentials ? 'required' : '' }}>
                                                         <option value="">Select Encryption</option>
-                                                        <option value="tls">TLS</option>
-                                                        <option value="ssl">SSL</option>
+                                                        <option value="tls"
+                                                            {{ old('smtp_encryption', $branch->smtp_encryption ?? '') == 'tls' ? 'selected' : '' }}>
+                                                            TLS</option>
+                                                        <option value="ssl"
+                                                            {{ old('smtp_encryption', $branch->smtp_encryption ?? '') == 'ssl' ? 'selected' : '' }}>
+                                                            SSL</option>
                                                     </select>
                                                     <div class="invalid-feedback">Please select a valid SMTP Encryption
                                                         type.</div>
@@ -425,7 +620,9 @@
                                                     <label for="smtp_from_email" class="form-label fw-bold">Sender
                                                         Email <span class="text-danger">*</span></label>
                                                     <input type="email" id="smtp_from_email" name="smtp_from_email"
-                                                        class="form-control" placeholder="Enter sender email">
+                                                        class="form-control" placeholder="Enter sender email"
+                                                        {{ $branch->use_branch_smtp_credentials ? 'required' : '' }}
+                                                        value="{{ old('smtp_from_email', $branch->smtp_from_email ?? '') }}">
                                                     <div class="invalid-feedback">Please enter a valid Sender Email.
                                                     </div>
                                                 </div>
@@ -433,7 +630,9 @@
                                                     <label for="smtp_from_name" class="form-label fw-bold">Sender Name
                                                         <span class="text-danger">*</span></label>
                                                     <input type="text" id="smtp_from_name" name="smtp_from_name"
-                                                        class="form-control" placeholder="Enter sender name">
+                                                        class="form-control" placeholder="Enter sender name"
+                                                        {{ $branch->use_branch_smtp_credentials ? 'required' : '' }}
+                                                        value="{{ old('smtp_from_name', $branch->smtp_from_name ?? '') }}">
                                                     <div class="invalid-feedback">Please enter a valid Sender Name.
                                                     </div>
                                                 </div>
@@ -875,7 +1074,7 @@
                 // Append operating hours JSON to formData
                 formData.append("operating_hours", JSON.stringify(operatingHours));
 
-                fetch("{{ route('admin.branches.store') }}", {
+                fetch("{{ route('admin.branches.edit', ['branchSlug' => $branch->slug]) }}", {
                         method: "POST",
                         body: formData,
                         headers: {

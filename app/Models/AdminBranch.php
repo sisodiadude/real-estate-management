@@ -77,7 +77,7 @@ class AdminBranch extends Model
         'social_links',
 
         // Branch Status
-        'branch_status',
+        'status',
 
         // Audit Trail
         'created_by_id',
@@ -215,6 +215,16 @@ class AdminBranch extends Model
                 $branch->created_by_type = $authUser['class'];
             }
         });
+
+        // Handle updating event
+        static::updating(function ($branch) {
+            // Store updater details
+            $authUser = self::getAuthenticatedUser();
+            if ($authUser) {
+                $branch->last_updated_by_id = $authUser['id'];
+                $branch->last_updated_by_type = $authUser['class'];
+            }
+        });
     }
 
     /** -------------------------------
@@ -240,16 +250,51 @@ class AdminBranch extends Model
         return $this->belongsTo(Admin::class, 'leader_id');
     }
 
+    /**
+     * Scope to filter branches by status.
+     */
+    public function scopeByStatus($query, $status)
+    {
+        return $query->where('status', $status);
+    }
+
     /** -------------------------------
      *  Audit Trail Relations
      * ------------------------------- */
-    public function createdBy()
+    public function getCreatorDetailsAttribute()
     {
-        return $this->morphTo();
+        if ($this->created_by_type === Admin::class) {
+            return Admin::find($this->created_by_id);
+        }
+        // elseif ($this->created_by_type === AdminEmployee::class) {
+        //     return AdminEmployee::find($this->created_by_id);
+        // }
+        return null;
     }
 
-    public function lastUpdatedBy()
+    public function getUpdatorDetailsAttribute()
     {
-        return $this->morphTo();
+        if ($this->last_updated_by_type === Admin::class) {
+            return Admin::find($this->last_updated_by_id);
+        }
+        // elseif ($this->last_updated_by_type === AdminEmployee::class) {
+        //     return AdminEmployee::find($this->last_updated_by_id);
+        // }
+        return null;
+    }
+
+    /** -------------------------------
+     *  Custom Attributes
+     * ------------------------------- */
+    public function getFullAddressAttribute(): string
+    {
+        return implode(', ', array_filter([
+            $this->address_line1,
+            $this->address_line2,
+            optional($this->city)->name,
+            optional($this->state)->name,
+            optional($this->country)->name,
+            $this->postal_code
+        ]));
     }
 }

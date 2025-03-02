@@ -86,12 +86,12 @@
         <div class="content-body">
             <!-- row -->
             <div class="container-fluid">
-                <div class="form-head page-titles d-flex  align-items-center">
-                    <div class="me-auto  d-lg-block d-block">
-                        <h4 class="mb-1">Branch List</h4>
+                <div class="form-head page-titles d-flex align-items-center">
+                    <div class="me-auto d-lg-block d-block">
+                        <h4 class="mb-1">Trashed Branches</h4>
                         <ol class="breadcrumb">
                             <li class="breadcrumb-item active"><a href="javascript:void(0)">Branches</a></li>
-                            <li class="breadcrumb-item"><a href="javascript:void(0)">List</a></li>
+                            <li class="breadcrumb-item"><a href="javascript:void(0)">Trashed Branches</a></li>
                         </ol>
                     </div>
                     <a href="javascript:void(0);" class="btn btn-primary rounded light">Refresh</a>
@@ -103,7 +103,7 @@
                                 <div class="media align-items-center">
                                     <div class="media-body">
                                         <h3 id="totalBranchCount"></h3>
-                                        <span class="fs-14 text-black">Total Branches</span>
+                                        <span class="fs-14 text-black">Total Trashed Branches</span>
                                     </div>
                                     <span class="bg-primary rounded p-3">
                                         <svg width="28" height="28" viewBox="0 0 32 38" fill="none"
@@ -213,6 +213,7 @@
                                         <th>Created At</th>
                                         <th>Updated By</th>
                                         <th>Updated At</th>
+                                        <th>Deleted At</th>
                                         <th class="text-end">Action</th>
                                     </tr>
                                 </thead>
@@ -271,7 +272,7 @@
 
             var dataTable = $('#branchTable').DataTable({
                 ajax: {
-                    url: "{{ route('admin.branches.getBranches') }}", // Ensure this route is correct
+                    url: "{{ route('admin.branches.trash.data') }}", // Ensure this route is correct
                     type: 'GET',
                     data: function(d) {
                         d.fromDate = $('#fromDate').val();
@@ -390,6 +391,10 @@
                         className: 'text-center text-nowrap'
                     },
                     {
+                        data: "deleted_at",
+                        className: 'text-center text-nowrap'
+                    },
+                    {
                         data: "actions",
                         orderable: false,
                         className: 'text-center',
@@ -403,7 +408,7 @@
                                     </svg>
                                 </div>
                                 <div class="dropdown-menu dropdown-menu-end">
-                                    <a class="dropdown-item text-black" href="${data.edit}">Edit</a>
+                                    <a class="dropdown-item text-black restore-branch" href="javascript:void(0);" data-url="${data.restore}">Restore</a>
                                     <a class="dropdown-item text-black delete-branch" href="javascript:void(0);" data-url="${data.delete}">Delete</a>
                                 </div>
                             </div>`;
@@ -422,7 +427,7 @@
                         previous: '<i class="fa fa-angle-double-left"></i>',
                         next: '<i class="fa fa-angle-double-right"></i>'
                     },
-                    emptyTable: "<strong>No branches found.</strong>", // Custom empty table message
+                    emptyTable: "<strong>No branches found in the trash.</strong>", // Custom empty table message
                     zeroRecords: "<strong>No matching records found.</strong>" // Custom message when search has no matches
                 },
                 fixedHeader: true,
@@ -467,13 +472,13 @@
                 let deleteUrl = $(this).data('url'); // Get delete URL from data attribute
 
                 Swal.fire({
-                    title: "Are you sure?",
-                    text: "This action will remove the branch from the list.",
+                    title: "Are you absolutely sure?",
+                    text: "This action is irreversible! The branch will be permanently deleted and cannot be restored.",
                     icon: "warning",
                     showCancelButton: true,
                     confirmButtonColor: "#d33",
                     cancelButtonColor: "#6c757d",
-                    confirmButtonText: "Delete",
+                    confirmButtonText: "Yes, Delete Permanently",
                     cancelButtonText: "Cancel"
                 }).then((result) => {
                     if (result.isConfirmed) {
@@ -485,10 +490,10 @@
                             },
                             success: function(response) {
                                 Swal.fire({
-                                    title: "Deleted!",
-                                    text: "The branch has been removed successfully.",
+                                    title: "Deleted Permanently!",
+                                    text: "The branch has been removed forever and cannot be recovered.",
                                     icon: "success",
-                                    timer: 2000,
+                                    timer: 2500,
                                     showConfirmButton: false
                                 });
                                 $('#branchTable').DataTable().ajax
@@ -497,9 +502,9 @@
                             error: function() {
                                 Swal.fire({
                                     title: "Error!",
-                                    text: "Something went wrong. Please try again.",
+                                    text: "An unexpected error occurred. The branch may not have been deleted. Please try again.",
                                     icon: "error",
-                                    timer: 2000,
+                                    timer: 2500,
                                     showConfirmButton: false
                                 });
                             }
@@ -507,6 +512,55 @@
                     }
                 });
             });
+
+            $('#branchTable').on('click', '.restore-branch', function(e) {
+                e.preventDefault();
+
+                let restoreUrl = $(this).data('url'); // Get restore URL from data attribute
+
+                Swal.fire({
+                    title: "Restore Branch?",
+                    text: "This will bring back the branch and make it active again.",
+                    icon: "question",
+                    showCancelButton: true,
+                    confirmButtonColor: "#28a745",
+                    cancelButtonColor: "#6c757d",
+                    confirmButtonText: "Yes, Restore",
+                    cancelButtonText: "Cancel"
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        $.ajax({
+                            url: restoreUrl,
+                            type: "POST",
+                            data: {
+                                _token: "{{ csrf_token() }}" // Ensure CSRF token is included
+                            },
+                            success: function(response) {
+                                Swal.fire({
+                                    title: "Restored Successfully!",
+                                    text: "The branch has been successfully restored.",
+                                    icon: "success",
+                                    timer: 2500,
+                                    showConfirmButton: false
+                                });
+                                $('#branchTable').DataTable().ajax
+                                    .reload(); // Reload table
+                            },
+                            error: function() {
+                                Swal.fire({
+                                    title: "Error!",
+                                    text: "An unexpected error occurred. The branch could not be restored. Please try again.",
+                                    icon: "error",
+                                    timer: 2500,
+                                    showConfirmButton: false
+                                });
+                            }
+                        });
+                    }
+                });
+            });
+
+
 
             // Reload table when filter button is clicked
             $('#filterButton').click(function() {

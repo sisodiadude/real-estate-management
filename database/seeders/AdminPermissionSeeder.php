@@ -22,7 +22,9 @@ class AdminPermissionSeeder extends Seeder
                     'view' => 'View a specific admin branch',
                     'edit' => 'Edit an admin branch',
                     'soft_delete' => 'Soft delete an admin branch',
-                    'force_delete' => 'Permanently delete an admin branch',
+                    'view_all_trashed' => 'View all soft-deleted admin branches',
+                    'restore_trashed' => 'Restore a soft-deleted admin branch',
+                    'permanent_delete' => 'Permanently delete an admin branch',
                 ]
             ]
         ];

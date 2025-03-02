@@ -6,6 +6,8 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 
 // Models
+use App\Models\City;
+use App\Models\State;
 use App\Models\Country;
 use App\Models\AdminBranch;
 
@@ -69,7 +71,6 @@ class BranchController extends Controller
             $validationRules = [
                 // Basic Information
                 'name' => 'required|string|max:100|unique:admin_branches,name',
-                'slug' => 'nullable|string|max:255|unique:admin_branches,slug',
                 'email' => 'nullable|email|max:255|unique:admin_branches,email',
                 'mobile' => 'nullable|string|max:20|unique:admin_branches,mobile|regex:/^\+?[0-9\s-]{10,20}$/',
                 'date_of_start' => 'nullable|date',
@@ -205,8 +206,8 @@ class BranchController extends Controller
                 'smtp_from_name.string' => 'Sender name must be a valid string.',
 
                 // Branch Status
-                'branch_status.required' => 'Branch status is required.',
-                'branch_status.in' => 'Invalid branch status selected.',
+                'status.required' => 'Branch status is required.',
+                'status.in' => 'Invalid branch status selected.',
             ]);
 
             // If validation fails, return errors
@@ -296,5 +297,621 @@ class BranchController extends Controller
             'userType' => $request->userType,
             'hasPermissions' => $request->user->permissions,
         ]);
+    }
+
+    public function getBranches(Request $request)
+    {
+
+        // Ensure the request is an AJAX request
+        if (!$request->ajax()) {
+            return response()->json([
+                'status' => false,
+                'error' => 'Invalid request.'
+            ], 400);
+        }
+
+        // Ensure the user has permission to view branches
+        if (!$request->user->canPerform('Admin Branch', 'view_all')) {
+            return response()->json([
+                'status' => false,
+                'error' => 'You do not have permission to view branches.'
+            ], 403);
+        }
+
+        // Pagination and ordering parameters from DataTables
+        $start = (int) $request->input('start', 0);
+        $length = (int) $request->input('length', 10);
+        $orderColumnIndex = (int) $request->input('order.0.column', 0);
+        // echo "$orderColumnIndex <br>";
+        // die;
+        $orderDirection = strtolower($request->input('order.0.dir', 'desc'));
+        $searchValue = $request->input('search.value', '');
+        $fromDateFilter = $request->input('fromDate');
+        $toDateFilter = $request->input('toDate');
+
+        // Columns available for ordering
+        $columns = ['branch_unique_id', 'name', 'mobile', 'email', 'created_at', 'updated_at'];
+
+        // Ensure a valid column is selected for ordering
+        $orderColumn = $columns[$orderColumnIndex] ?? 'created_at';
+        $orderDirection = in_array($orderDirection, ['asc', 'desc']) ? $orderDirection : 'desc';
+
+        // Fetch branches with filtering
+        $query = AdminBranch::query()->byStatus('active');
+
+        // Apply search filter
+        if ($request->filled('search.value')) {
+            $searchValue = $request->input('search.value');
+            $query->where(function ($q) use ($searchValue) {
+                $q->where('branch_unique_id', 'like', "%{$searchValue}%")
+                    ->orWhere('name', 'like', "%{$searchValue}%")
+                    ->orWhere('mobile', 'like', "%{$searchValue}%")
+                    ->orWhere('email', 'like', "%{$searchValue}%");
+            });
+        }
+
+        // Apply date range filter
+        if ($request->filled('fromDate')) {
+            $toDateFilter = $toDateFilter ?? now()->toDateString();
+            $query->whereBetween('date_of_joining', [$fromDateFilter, $toDateFilter]);
+        }
+
+        // Get total and filtered record count
+        $totalRecords = AdminBranch::byStatus('active')->count();
+        $filteredRecords = $query->count();
+
+        // Apply ordering and pagination
+        $data = $query->orderBy($orderColumn, $orderDirection)
+            ->offset($start)
+            ->limit($length)
+            ->get()
+            ->map(function ($row) use ($request) {
+
+                // Helper function to format names
+                $getFullName = fn($firstName, $lastName) => trim("{$firstName} {$lastName}") ?: 'N/A';
+
+                $leader = $getFullName(optional($row->leader())->first_name, optional($row->leader())->last_name);
+                $creator = $getFullName(optional($row->creator_details)->first_name, optional($row->creator_details)->last_name);
+                $updator = $getFullName(optional($row->updator_details)->first_name, optional($row->updator_details)->last_name);
+
+                // Checking permissions for actions
+                $canEdit = $request->user->canPerform('Admin Branch', 'edit');
+                $canDelete = $request->user->canPerform('Admin Branch', 'soft_delete');
+
+                // Generate URLs for edit and delete actions
+                $editUrl = $canEdit ? route('admin.branches.edit', ['branchSlug' => $row->slug]) : null;
+                $deleteUrl = $canDelete ? route('admin.branches.delete', ['branchSlug' => $row->slug]) : null;
+
+                $timezone = $request->user->country->timezones[0]['zoneName'] ?? 'UTC';
+
+                return [
+                    'branch_unique_id' => $row->branch_unique_id,
+                    'name' => $row->name,
+                    'mobile' => $row->mobile,
+                    'email' => $row->email,
+                    'latitude' => $row->latitude,
+                    'longitude' => $row->longitude,
+                    'address' => $row->full_address,
+                    'leader' => $leader,
+                    'creator' => $creator,
+                    'updator' => $updator,
+                    'created_at' => $row->created_at->setTimezone($timezone)->format('Y-m-d H:i:s'),
+                    'updated_at' => $row->updated_at->setTimezone($timezone)->format('Y-m-d H:i:s'),
+                    'actions' => [
+                        'edit' => $editUrl,
+                        'delete' => $deleteUrl
+                    ]
+                ];
+            });
+
+        // Prepare JSON response
+        return response()->json([
+            "draw" => (int) $request->input('draw', 0),
+            "recordsTotal" => $totalRecords,
+            "recordsFiltered" => $filteredRecords,
+            "data" => $data
+        ]);
+    }
+
+    public function edit(string $branchSlug, Request $request)
+    {
+        // Check user permissions
+        if (!$request->user->canPerform('Admin Branch', 'edit')) {
+            abort(403, 'You do not have permission to edit branches.');
+        }
+
+        // Fetch the branch by slug
+        $branch = AdminBranch::where('slug', $branchSlug)->first();
+
+        if (!$branch) {
+            abort(404, 'The requested branch was not found.');
+        }
+
+        // Fetch states if country_id is not null
+        $states = $branch->country_id ? State::where('country_id', $branch->country_id)->orderBy('name', 'asc')->get() : collect([]);
+
+        // Fetch cities if state_id is not null
+        $cities = $branch->state_id ? City::where('state_id', $branch->state_id)->orderBy('name', 'asc')->get() : collect([]);
+
+        return view('admin.branch.edit', [
+            'branch' => $branch,
+            'user' => $request->user,
+            'userType' => $request->userType,
+            'hasPermissions' => $request->user->permissions,
+            'countries' => Country::orderBy('name', 'asc')->get(),
+            'states' => $states,
+            'cities' => $cities,
+        ]);
+    }
+
+    public function update(string $branchSlug, Request $request)
+    {
+        try {
+            $branch = AdminBranch::where('slug', $branchSlug)->first();
+
+            if (!$branch) {
+                return response()->json([
+                    'status' => false,
+                    'error' => 'Branch not found.'
+                ], 404);
+            }
+
+            // Check user permissions
+            if (!$request->user->canPerform('Admin Branch', 'Edit')) {
+                abort(403, 'You do not have permission to edit branches.');
+            }
+
+            // Determine validation rules
+            $validationRules = [
+                // Basic Information
+                'name' => 'required|string|max:100|unique:admin_branches,name,' . $branch->id,
+                'email' => 'nullable|email|max:255|unique:admin_branches,email,' . $branch->id,
+                'mobile' => 'nullable|string|max:20|unique:admin_branches,mobile,' . $branch->id . '|regex:/^\+?[0-9\s-]{10,20}$/',
+                'date_of_start' => 'nullable|date',
+                'status' => 'required|in:active,inactive,suspended,archived',
+                'description' => 'nullable|string',
+                'logo' => 'nullable|image|max:2048', // Max 2MB, accepts image files only
+
+                // Address & Location
+                'address_line1' => 'required|string|max:255',
+                'address_line2' => 'nullable|string|max:255',
+                'country_id' => 'required|exists:countries,id',
+                'state_id' => 'required|exists:states,id',
+                'city_id' => 'required|exists:cities,id',
+                'postal_code' => 'required|string|max:10',
+
+                // Operating Hours (JSON)
+                'operating_hours' => 'nullable|json',
+
+                // Tax & Compliance
+                'gstin' => 'nullable|string|max:255|unique:admin_branches,gstin,' . $branch->id,
+                'tax_details' => 'nullable|json',
+
+                // Social Media Links (JSON)
+                'social_links' => 'nullable|json',
+
+                // SMTP Configuration (if enabled)
+                'use_branch_smtp_credentials' => 'required|boolean',
+            ];
+
+            if (request()->input('use_branch_smtp_credentials')) {
+                $validationRules = array_merge($validationRules, [
+                    'smtp_host' => 'required|string|max:255',
+                    'smtp_port' => 'required|integer|min:1|max:65535',
+                    'smtp_username' => 'required|string|max:255',
+                    'smtp_password' => 'required|string|max:255',
+                    'smtp_encryption' => 'nullable|in:ssl,tls',
+                    'smtp_from_email' => 'required|email|max:255',
+                    'smtp_from_name' => 'required|string|max:255',
+                ]);
+            }
+
+            // Check if use_branch_smtp_credentials is true and add SMTP validation rules
+            if ($request->input('use_branch_smtp_credentials') === true) {
+                $validationRules = array_merge($validationRules, [
+                    'smtp_host' => 'required|string|max:255',
+                    'smtp_port' => 'required|integer|min:1|max:65535',
+                    'smtp_username' => 'required|string|max:255',
+                    'smtp_password' => 'required|string|max:255',
+                    'smtp_encryption' => 'nullable|in:ssl,tls',
+                    'smtp_from_email' => 'required|email|max:255',
+                    'smtp_from_name' => 'required|string|max:255',
+                ]);
+            } else {
+                // If use_branch_smtp_credentials is false or not present, make these fields nullable
+                $validationRules = array_merge($validationRules, [
+                    'smtp_host' => 'nullable|string|max:255',
+                    'smtp_port' => 'nullable|integer|min:1|max:65535',
+                    'smtp_username' => 'nullable|string|max:255',
+                    'smtp_password' => 'nullable|string|max:255',
+                    'smtp_encryption' => 'nullable|in:ssl,tls',
+                    'smtp_from_email' => 'nullable|email|max:255',
+                    'smtp_from_name' => 'nullable|string|max:255',
+                ]);
+            }
+
+            // Validate the request
+            $validator = Validator::make($request->all(), $validationRules, [
+                // Branch Name
+                'name.required' => 'Branch name is required.',
+                'name.string' => 'Branch name must be a valid string.',
+                'name.max' => 'Branch name cannot exceed 100 characters.',
+                'name.unique' => 'A branch with this name already exists.',
+
+                // Email
+                'email.email' => 'Please enter a valid email address.',
+                'email.max' => 'Email address cannot exceed 255 characters.',
+                'email.unique' => 'This email is already associated with another branch.',
+
+                // Mobile
+                'mobile.string' => 'Mobile number must be a valid string.',
+                'mobile.max' => 'Mobile number cannot exceed 20 characters.',
+                'mobile.unique' => 'This mobile number is already associated with another branch.',
+                'mobile.regex' => 'Please enter a valid mobile number (e.g., +1234567890, 9876543210).',
+
+                // Date of Start
+                'date_of_start.date' => 'Please provide a valid date for the branch establishment.',
+
+                // Description
+                'description.string' => 'Description must be a valid text.',
+                'description.max' => 'Description cannot exceed 500 characters.',
+
+                // Address Fields
+                'address_line1.required' => 'Primary address line is required.',
+                'address_line1.string' => 'Primary address must be a valid string.',
+                'address_line1.max' => 'Primary address cannot exceed 255 characters.',
+                'address_line2.string' => 'Secondary address must be a valid string.',
+                'address_line2.max' => 'Secondary address cannot exceed 255 characters.',
+
+                // Country, State, City
+                'country_id.required' => 'Country selection is required.',
+                'country_id.exists' => 'Selected country is invalid.',
+                'state_id.required' => 'State selection is required.',
+                'state_id.exists' => 'Selected state is invalid.',
+                'city_id.required' => 'City selection is required.',
+                'city_id.exists' => 'Selected city is invalid.',
+
+                // Postal Code
+                'postal_code.required' => 'Postal code is required.',
+                'postal_code.string' => 'Postal code must be a valid string.',
+                'postal_code.max' => 'Postal code cannot exceed 10 characters.',
+
+                // GSTIN
+                'gstin.string' => 'GSTIN must be a valid string.',
+                'gstin.unique' => 'This GSTIN is already in use.',
+
+                // Branch Type
+                'branch_type.required' => 'Branch type is required.',
+                'branch_type.in' => 'Invalid branch type selected.',
+
+                // Operating Hours
+                'operating_hours.json' => 'Operating hours must be a valid JSON format.',
+
+                // Social Links
+                'social_links.json' => 'Social media links must be in a valid JSON format.',
+
+                // SMTP Configuration
+                'smtp_host.string' => 'SMTP Host must be a valid string.',
+                'smtp_port.integer' => 'SMTP Port must be a valid number.',
+                'smtp_username.string' => 'SMTP Username must be a valid string.',
+                'smtp_password.string' => 'SMTP Password must be a valid string.',
+                'smtp_encryption.in' => 'SMTP encryption must be either "ssl" or "tls".',
+                'smtp_from_email.email' => 'Please provide a valid sender email address.',
+                'smtp_from_name.string' => 'Sender name must be a valid string.',
+
+                // Branch Status
+                'status.required' => 'Branch status is required.',
+                'status.in' => 'Invalid branch status selected.',
+            ]);
+
+            // If validation fails, return errors
+            if ($validator->fails()) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Validation errors occurred.',
+                    'errors' => $validator->errors()->toArray()
+                ], 422);
+            }
+
+            $validatedData = $validator->validated();
+
+            // Parse tax details
+            $taxDetails = [];
+            if (!empty($validatedData['tax_details'])) {
+                $taxDataArray = json_decode($validatedData['tax_details'], true);
+                if (is_array($taxDataArray)) {
+                    foreach ($taxDataArray as $tax) {
+                        if (!empty($tax['title']) && isset($tax['percentage'])) {
+                            $taxDetails[] = [
+                                'title' => $tax['title'],
+                                'percentage' => $tax['percentage'],
+                            ];
+                        }
+                    }
+                }
+            }
+
+            // Start transaction
+            DB::beginTransaction();
+
+            // Update branch data
+            $branch->update($validatedData);
+
+            DB::commit();
+
+            Log::info('Branch updated successfully', ['branch_id' => $branch->id, 'name' => $branch->name]);
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Branch updated successfully.',
+                'redirect_url' => route('admin.branches.index')
+            ], 200);
+        } catch (\Exception $e) {
+            DB::rollBack();
+
+            Log::error('Branch update failed', [
+                'error' => $e->getMessage(),
+                'request_data' => $request->all()
+            ]);
+
+            return response()->json([
+                'status' => false,
+                'message' => 'An error occurred while updating the branch.',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function delete(string $branchSlug, Request $request)
+    {
+        try {
+            // Find the branch by its slug
+            $branch = AdminBranch::where('slug', $branchSlug)->first();
+
+            if (!$branch) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'The requested branch could not be found.',
+                ], 404);
+            }
+
+            // Check user permissions
+            if (!$request->user->canPerform('Admin Branch', 'soft_delete')) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'You do not have permission to perform this action.',
+                ], 403);
+            }
+
+            // Soft delete the branch
+            $branch->delete();
+
+            return response()->json([
+                'status' => true,
+                'message' => 'The branch has been successfully deleted.',
+            ], 200);
+        } catch (\Exception $e) {
+            Log::error('Branch deletion failed', ['error' => $e->getMessage()]);
+
+            return response()->json([
+                'status' => false,
+                'message' => 'An unexpected error occurred while processing your request. Please try again later.',
+                'error_details' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function trash(Request $request)
+    {
+        // Check if the user has the required permission to view branches
+        if (!$request->user->canPerform('Admin Branch', 'view_all_trashed')) {
+            abort(403, 'You do not have permission to view trash branches.');
+        }
+
+        // Return the admin branch index view with required data
+        return view('admin.branch.trash', [
+            'user' => $request->user,
+            'userType' => $request->userType,
+            'hasPermissions' => $request->user->permissions,
+        ]);
+    }
+
+    public function getTrashedBranches(Request $request)
+    {
+
+        // Ensure the request is an AJAX request
+        if (!$request->ajax()) {
+            return response()->json([
+                'status' => false,
+                'error' => 'Invalid request.'
+            ], 400);
+        }
+
+        // Ensure the user has permission to view branches
+        if (!$request->user->canPerform('Admin Branch', 'view_all_trashed')) {
+            return response()->json([
+                'status' => false,
+                'error' => 'You do not have permission to view trash branches.'
+            ], 403);
+        }
+
+        // Pagination and ordering parameters from DataTables
+        $start = (int) $request->input('start', 0);
+        $length = (int) $request->input('length', 10);
+        $orderColumnIndex = (int) $request->input('order.0.column', 0);
+        // echo "$orderColumnIndex <br>";
+        // die;
+        $orderDirection = strtolower($request->input('order.0.dir', 'desc'));
+        $searchValue = $request->input('search.value', '');
+        $fromDateFilter = $request->input('fromDate');
+        $toDateFilter = $request->input('toDate');
+
+        // Columns available for ordering
+        $columns = ['branch_unique_id', 'name', 'mobile', 'email', 'created_at', 'updated_at'];
+
+        // Ensure a valid column is selected for ordering
+        $orderColumn = $columns[$orderColumnIndex] ?? 'created_at';
+        $orderDirection = in_array($orderDirection, ['asc', 'desc']) ? $orderDirection : 'desc';
+
+        // Fetch branches with filtering
+        $query = AdminBranch::query()->onlyTrashed();
+
+        // Apply search filter
+        if ($request->filled('search.value')) {
+            $searchValue = $request->input('search.value');
+            $query->where(function ($q) use ($searchValue) {
+                $q->where('branch_unique_id', 'like', "%{$searchValue}%")
+                    ->orWhere('name', 'like', "%{$searchValue}%")
+                    ->orWhere('mobile', 'like', "%{$searchValue}%")
+                    ->orWhere('email', 'like', "%{$searchValue}%");
+            });
+        }
+
+        // Apply date range filter
+        if ($request->filled('fromDate')) {
+            $toDateFilter = $toDateFilter ?? now()->toDateString();
+            $query->whereBetween('date_of_joining', [$fromDateFilter, $toDateFilter]);
+        }
+
+        // Get total and filtered record count
+        $totalRecords = AdminBranch::onlyTrashed()->count();
+        $filteredRecords = $query->count();
+
+        // Apply ordering and pagination
+        $data = $query->orderBy($orderColumn, $orderDirection)
+            ->offset($start)
+            ->limit($length)
+            ->get()
+            ->map(function ($row) use ($request) {
+
+                // Helper function to format names
+                $getFullName = fn($firstName, $lastName) => trim("{$firstName} {$lastName}") ?: 'N/A';
+
+                $leader = $getFullName(optional($row->leader())->first_name, optional($row->leader())->last_name);
+                $creator = $getFullName(optional($row->creator_details)->first_name, optional($row->creator_details)->last_name);
+                $updator = $getFullName(optional($row->updator_details)->first_name, optional($row->updator_details)->last_name);
+
+                // Checking permissions for actions
+                $canRestore = $request->user->canPerform('Admin Branch', 'restore_trashed');
+                $canDelete = $request->user->canPerform('Admin Branch', 'permanent_delete');
+
+                // Generate URLs for edit and delete actions
+                $restoreUrl = $canRestore ? route('admin.branches.restore', ['branchSlug' => $row->slug]) : null;
+                $deleteUrl = $canDelete ? route('admin.branches.destroy', ['branchSlug' => $row->slug]) : null;
+
+                $timezone = $request->user->country->timezones[0]['zoneName'] ?? 'UTC';
+
+                return [
+                    'branch_unique_id' => $row->branch_unique_id,
+                    'name' => $row->name,
+                    'mobile' => $row->mobile,
+                    'email' => $row->email,
+                    'address' => $row->full_address,
+                    'leader' => $leader,
+                    'creator' => $creator,
+                    'updator' => $updator,
+                    'created_at' => $row->created_at->setTimezone($timezone)->format('Y-m-d H:i:s'),
+                    'updated_at' => $row->updated_at->setTimezone($timezone)->format('Y-m-d H:i:s'),
+                    'deleted_at' => $row->deleted_at->setTimezone($timezone)->format('Y-m-d H:i:s'),
+                    'actions' => [
+                        'restore' => $restoreUrl,
+                        'delete' => $deleteUrl
+                    ]
+                ];
+            });
+
+        // Prepare JSON response
+        return response()->json([
+            "draw" => (int) $request->input('draw', 0),
+            "recordsTotal" => $totalRecords,
+            "recordsFiltered" => $filteredRecords,
+            "data" => $data
+        ]);
+    }
+
+    public function restore(string $branchSlug, Request $request)
+    {
+        try {
+            // Find the soft-deleted branch by slug
+            $branch = AdminBranch::withTrashed()->where('slug', $branchSlug)->first();
+
+            if (!$branch) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'The requested branch could not be found.',
+                ], 404);
+            }
+
+            // Check user permissions
+            if (!$request->user->canPerform('Admin Branch', 'restore_trashed')) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'You do not have permission to perform this action.',
+                ], 403);
+            }
+
+            // Ensure the branch is actually deleted before attempting to restore
+            if (!$branch->trashed()) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'This branch is already active and does not need restoration.',
+                ], 400);
+            }
+
+            // Restore the branch
+            $branch->restore();
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Branch restored successfully.',
+            ], 200);
+        } catch (\Exception $e) {
+            Log::error('Branch restoration failed', ['error' => $e->getMessage()]);
+
+            return response()->json([
+                'status' => false,
+                'message' => 'An unexpected error occurred while processing your request. Please try again later.',
+                'error_details' => config('app.debug') ? $e->getMessage() : null, // Only show details in debug mode
+            ], 500);
+        }
+    }
+
+    public function destroy(string $branchSlug, Request $request)
+    {
+        try {
+            // Find the soft-deleted branch by its slug
+            $branch = AdminBranch::onlyTrashed()->where('slug', $branchSlug)->first();
+
+            if (!$branch) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'The requested branch could not be found.',
+                ], 404);
+            }
+
+            // Check user permissions
+            if (!$request->user->canPerform('Admin Branch', 'permanent_delete')) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'You do not have permission to perform this action.',
+                ], 403);
+            }
+
+            // Permanently delete the branch
+            $branch->forceDelete();
+
+            return response()->json([
+                'status' => true,
+                'message' => 'The branch has been permanently deleted and cannot be recovered.',
+            ], 200);
+        } catch (\Exception $e) {
+            Log::error('Branch deletion failed', ['error' => $e->getMessage()]);
+
+            return response()->json([
+                'status' => false,
+                'message' => 'An unexpected error occurred while processing your request. Please try again later.',
+                'error_details' => config('app.debug') ? $e->getMessage() : null, // Only show details in debug mode
+            ], 500);
+        }
     }
 }

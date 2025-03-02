@@ -25,6 +25,7 @@ php artisan db:seed --class=EmailConfigSeeder
 php artisan db:seed --class=AdminSeeder
 php artisan db:seed --class=AdminPermissionSeeder
 php artisan db:seed --class=AdminHasPermissionSeeder
+php artisan db:seed --class=AdminBranchSeeder
 
 php artisan config:clear
 php artisan route:clear
