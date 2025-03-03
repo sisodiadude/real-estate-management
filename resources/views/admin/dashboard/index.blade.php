@@ -89,7 +89,9 @@
                         <h2 class="text-black font-w600">Dashboard</h2>
                         <p class="mb-0">Welcome to Omah Property Admin</p>
                     </div>
-                    <a href="index.html" class="btn btn-primary rounded light">Refresh</a>
+                    <button class="btn btn-primary rounded light" onclick="location.reload();">
+                        Refresh
+                    </button>
                 </div>
                 <div class="row">
                     <div class="col-xl-6 col-xxl-6">
@@ -483,7 +485,8 @@
                                     <div class="card-body pb-0">
                                         <div class="pb-3 border-bottom mb-3">
                                             <div class="d-flex mb-3 flex-wrap align-items-end">
-                                                <img class="rounded me-3" src="{{ asset('assets/images/customers/1.jpg') }}" width="58"
+                                                <img class="rounded me-3"
+                                                    src="{{ asset('assets/images/customers/1.jpg') }}" width="58"
                                                     alt="/">
                                                 <div>
                                                     <h6 class="fs-16 text-black font-w600">John Doe</h6>
@@ -505,7 +508,8 @@
                                         </div>
                                         <div class="pb-3 mb-3">
                                             <div class="d-flex mb-3 flex-wrap align-items-end">
-                                                <img class="rounded me-3" src="{{ asset('assets/images/customers/2.jpg') }}" width="58"
+                                                <img class="rounded me-3"
+                                                    src="{{ asset('assets/images/customers/2.jpg') }}" width="58"
                                                     alt="/">
                                                 <div>
                                                     <h6 class="fs-16 text-black font-w600">Amelia Tuner</h6>
@@ -561,7 +565,8 @@
                                     <div class="card-body">
                                         <div class="testimonial-one owl-carousel">
                                             <div class="items">
-                                                <a href="property-details.html"><img src="{{ asset('assets/images/testimonial/1.png') }}"
+                                                <a href="property-details.html"><img
+                                                        src="{{ asset('assets/images/testimonial/1.png') }}"
                                                         alt="#" class="w-100 mw-100 mb-3 rounded"></a>
                                                 <h5 class="fs-16 font-w600 mb-0"><a href="property-details.html"
                                                         class="text-black">98AB Alexander Court, London</a></h5>
@@ -592,7 +597,8 @@
                                                     dolore magna aliqua. Ut enim ad mini</p>
                                             </div>
                                             <div class="items">
-                                                <a href="property-details.html"><img src="{{ asset('assets/images/testimonial/2.png') }}"
+                                                <a href="property-details.html"><img
+                                                        src="{{ asset('assets/images/testimonial/2.png') }}"
                                                         alt="#" class="w-100 mw-100 mb-3 rounded"></a>
                                                 <h5 class="fs-16 font-w600 mb-0"><a href="property-details.html"
                                                         class="text-black">2AB Historical landmark, Paris</a></h5>

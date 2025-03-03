@@ -1121,9 +1121,15 @@
                             });
                         } else {
                             if (data.errors) {
-                                Object.entries(data.errors).forEach(([key, value]) => {
+                                let firstInput = null; // Initialize firstInput
+
+                                Object.entries(data.errors).forEach(([key, value], index) => {
                                     const input = document.querySelector(`[name="${key}"]`);
                                     if (input) {
+                                        if (!firstInput) { // Set firstInput only once
+                                            firstInput = input;
+                                        }
+
                                         input.classList.add("is-invalid");
                                         const feedbackElement = input.closest(".form-group")
                                             ?.querySelector(".invalid-feedback");
@@ -1136,6 +1142,14 @@
                                         }
                                     }
                                 });
+
+                                if (firstInput) {
+                                    firstInput.scrollIntoView({
+                                        behavior: "smooth",
+                                        block: "center"
+                                    }); // Scroll to the first invalid field
+                                    firstInput.focus(); // Set focus on the first invalid input
+                                }
                             } else {
                                 Swal.fire({
                                     icon: "error",

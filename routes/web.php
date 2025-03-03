@@ -87,6 +87,29 @@ Route::prefix('admin')->name('admin.')->group(function () {
             Route::delete('{branchSlug}/destroy', [AdminBranchController::class, 'destroy'])->name('destroy'); // Delete branch
         });
 
+        // ========================
+        // Department Management
+        // ========================
+        Route::prefix('departments')->name('departments.')->group(function () {
+
+            // Branch CRUD
+            Route::get('create', [AdminBranchController::class, 'create'])->name('create'); // Create department form
+            Route::post('store', [AdminBranchController::class, 'store'])->name('store'); // Store department
+            Route::get('/', [AdminBranchController::class, 'index'])->name('index'); // List all departments
+            Route::get('data', [AdminBranchController::class, 'getDepartments'])->name('getDepartments');
+
+            // department Details
+            Route::get('{departmentSlug}/edit', [AdminBranchController::class, 'edit'])->name('edit'); // Edit department form
+            Route::put('{departmentSlug}/edit', [AdminBranchController::class, 'update'])->name('update'); // Update department
+            Route::delete('{departmentSlug}', [AdminBranchController::class, 'delete'])->name('delete'); // Delete department
+
+            // Soft Deleted departments
+            Route::get('trash', [AdminBranchController::class, 'trash'])->name('trash'); // View soft-deleted departments
+            Route::get('trash/data', [AdminBranchController::class, 'getTrashedDepartments'])->name('trash.data'); // AJAX DataTables for soft-deleted departments
+            Route::post('{departmentSlug}/restore', [AdminBranchController::class, 'restore'])->name('restore'); // Restore soft-deleted department
+            Route::delete('{departmentSlug}/destroy', [AdminBranchController::class, 'destroy'])->name('destroy'); // Delete department
+        });
+
         // Logout
         Route::get('logout', [AdminAuthController::class, 'logout'])->name('auth.logout'); // Admin Logout
 

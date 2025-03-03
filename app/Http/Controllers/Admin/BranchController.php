@@ -328,6 +328,14 @@ class BranchController extends Controller
         // die;
         $orderDirection = strtolower($request->input('order.0.dir', 'desc'));
         $searchValue = $request->input('search.value', '');
+        $country = (int) $request->input('country', 0);
+        $state = (int) $request->input('state', 0);
+        $city = (int) $request->input('city', 0);
+        $created_by = (int) $request->input('created_by', 0);
+        $created_by_role = $request->input('created_by_role', '');
+        $updated_by = (int) $request->input('updated_by', 0);
+        $updated_by_role = $request->input('updated_by_role', '');
+        $leader = (int) $request->input('leader', 0);
         $fromDateFilter = $request->input('fromDate');
         $toDateFilter = $request->input('toDate');
 
@@ -350,6 +358,38 @@ class BranchController extends Controller
                     ->orWhere('mobile', 'like', "%{$searchValue}%")
                     ->orWhere('email', 'like', "%{$searchValue}%");
             });
+        }
+
+        // Apply country filter
+        if ($country > 0) {
+            $query->where('country_id', $country);
+        }
+
+        // Apply state filter
+        if ($state > 0) {
+            $query->where('state_id', $state);
+        }
+
+        // Apply city filter
+        if ($city > 0) {
+            $query->where('city_id', $city);
+        }
+
+        // Apply created by filter
+        if ($created_by > 0 && $request->filled('created_by_role')) {
+            $query->where('created_by_id', $created_by)
+                ->where('created_by_type', $created_by_role === 'admins' ? 'App\Models\Admin' : 'App\Models\AdminEmployee');
+        }
+
+        // Apply updated by filter
+        if ($updated_by > 0 && $request->filled('updated_by_role')) {
+            $query->where('last_updated_by_id', $updated_by)
+                ->where('last_updated_by_type', $updated_by_role === 'admins' ? 'App\Models\Admin' : 'App\Models\AdminEmployee');
+        }
+
+        // Apply leader filter
+        if ($leader > 0) {
+            $query->where('leader_id', $leader);
         }
 
         // Apply date range filter
@@ -715,6 +755,8 @@ class BranchController extends Controller
             'user' => $request->user,
             'userType' => $request->userType,
             'hasPermissions' => $request->user->permissions,
+            'countries' => Country::orderBy('name', 'asc')->get(),
+            'userGroups' => ["admins" => Admin::orderBy('first_name', 'asc')->get()],
         ]);
     }
 
@@ -745,6 +787,12 @@ class BranchController extends Controller
         // die;
         $orderDirection = strtolower($request->input('order.0.dir', 'desc'));
         $searchValue = $request->input('search.value', '');
+        $country = (int) $request->input('country', 0);
+        $state = (int) $request->input('state', 0);
+        $city = (int) $request->input('city', 0);
+        $deleted_by = (int) $request->input('deleted_by', 0);
+        $deleted_by_role = $request->input('deleted_by_role', '');
+        $leader = (int) $request->input('leader', 0);
         $fromDateFilter = $request->input('fromDate');
         $toDateFilter = $request->input('toDate');
 
@@ -767,6 +815,32 @@ class BranchController extends Controller
                     ->orWhere('mobile', 'like', "%{$searchValue}%")
                     ->orWhere('email', 'like', "%{$searchValue}%");
             });
+        }
+
+        // Apply country filter
+        if ($country > 0) {
+            $query->where('country_id', $country);
+        }
+
+        // Apply state filter
+        if ($state > 0) {
+            $query->where('state_id', $state);
+        }
+
+        // Apply city filter
+        if ($city > 0) {
+            $query->where('city_id', $city);
+        }
+
+        // Apply updated by filter
+        if ($deleted_by > 0 && $request->filled('deleted_by_role')) {
+            $query->where('last_updated_by_id', $deleted_by)
+                ->where('last_updated_by_type', $deleted_by_role === 'admins' ? 'App\Models\Admin' : 'App\Models\AdminEmployee');
+        }
+
+        // Apply leader filter
+        if ($leader > 0) {
+            $query->where('leader_id', $leader);
         }
 
         // Apply date range filter
@@ -808,12 +882,13 @@ class BranchController extends Controller
                     'name' => $row->name,
                     'mobile' => $row->mobile,
                     'email' => $row->email,
+                    'latitude' => $row->latitude,
+                    'longitude' => $row->longitude,
                     'address' => $row->full_address,
                     'leader' => $leader,
                     'creator' => $creator,
-                    'updator' => $updator,
+                    'deletor' => $updator,
                     'created_at' => $row->created_at->setTimezone($timezone)->format('Y-m-d H:i:s'),
-                    'updated_at' => $row->updated_at->setTimezone($timezone)->format('Y-m-d H:i:s'),
                     'deleted_at' => $row->deleted_at->setTimezone($timezone)->format('Y-m-d H:i:s'),
                     'actions' => [
                         'restore' => $restoreUrl,

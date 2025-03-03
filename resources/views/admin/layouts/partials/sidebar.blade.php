@@ -15,7 +15,7 @@
                 </ul>
             </li>
 
-            @if ($user->canPerform('Admin Branch', 'Create') || $user->canPerform('Admin Branch', 'View All'))
+            @if ($user->canPerform('Admin Branch', 'create') || $user->canPerform('Admin Branch', 'view_all'))
                 <li>
                     <a class="has-arrow ai-icon" href="javascript:void(0)" aria-expanded="false">
                         <i class="flaticon-381-user-7"></i>
@@ -28,9 +28,23 @@
                         @if ($user->canPerform('Admin Branch', 'view_all'))
                             <li><a href="{{ route('admin.branches.index') }}">All Branches</a></li>
                         @endif
-                        @if ($user->canPerform('Admin Branch', 'view_all_trashed'))
-                            <li><a href="{{ route('admin.branches.trash') }}">All Trashed Branches</a></li>
-                        @endif
+                    </ul>
+                </li>
+            @endif
+
+            @if ($user->canPerform('Admin Department', 'create') || $user->canPerform('Admin Department', 'view_all'))
+                <li>
+                    <a class="has-arrow ai-icon" href="javascript:void(0)" aria-expanded="false">
+                        <i class="flaticon-381-user-7"></i>
+                        <span class="nav-text">Departments</span>
+                    </a>
+                    <ul aria-expanded="false">
+                        @can('create', 'Admin Department')
+                            <li><a href="{{ route('admin.Departments.create') }}">Add Department</a></li>
+                        @endcan
+                        @can('view_all', 'Admin Department')
+                            <li><a href="{{ route('admin.Departments.index') }}">All Departments</a></li>
+                        @endcan
                     </ul>
                 </li>
             @endif

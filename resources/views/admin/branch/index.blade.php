@@ -89,16 +89,29 @@
         <div class="content-body">
             <!-- row -->
             <div class="container-fluid">
-                <div class="form-head page-titles d-flex  align-items-center">
-                    <div class="me-auto  d-lg-block d-block">
-                        <h4 class="mb-1">Branch List</h4>
-                        <ol class="breadcrumb">
-                            <li class="breadcrumb-item active"><a href="javascript:void(0)">Branches</a></li>
-                            <li class="breadcrumb-item"><a href="javascript:void(0)">List</a></li>
-                        </ol>
+                <div class="form-head page-titles d-flex align-items-center justify-content-between">
+                    <div>
+                        <h4 class="mb-1 fw-bold">Branch List</h4>
+                        <nav aria-label="breadcrumb">
+                            <ol class="breadcrumb">
+                                <li class="breadcrumb-item active"><a
+                                        href="{{ route('admin.branches.index') }}">Branches</a></li>
+                                <li class="breadcrumb-item"><a href="javascript:void(0)">list</a></li>
+                            </ol>
+                        </nav>
                     </div>
-                    <a href="javascript:void(0);" class="btn btn-primary rounded light">Refresh</a>
+                    <div class="d-flex gap-2">
+                        <button class="btn btn-primary rounded light" onclick="location.reload();">
+                            Refresh
+                        </button>
+                        @if ($user->canPerform('Admin Branch', 'view_all_trashed'))
+                            <a href="{{ route('admin.branches.trash') }}" class="btn btn-danger rounded light">View
+                                Trashed
+                                Branches</a>
+                        @endif
+                    </div>
                 </div>
+
                 <div class="row">
                     <div class="col-xl-3 col-md-6">
                         <div class="card">
@@ -195,23 +208,30 @@
                     </div>
                     <div class="col-12">
                         <div class="filter cm-content-box box-primary">
-                            <div class="content-title SlideToolHeader">
+                            <div
+                                class="content-title SlideToolHeader d-flex justify-content-between align-items-center">
                                 <div class="cpa">
                                     <i class="fa-sharp fa-solid fa-filter me-2"></i>Filter
                                 </div>
                                 <div class="tools">
-                                    <a href="javascript:void(0);" class="expand handle"><i
-                                            class="fal fa-angle-down"></i></a>
+                                    <a href="javascript:void(0);" class="expand handle">
+                                        <i class="fal fa-angle-down"></i>
+                                    </a>
                                 </div>
                             </div>
                             <div class="cm-content-body form excerpt">
                                 <div class="card-body">
                                     <div class="row">
+                                        <!-- Keyword Input -->
                                         <div class="mb-3 col-lg-3 col-md-6">
-                                            <input type="text" class="form-control"
-                                                placeholder="Enter Your Keyword..." required="">
+                                            <label for="keyword" class="form-label">Keyword</label>
+                                            <input type="text" id="keyword" name="keyword" class="form-control"
+                                                placeholder="Enter Your Keyword..." required>
                                         </div>
+
+                                        <!-- Country Selection -->
                                         <div class="mb-3 col-lg-3 col-md-6">
+                                            <label for="country" class="form-label">Country</label>
                                             <select id="country" name="country_id"
                                                 class="form-select dropdown-select" required>
                                                 <option value="">Select Country</option>
@@ -220,27 +240,36 @@
                                                 @endforeach
                                             </select>
                                         </div>
+
+                                        <!-- State Selection -->
                                         <div class="mb-3 col-lg-3 col-md-6">
+                                            <label for="state" class="form-label">State</label>
                                             <select id="state" name="state_id"
                                                 class="form-select dropdown-select" required>
                                                 <option value="">Select State</option>
                                             </select>
                                         </div>
+
+                                        <!-- City Selection -->
                                         <div class="mb-3 col-lg-3 col-md-6">
+                                            <label for="city" class="form-label">City</label>
                                             <select id="city" name="city_id" class="form-select dropdown-select"
                                                 required>
                                                 <option value="">Select City</option>
                                             </select>
                                         </div>
-                                        <!-- New Dropdown: Created By -->
+
+                                        <!-- Created By -->
                                         <div class="mb-3 col-lg-3 col-md-6">
+                                            <label for="created_by" class="form-label">Created By</label>
                                             <select id="created_by" name="created_by"
                                                 class="form-select dropdown-select">
-                                                <option value="">Select option</option>
+                                                <option value="">Select User</option>
                                                 @foreach ($userGroups as $role => $users)
                                                     <optgroup label="{{ ucfirst($role) }}">
                                                         @foreach ($users as $user)
-                                                            <option value="{{ $user->id }}">
+                                                            <option value="{{ $user->id }}"
+                                                                data-role="{{ $role }}">
                                                                 {{ trim($user->first_name . ' ' . $user->last_name) }}
                                                             </option>
                                                         @endforeach
@@ -249,15 +278,17 @@
                                             </select>
                                         </div>
 
-                                        <!-- New Dropdown: Last Updated By -->
+                                        <!-- Last Updated By -->
                                         <div class="mb-3 col-lg-3 col-md-6">
+                                            <label for="updated_by" class="form-label">Last Updated By</label>
                                             <select id="updated_by" name="updated_by"
                                                 class="form-select dropdown-select">
-                                                <option value="">Select option</option>
+                                                <option value="">Select User</option>
                                                 @foreach ($userGroups as $role => $users)
                                                     <optgroup label="{{ ucfirst($role) }}">
                                                         @foreach ($users as $user)
-                                                            <option value="{{ $user->id }}">
+                                                            <option value="{{ $user->id }}"
+                                                                data-role="{{ $role }}">
                                                                 {{ trim($user->first_name . ' ' . $user->last_name) }}
                                                             </option>
                                                         @endforeach
@@ -265,21 +296,34 @@
                                                 @endforeach
                                             </select>
                                         </div>
+
+                                        <!-- Leader (Static Dropdown) -->
+                                        <div class="mb-3 col-lg-3 col-md-6">
+                                            <label for="leader" class="form-label">Leader
+                                                Options</label>
+                                            <select id="leader" name="leader"
+                                                class="form-select dropdown-select">
+                                                <option value="">Select Option</option>
+                                                <option value="1">Leader 1</option>
+                                                <option value="2">Leader 2</option>
+                                            </select>
+                                        </div>
                                     </div>
-                                    <div class="row align-items-center">
-                                        <div class="col-lg-4 col-md-6 align-self-end mb-3">
-                                            <button id="filterBranchTable" class="btn btn-primary rounded-sm w-100"
+
+                                    <!-- Search Button -->
+                                    <div class="row">
+                                        <div class="col-lg-4 col-md-6">
+                                            <button id="filterBranchTable" class="btn btn-primary w-100"
                                                 title="Click here to Search" type="button">
                                                 <i class="fa fa-search me-1"></i>Search
                                             </button>
                                         </div>
                                     </div>
                                 </div>
-
                             </div>
                         </div>
-
                     </div>
+
                     <div class="col-xl-12">
                         <div class="table-responsive fs-14">
                             <table class="table display mb-4 dataTablesCard overflow-hidden card-table dataTable"
@@ -453,9 +497,15 @@
                     url: "{{ route('admin.branches.getBranches') }}", // Ensure this route is correct
                     type: 'GET',
                     data: function(d) {
+                        d.search.value = $('#keyword').val();
                         d.country = $('#country').val();
                         d.state = $('#state').val();
                         d.city = $('#city').val();
+                        d.created_by = $('#created_by').val();
+                        d.created_by_role = $('#created_by option:selected').data('role');
+                        d.updated_by = $('#updated_by').val();
+                        d.updated_by_role = $('#updated_by option:selected').data('role');
+                        d.leader = $('#leader').val();
                     },
                     dataSrc: 'data', // Simplified to expect json.data
                     beforeSend: function(jqXHR) {

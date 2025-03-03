@@ -38,6 +38,7 @@
     <link href="{{ asset('assets/vendor/sweetalert2/dist/sweetalert2.min.css') }}" rel="stylesheet">
     <link href="{{ asset('assets/vendor/bootstrap-datepicker-master/css/bootstrap-datepicker.min.css') }}"
         rel="stylesheet">
+    <link rel="stylesheet" href="{{ asset('assets/vendor/select2/css/select2.min.css') }}">
 
     <!-- DataTables -->
     <link href="{{ asset('assets/vendor/datatables/css/jquery.dataTables.min.css') }}" rel="stylesheet">
@@ -86,15 +87,22 @@
         <div class="content-body">
             <!-- row -->
             <div class="container-fluid">
-                <div class="form-head page-titles d-flex align-items-center">
-                    <div class="me-auto d-lg-block d-block">
-                        <h4 class="mb-1">Trashed Branches</h4>
-                        <ol class="breadcrumb">
-                            <li class="breadcrumb-item active"><a href="javascript:void(0)">Branches</a></li>
-                            <li class="breadcrumb-item"><a href="javascript:void(0)">Trashed Branches</a></li>
-                        </ol>
+                <div class="form-head page-titles d-flex align-items-center justify-content-between">
+                    <div>
+                        <h4 class="mb-1 fw-bold">Trashed Branches</h4>
+                        <nav aria-label="breadcrumb">
+                            <ol class="breadcrumb">
+                                <li class="breadcrumb-item active"><a
+                                        href="{{ route('admin.branches.index') }}">Branches</a></li>
+                                <li class="breadcrumb-item"><a href="javascript:void(0)">Trashed</a></li>
+                            </ol>
+                        </nav>
                     </div>
-                    <a href="javascript:void(0);" class="btn btn-primary rounded light">Refresh</a>
+                    <div class="d-flex gap-2">
+                        <button class="btn btn-primary rounded light" onclick="location.reload();">
+                            Refresh
+                        </button>
+                    </div>
                 </div>
                 <div class="row">
                     <div class="col-xl-3 col-md-6">
@@ -190,6 +198,104 @@
                             </div>
                         </div>
                     </div>
+                    <div class="col-12">
+                        <div class="filter cm-content-box box-primary">
+                            <div
+                                class="content-title SlideToolHeader d-flex justify-content-between align-items-center">
+                                <div class="cpa">
+                                    <i class="fa-sharp fa-solid fa-filter me-2"></i>Filter
+                                </div>
+                                <div class="tools">
+                                    <a href="javascript:void(0);" class="expand handle">
+                                        <i class="fal fa-angle-down"></i>
+                                    </a>
+                                </div>
+                            </div>
+                            <div class="cm-content-body form excerpt">
+                                <div class="card-body">
+                                    <div class="row">
+                                        <!-- Keyword Input -->
+                                        <div class="mb-3 col-lg-3 col-md-6">
+                                            <label for="keyword" class="form-label">Keyword</label>
+                                            <input type="text" id="keyword" name="keyword" class="form-control"
+                                                placeholder="Enter Your Keyword..." required>
+                                        </div>
+
+                                        <!-- Country Selection -->
+                                        <div class="mb-3 col-lg-3 col-md-6">
+                                            <label for="country" class="form-label">Country</label>
+                                            <select id="country" name="country_id"
+                                                class="form-select dropdown-select" required>
+                                                <option value="">Select Country</option>
+                                                @foreach ($countries as $country)
+                                                    <option value="{{ $country->id }}">{{ $country->name }}</option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+
+                                        <!-- State Selection -->
+                                        <div class="mb-3 col-lg-3 col-md-6">
+                                            <label for="state" class="form-label">State</label>
+                                            <select id="state" name="state_id"
+                                                class="form-select dropdown-select" required>
+                                                <option value="">Select State</option>
+                                            </select>
+                                        </div>
+
+                                        <!-- City Selection -->
+                                        <div class="mb-3 col-lg-3 col-md-6">
+                                            <label for="city" class="form-label">City</label>
+                                            <select id="city" name="city_id" class="form-select dropdown-select"
+                                                required>
+                                                <option value="">Select City</option>
+                                            </select>
+                                        </div>
+
+                                        <!-- deleted By -->
+                                        <div class="mb-3 col-lg-3 col-md-6">
+                                            <label for="deleted_by" class="form-label">Deleted By</label>
+                                            <select id="deleted_by" name="deleted_by"
+                                                class="form-select dropdown-select">
+                                                <option value="">Select User</option>
+                                                @foreach ($userGroups as $role => $users)
+                                                    <optgroup label="{{ ucfirst($role) }}">
+                                                        @foreach ($users as $user)
+                                                            <option value="{{ $user->id }}"
+                                                                data-role="{{ $role }}">
+                                                                {{ trim($user->first_name . ' ' . $user->last_name) }}
+                                                            </option>
+                                                        @endforeach
+                                                    </optgroup>
+                                                @endforeach
+                                            </select>
+                                        </div>
+
+                                        <!-- Leader (Static Dropdown) -->
+                                        <div class="mb-3 col-lg-3 col-md-6">
+                                            <label for="leader" class="form-label">Leader
+                                                Options</label>
+                                            <select id="leader" name="leader"
+                                                class="form-select dropdown-select">
+                                                <option value="">Select Option</option>
+                                                <option value="1">Leader 1</option>
+                                                <option value="2">Leader 2</option>
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <!-- Search Button -->
+                                    <div class="row">
+                                        <div class="col-lg-4 col-md-6">
+                                            <button id="filterBranchTable" class="btn btn-primary w-100"
+                                                title="Click here to Search" type="button">
+                                                <i class="fa fa-search me-1"></i>Search
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                     <div class="col-xl-12">
                         <div class="table-responsive fs-14">
                             <table class="table display mb-4 dataTablesCard overflow-hidden card-table dataTable"
@@ -211,8 +317,7 @@
                                         <th>Leader</th>
                                         <th>Created By</th>
                                         <th>Created At</th>
-                                        <th>Updated By</th>
-                                        <th>Updated At</th>
+                                        <th>Deleted By</th>
                                         <th>Deleted At</th>
                                         <th class="text-end">Action</th>
                                     </tr>
@@ -249,6 +354,7 @@
     <script src="{{ asset('assets/vendor/bootstrap-select/dist/js/bootstrap-select.min.js') }}"></script>
     <script src="{{ asset('assets/vendor/sweetalert2/dist/sweetalert2.min.js') }}"></script>
     <script src="{{ asset('assets/vendor/bootstrap-datepicker-master/js/bootstrap-datepicker.min.js') }}"></script>
+    <script src="{{ asset('assets/vendor/select2/js/select2.full.min.js') }}"></script>
 
     <!-- DataTables -->
     <script src="{{ asset('assets/vendor/datatables/js/jquery.dataTables.min.js') }}"></script>
@@ -258,7 +364,87 @@
     <script src="{{ asset('assets/js/custom.min.js') }}"></script>
 
     <!-- Footer Scripts Section End -->
+    <script>
+        $(document).ready(function() {
+            function refreshSelect2(selector, options = {}) {
+                $(selector).select2({
+                    placeholder: options.placeholder || "Select an option",
+                    allowClear: options.allowClear !== undefined ? options.allowClear : true
+                });
+            }
 
+            function populateDropdown(selector, data, placeholder) {
+                let dropdown = $(selector);
+                dropdown.empty().append('<option value="">' + placeholder + '</option>');
+                $.each(data, function(key, value) {
+                    dropdown.append('<option value="' + value.id + '">' + value.name + '</option>');
+                });
+                refreshSelect2(selector, {
+                    placeholder: placeholder,
+                    allowClear: true
+                });
+            }
+
+            $('select.dropdown-select').select2({
+                width: '100%',
+                templateResult: function(option) {
+                    if (!option.id) return option.text; // Handle placeholder
+                    let imgUrl = $(option.element).data('image');
+                    return imgUrl ? $(
+                        `<span><img src="${imgUrl}" width="20" class="me-2"/> ${option.text}</span>`
+                    ) : $(`<span>${option.text}</span>`);
+                },
+                templateSelection: function(option) {
+                    if (!option.id) return option.text; // Handle placeholder
+                    let imgUrl = $(option.element).data('image');
+                    return imgUrl ? $(
+                        `<span><img src="${imgUrl}" width="20" class="me-2"/> ${option.text}</span>`
+                    ) : option.text;
+                }
+            });
+
+            $('#country').on('change', function() {
+                let countryId = $(this).val();
+                $('#state').html('<option value="">Loading...</option>');
+                $('#city').html('<option value="">Select a city</option>');
+
+                if (countryId) {
+                    $.ajax({
+                        url: `{{ route('states.index', '') }}/${countryId}`,
+                        type: "GET",
+                        success: function(data) {
+                            populateDropdown('#state', data, "Select a state");
+                        },
+                        error: function() {
+                            populateDropdown('#state', [], "Select a state");
+                        }
+                    });
+                } else {
+                    populateDropdown('#state', [], "Select a state");
+                }
+            });
+
+            $('#state').on('change', function() {
+                let stateId = $(this).val();
+                $('#city').html('<option value="">Loading...</option>');
+
+                if (stateId) {
+                    $.ajax({
+                        url: `{{ route('cities.index', '') }}/${stateId}`,
+                        type: "GET",
+                        success: function(data) {
+                            populateDropdown('#city', data, "Select a city");
+                        },
+                        error: function() {
+                            populateDropdown('#city', [], "Select a city");
+                        }
+                    });
+                } else {
+                    populateDropdown('#city', [], "Select a city");
+                }
+            });
+        });
+    </script>
     <script>
         $(document).ready(function() {
             // Initialize datepickers
@@ -275,9 +461,13 @@
                     url: "{{ route('admin.branches.trash.data') }}", // Ensure this route is correct
                     type: 'GET',
                     data: function(d) {
-                        d.fromDate = $('#fromDate').val();
-                        d.toDate = $('#toDate').val();
-                        d.token = $('#tokenNo').val();
+                        d.search.value = $('#keyword').val();
+                        d.country = $('#country').val();
+                        d.state = $('#state').val();
+                        d.city = $('#city').val();
+                        d.deleted_by = $('#deleted_by').val();
+                        d.deleted_by_role = $('#deleted_by option:selected').data('role');
+                        d.leader = $('#leader').val();
                     },
                     dataSrc: 'data', // Simplified to expect json.data
                     beforeSend: function(jqXHR) {
@@ -382,12 +572,8 @@
                         className: 'text-center text-nowrap'
                     },
                     {
-                        data: "updator",
+                        data: "deletor",
                         orderable: false,
-                        className: 'text-center text-nowrap'
-                    },
-                    {
-                        data: "updated_at",
                         className: 'text-center text-nowrap'
                     },
                     {

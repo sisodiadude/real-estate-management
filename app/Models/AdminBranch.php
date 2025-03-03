@@ -191,6 +191,17 @@ class AdminBranch extends Model
         return "{$prefix}-{$countryCode}-{$stateCode}-{$cityCode}-{$branchCode}";
     }
 
+    /**
+     * Set the last updated details for the branch.
+     */
+    private static function setUpdater($branch)
+    {
+        $authUser = self::getAuthenticatedUser();
+        if ($authUser) {
+            $branch->last_updated_by_id = $authUser['id'];
+            $branch->last_updated_by_type = $authUser['class'];
+        }
+    }
 
     /**
      * Automatically generate a slug before creating a branch
@@ -216,14 +227,24 @@ class AdminBranch extends Model
             }
         });
 
-        // Handle updating event
+        // Updating Event
         static::updating(function ($branch) {
-            // Store updater details
-            $authUser = self::getAuthenticatedUser();
-            if ($authUser) {
-                $branch->last_updated_by_id = $authUser['id'];
-                $branch->last_updated_by_type = $authUser['class'];
+            self::setUpdater($branch);
+        });
+
+        // Soft Deleting Event
+        static::deleting(function ($branch) {
+            if ($branch->isForceDeleting()) {
+                return; // Skip if it's a permanent delete
             }
+            self::setUpdater($branch);
+            $branch->saveQuietly(); // Prevent infinite loop
+        });
+
+        // Restoring Event
+        static::restoring(function ($branch) {
+            self::setUpdater($branch);
+            $branch->saveQuietly();
         });
     }
 
