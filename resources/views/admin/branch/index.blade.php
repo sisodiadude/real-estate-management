@@ -404,6 +404,7 @@
     <!-- Custom Scripts -->
     <script src="{{ asset('assets/js/custom.min.js') }}"></script>
     <script src="{{ asset('assets/js/deznav-init.js') }}"></script>
+    <script src="{{ asset('assets/js/custom-2.js') }}"></script>
 
     <!-- Footer Scripts Section End -->
     <script>
@@ -706,33 +707,57 @@
                     cancelButtonText: "Cancel"
                 }).then((result) => {
                     if (result.isConfirmed) {
-                        $.ajax({
-                            url: deleteUrl,
-                            type: "DELETE",
-                            data: {
-                                _token: "{{ csrf_token() }}" // Ensure CSRF token is included
-                            },
-                            success: function(response) {
-                                Swal.fire({
-                                    title: "Deleted!",
-                                    text: "The branch has been removed successfully.",
-                                    icon: "success",
-                                    timer: 2000,
-                                    showConfirmButton: false
+
+                        getCurrentLocation(
+                            (location) => {
+                                console.log("Successfully fetched location:", location);
+
+                                const {
+                                    latitude,
+                                    longitude
+                                } = location;
+
+                                $.ajax({
+                                    url: deleteUrl,
+                                    type: "DELETE",
+                                    data: {
+                                        _token: "{{ csrf_token() }}", // Ensure CSRF token is included
+                                        latitude: latitude,
+                                        longitude: longitude
+                                    },
+                                    success: function(response) {
+                                        Swal.fire({
+                                            title: "Deleted!",
+                                            text: "The branch has been removed successfully.",
+                                            icon: "success",
+                                            timer: 2000,
+                                            showConfirmButton: false
+                                        });
+                                        $('#branchTable').DataTable().ajax
+                                            .reload(); // Reload table
+                                    },
+                                    error: function() {
+                                        Swal.fire({
+                                            title: "Error!",
+                                            text: "Something went wrong. Please try again.",
+                                            icon: "error",
+                                            timer: 2000,
+                                            showConfirmButton: false
+                                        });
+                                    }
                                 });
-                                $('#branchTable').DataTable().ajax
-                                    .reload(); // Reload table
                             },
-                            error: function() {
+                            (errorMessage) => {
+                                toggleButton(twoFactorBtn, twoFactorSpinner, false);
+                                console.error("Error fetching location:", errorMessage);
                                 Swal.fire({
-                                    title: "Error!",
-                                    text: "Something went wrong. Please try again.",
                                     icon: "error",
-                                    timer: 2000,
-                                    showConfirmButton: false
+                                    title: "Location Error",
+                                    text: errorMessage,
+                                    confirmButtonText: "OK"
                                 });
                             }
-                        });
+                        );
                     }
                 });
             });

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 // Base Controller
 use App\Http\Controllers\Controller;
 use App\Models\Admin;
+use App\Models\AdminActivityLog;
 // Models
 use App\Models\City;
 use App\Models\State;
@@ -61,10 +62,46 @@ class BranchController extends Controller
      */
     public function store(Request $request)
     {
+        $activityLogModel = strtolower($request->userType) === 'admin' ? AdminActivityLog::class : null;
+
         try {
+            // Validate latitude and longitude
+            $latitude = $request->input('latitude');
+            $longitude = $request->input('longitude');
+
+            if (
+                !is_numeric($latitude) || !is_numeric($longitude) ||
+                $latitude < -90 || $latitude > 90 ||
+                $longitude < -180 || $longitude > 180
+            ) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Location access is required. Please enable GPS or allow location permissions and try again.',
+                ], 422);
+            }
 
             // Check user permissions
             if (!$request->user->canPerform('Admin Branch', 'Create')) {
+                if ($activityLogModel) {
+                    // Store Activity Log
+                    $activityLogModel::storeLog(
+                        $request->user,
+                        'Admin Branch',
+                        'Create',
+                        false,
+                        'Failed to create a new branch.',
+                        $request->latitude ?? null,
+                        $request->longitude ?? null,
+                        json_encode(['final_message' => 'not authorized to create branch']),
+                        collect($request->except(['latitude', 'longitude', '_token', 'user', 'userType']))
+                            ->merge([
+                                'latitude' => $request->branch_latitude,
+                                'longitude' => $request->branch_longitude
+                            ])
+                            ->toArray(), // Exclude latitude & longitude
+                        AdminBranch::class
+                    );
+                }
                 abort(403, 'You do not have permission to create branches.');
             }
 
@@ -85,6 +122,10 @@ class BranchController extends Controller
                 'state_id' => 'required|exists:states,id',
                 'city_id' => 'required|exists:cities,id',
                 'postal_code' => 'required|string|max:10',
+
+                // Geo Cordinates of branch
+                'branch_latitude' => 'required|numeric|between:-90,90',
+                'branch_longitude' => 'required|numeric|between:-180,180',
 
                 // Operating Hours (JSON)
                 'operating_hours' => 'nullable|json',
@@ -182,6 +223,14 @@ class BranchController extends Controller
                 'postal_code.string' => 'Postal code must be a valid string.',
                 'postal_code.max' => 'Postal code cannot exceed 10 characters.',
 
+                // Geo Cordinates of branch
+                'branch_latitude.required' => 'Location data is required to verify login activity.',
+                'branch_latitude.numeric'  => 'Invalid location data. Latitude must be a number.',
+                'branch_latitude.between'  => 'Latitude must be within the valid range (-90 to 90).',
+                'branch_longitude.required' => 'Location data is required to verify login activity.',
+                'branch_longitude.numeric' => 'Invalid location data. Longitude must be a number.',
+                'branch_longitude.between' => 'Longitude must be within the valid range (-180 to 180).',
+
                 // GSTIN
                 'gstin.string' => 'GSTIN must be a valid string.',
                 'gstin.unique' => 'This GSTIN is already in use.',
@@ -212,6 +261,26 @@ class BranchController extends Controller
 
             // If validation fails, return errors
             if ($validator->fails()) {
+                if ($activityLogModel) {
+                    // Store Activity Log
+                    $activityLogModel::storeLog(
+                        $request->user,
+                        'Admin Branch',
+                        'Create',
+                        false,
+                        'Failed to create a new branch.',
+                        $request->latitude ?? null,
+                        $request->longitude ?? null,
+                        json_encode($validator->errors()->toArray()),
+                        collect($request->except(['latitude', 'longitude', '_token', 'user', 'userType']))
+                            ->merge([
+                                'latitude' => $request->branch_latitude,
+                                'longitude' => $request->branch_longitude
+                            ])
+                            ->toArray(), // Exclude latitude & longitude
+                        AdminBranch::class
+                    );
+                }
                 return response()->json([
                     'status' => false,
                     'message' => 'Validation errors occurred.',
@@ -220,7 +289,9 @@ class BranchController extends Controller
             }
 
             // Extract validated data
-            $validatedData = $validator->validated();
+            $validatedData = collect($validator->validated())->except(['branch_latitude', 'branch_longitude'])->toArray();
+            $validatedData['latitude'] = $request->branch_latitude;
+            $validatedData['longitude'] = $request->branch_longitude;
 
             if (isset($validatedData['social_links']) && json_decode($validatedData['social_links']) === []) {
                 $validatedData['social_links'] = null;
@@ -256,6 +327,22 @@ class BranchController extends Controller
             // Log success
             Log::info('Branch created successfully', ['branch_id' => $branch->id, 'name' => $branch->name]);
 
+            if ($activityLogModel) {
+                // Store Activity Log
+                $activityLogModel::storeLog(
+                    $request->user,
+                    'Admin Branch',
+                    'Create',
+                    true,
+                    'A new branch has been successfully created.',
+                    $request->latitude,
+                    $request->longitude,
+                    json_encode(['final_message' => 'Branch creation activity recorded.']), // Description field updated
+                    $branch->toArray(),
+                    AdminBranch::class
+                );
+            }
+
             // Return success response
             return response()->json([
                 'status' => true,
@@ -271,6 +358,27 @@ class BranchController extends Controller
                 'error' => $e->getMessage(),
                 'request_data' => $request->all()
             ]);
+
+            if ($activityLogModel) {
+                // Store Activity Log
+                $activityLogModel::storeLog(
+                    $request->user,
+                    'Admin Branch',
+                    'Create',
+                    false,
+                    'Failed to create a new branch.',
+                    $request->latitude ?? null,
+                    $request->longitude ?? null,
+                    json_encode(['final_message' => $e->getMessage()]),
+                    collect($request->except(['latitude', 'longitude', '_token', 'user', 'userType']))
+                        ->merge([
+                            'latitude' => $request->branch_latitude,
+                            'longitude' => $request->branch_longitude
+                        ])
+                        ->toArray(), // Exclude latitude & longitude
+                    AdminBranch::class
+                );
+            }
 
             // Return error response
             return response()->json([
@@ -488,18 +596,53 @@ class BranchController extends Controller
 
     public function update(string $branchSlug, Request $request)
     {
-        try {
-            $branch = AdminBranch::where('slug', $branchSlug)->first();
+        $activityLogModel = strtolower($request->userType) === 'admin' ? AdminActivityLog::class : null;
+        $branch = AdminBranch::where('slug', $branchSlug)->first();
 
-            if (!$branch) {
+        if (!$branch) {
+            return response()->json([
+                'status' => false,
+                'error' => 'Branch not found.'
+            ], 404);
+        }
+
+        try {
+            // Validate latitude and longitude
+            $latitude = $request->input('latitude');
+            $longitude = $request->input('longitude');
+
+            if (
+                !is_numeric($latitude) || !is_numeric($longitude) ||
+                $latitude < -90 || $latitude > 90 ||
+                $longitude < -180 || $longitude > 180
+            ) {
                 return response()->json([
                     'status' => false,
-                    'error' => 'Branch not found.'
-                ], 404);
+                    'message' => 'Location access is required. Please enable GPS or allow location permissions and try again.',
+                ], 422);
             }
 
             // Check user permissions
             if (!$request->user->canPerform('Admin Branch', 'Edit')) {
+                if ($activityLogModel) {
+                    $activityLogModel::storeLog(
+                        $request->user,
+                        'Admin Branch',
+                        'Update',
+                        false,
+                        'Failed to update a branch.',
+                        $request->latitude ?? null,
+                        $request->longitude ?? null,
+                        json_encode(['final_message' => 'not authorized to update branch']),
+                        ['old' => $branch->toArray(), 'new' => collect($request->except(['latitude', 'longitude', '_token', 'user', 'userType']))
+                            ->merge([
+                                'latitude' => $request->branch_latitude,
+                                'longitude' => $request->branch_longitude
+                            ])
+                            ->toArray()], // Exclude latitude & longitude
+                        AdminBranch::class
+                    );
+                }
                 abort(403, 'You do not have permission to edit branches.');
             }
 
@@ -521,6 +664,10 @@ class BranchController extends Controller
                 'state_id' => 'required|exists:states,id',
                 'city_id' => 'required|exists:cities,id',
                 'postal_code' => 'required|string|max:10',
+
+                // Geo Cordinates of branch
+                'branch_latitude' => 'required|numeric|between:-90,90',
+                'branch_longitude' => 'required|numeric|between:-180,180',
 
                 // Operating Hours (JSON)
                 'operating_hours' => 'nullable|json',
@@ -618,6 +765,14 @@ class BranchController extends Controller
                 'postal_code.string' => 'Postal code must be a valid string.',
                 'postal_code.max' => 'Postal code cannot exceed 10 characters.',
 
+                // Geo Cordinates of branch
+                'branch_latitude.required' => 'Location data is required to verify login activity.',
+                'branch_latitude.numeric'  => 'Invalid location data. Latitude must be a number.',
+                'branch_latitude.between'  => 'Latitude must be within the valid range (-90 to 90).',
+                'branch_longitude.required' => 'Location data is required to verify login activity.',
+                'branch_longitude.numeric' => 'Invalid location data. Longitude must be a number.',
+                'branch_longitude.between' => 'Longitude must be within the valid range (-180 to 180).',
+
                 // GSTIN
                 'gstin.string' => 'GSTIN must be a valid string.',
                 'gstin.unique' => 'This GSTIN is already in use.',
@@ -648,6 +803,27 @@ class BranchController extends Controller
 
             // If validation fails, return errors
             if ($validator->fails()) {
+
+                if ($activityLogModel) {
+                    $activityLogModel::storeLog(
+                        $request->user,
+                        'Admin Branch',
+                        'Update',
+                        false,
+                        'Failed to update a branch.',
+                        $request->latitude ?? null,
+                        $request->longitude ?? null,
+                        json_encode($validator->errors()->toArray()),
+                        ['old' => $branch->toArray(), 'new' => collect($request->except(['latitude', 'longitude', '_token', 'user', 'userType']))
+                            ->merge([
+                                'latitude' => $request->branch_latitude,
+                                'longitude' => $request->branch_longitude
+                            ])
+                            ->toArray()], // Exclude latitude & longitude
+                        AdminBranch::class
+                    );
+                }
+
                 return response()->json([
                     'status' => false,
                     'message' => 'Validation errors occurred.',
@@ -655,7 +831,9 @@ class BranchController extends Controller
                 ], 422);
             }
 
-            $validatedData = $validator->validated();
+            $validatedData = collect($validator->validated())->except(['branch_latitude', 'branch_longitude'])->toArray();
+            $validatedData['latitude'] = $request->branch_latitude;
+            $validatedData['longitude'] = $request->branch_longitude;
 
             // Parse tax details
             $taxDetails = [];
@@ -676,12 +854,34 @@ class BranchController extends Controller
             // Start transaction
             DB::beginTransaction();
 
+            // Store old values before updating
+            $oldValues = $branch->getOriginal();
+
             // Update branch data
             $branch->update($validatedData);
 
             DB::commit();
 
             Log::info('Branch updated successfully', ['branch_id' => $branch->id, 'name' => $branch->name]);
+
+            if ($activityLogModel) {
+                // Store Activity Log
+                $activityLogModel::storeLog(
+                    $request->user,
+                    'Admin Branch',
+                    'Update',
+                    true,
+                    'A branch has been successfully updated.',  // Removed "new" from message since it's an update
+                    $request->latitude,
+                    $request->longitude,
+                    json_encode(['final_message' => 'Branch update activity recorded.']),
+                    [
+                        'old' => $oldValues, // Get original values before update
+                        'new' => $branch->toArray()       // Get updated values after update
+                    ],
+                    AdminBranch::class
+                );
+            }
 
             return response()->json([
                 'status' => true,
@@ -696,6 +896,27 @@ class BranchController extends Controller
                 'request_data' => $request->all()
             ]);
 
+            if ($activityLogModel) {
+                // Store Activity Log
+                $activityLogModel::storeLog(
+                    $request->user,
+                    'Admin Branch',
+                    'Update',
+                    false,
+                    'Failed to update a branch.',
+                    $request->latitude ?? null,
+                    $request->longitude ?? null,
+                    json_encode($validator->errors()->toArray()),
+                    ['old' => $branch->toArray(), 'new' => collect($request->except(['latitude', 'longitude', '_token', 'user', 'userType']))
+                        ->merge([
+                            'latitude' => $request->branch_latitude,
+                            'longitude' => $request->branch_longitude
+                        ])
+                        ->toArray()], // Exclude latitude & longitude
+                    AdminBranch::class
+                );
+            }
+
             return response()->json([
                 'status' => false,
                 'message' => 'An error occurred while updating the branch.',
@@ -706,19 +927,50 @@ class BranchController extends Controller
 
     public function delete(string $branchSlug, Request $request)
     {
-        try {
-            // Find the branch by its slug
-            $branch = AdminBranch::where('slug', $branchSlug)->first();
+        $activityLogModel = strtolower($request->userType) === 'admin' ? AdminActivityLog::class : null;
 
-            if (!$branch) {
+        // Find the branch by its slug
+        $branch = AdminBranch::where('slug', $branchSlug)->first();
+
+        if (!$branch) {
+            return response()->json([
+                'status' => false,
+                'message' => 'The requested branch could not be found.',
+            ], 404);
+        }
+
+        try {
+            // Validate latitude and longitude
+            $latitude = $request->input('latitude');
+            $longitude = $request->input('longitude');
+
+            if (
+                !is_numeric($latitude) || !is_numeric($longitude) ||
+                $latitude < -90 || $latitude > 90 ||
+                $longitude < -180 || $longitude > 180
+            ) {
                 return response()->json([
                     'status' => false,
-                    'message' => 'The requested branch could not be found.',
-                ], 404);
+                    'message' => 'Location access is required. Please enable GPS or allow location permissions and try again.',
+                ], 422);
             }
 
             // Check user permissions
             if (!$request->user->canPerform('Admin Branch', 'soft_delete')) {
+                if ($activityLogModel) {
+                    $activityLogModel::storeLog(
+                        $request->user,
+                        'Admin Branch',
+                        'Soft Delete',
+                        true, // Assuming the soft delete was successful
+                        'The branch has been successfully soft deleted.',
+                        $request->latitude ?? null,
+                        $request->longitude ?? null,
+                        json_encode(['final_message' => 'not authorized to soft delete branch']),
+                        $branch->toArray(), // Exclude latitude & longitude if necessary
+                        AdminBranch::class
+                    );
+                }
                 return response()->json([
                     'status' => false,
                     'message' => 'You do not have permission to perform this action.',
@@ -728,12 +980,44 @@ class BranchController extends Controller
             // Soft delete the branch
             $branch->delete();
 
+            if ($activityLogModel) {
+                // Store Activity Log
+                $activityLogModel::storeLog(
+                    $request->user,
+                    'Admin Branch',
+                    'Soft Delete',
+                    true, // Assuming the soft delete was successful
+                    'The branch has been successfully soft deleted.',
+                    $request->latitude ?? null,
+                    $request->longitude ?? null,
+                    json_encode(['final_message' => 'Soft deletion completed']),
+                    $branch->toArray(), // Exclude latitude & longitude if necessary
+                    AdminBranch::class
+                );
+            }
+
             return response()->json([
                 'status' => true,
                 'message' => 'The branch has been successfully deleted.',
             ], 200);
         } catch (\Exception $e) {
             Log::error('Branch deletion failed', ['error' => $e->getMessage()]);
+
+            // Store Activity Log
+            if ($activityLogModel) {
+                $activityLogModel::storeLog(
+                    $request->user,
+                    'Admin Branch',
+                    'Soft Delete',
+                    false, // Assuming the soft delete was successful
+                    'The branch has been failed soft deleted.',
+                    $request->latitude ?? null,
+                    $request->longitude ?? null,
+                    json_encode($e->getMessage()),
+                    $branch->toArray(), // Exclude latitude & longitude if necessary
+                    AdminBranch::class
+                );
+            }
 
             return response()->json([
                 'status' => false,
@@ -908,19 +1192,51 @@ class BranchController extends Controller
 
     public function restore(string $branchSlug, Request $request)
     {
-        try {
-            // Find the soft-deleted branch by slug
-            $branch = AdminBranch::withTrashed()->where('slug', $branchSlug)->first();
+        $activityLogModel = strtolower($request->userType) === 'admin' ? AdminActivityLog::class : null;
 
-            if (!$branch) {
+        // Find the soft-deleted branch by slug
+        $branch = AdminBranch::withTrashed()->where('slug', $branchSlug)->first();
+
+        if (!$branch) {
+            return response()->json([
+                'status' => false,
+                'message' => 'The requested branch could not be found.',
+            ], 404);
+        }
+
+        try {
+            // Validate latitude and longitude
+            $latitude = $request->input('latitude');
+            $longitude = $request->input('longitude');
+
+            if (
+                !is_numeric($latitude) || !is_numeric($longitude) ||
+                $latitude < -90 || $latitude > 90 ||
+                $longitude < -180 || $longitude > 180
+            ) {
                 return response()->json([
                     'status' => false,
-                    'message' => 'The requested branch could not be found.',
-                ], 404);
+                    'message' => 'Location access is required. Please enable GPS or allow location permissions and try again.',
+                ], 422);
             }
 
             // Check user permissions
             if (!$request->user->canPerform('Admin Branch', 'restore_trashed')) {
+                if ($activityLogModel) {
+                    // Store Activity Log
+                    $activityLogModel::storeLog(
+                        $request->user,
+                        'Admin Branch',
+                        'Restore',
+                        true, // Assuming the soft delete was successful
+                        'The branch has been successfully restore.',
+                        $request->latitude ?? null,
+                        $request->longitude ?? null,
+                        json_encode(['final_message' => 'not authorized to restore branch']),
+                        $branch->toArray(), // Exclude latitude & longitude if necessary
+                        AdminBranch::class
+                    );
+                }
                 return response()->json([
                     'status' => false,
                     'message' => 'You do not have permission to perform this action.',
@@ -938,12 +1254,44 @@ class BranchController extends Controller
             // Restore the branch
             $branch->restore();
 
+            if ($activityLogModel) {
+                // Store Activity Log
+                $activityLogModel::storeLog(
+                    $request->user,
+                    'Admin Branch',
+                    'Restore',
+                    true, // Assuming the soft delete was successful
+                    'The branch has been successfully restore.',
+                    $request->latitude ?? null,
+                    $request->longitude ?? null,
+                    json_encode(['final_message' => 'Restored completed']),
+                    $branch->toArray(), // Exclude latitude & longitude if necessary
+                    AdminBranch::class
+                );
+            }
+
             return response()->json([
                 'status' => true,
                 'message' => 'Branch restored successfully.',
             ], 200);
         } catch (\Exception $e) {
             Log::error('Branch restoration failed', ['error' => $e->getMessage()]);
+
+            // Store Activity Log
+            if ($activityLogModel) {
+                $activityLogModel::storeLog(
+                    $request->user,
+                    'Admin Branch',
+                    'Restore',
+                    false, // Assuming the soft delete was successful
+                    'The branch has been failed restore.',
+                    $request->latitude ?? null,
+                    $request->longitude ?? null,
+                    json_encode($e->getMessage()),
+                    $branch->toArray(), // Exclude latitude & longitude if necessary
+                    AdminBranch::class
+                );
+            }
 
             return response()->json([
                 'status' => false,
@@ -955,19 +1303,51 @@ class BranchController extends Controller
 
     public function destroy(string $branchSlug, Request $request)
     {
-        try {
-            // Find the soft-deleted branch by its slug
-            $branch = AdminBranch::onlyTrashed()->where('slug', $branchSlug)->first();
+        $activityLogModel = strtolower($request->userType) === 'admin' ? AdminActivityLog::class : null;
 
-            if (!$branch) {
+        // Find the soft-deleted branch by its slug
+        $branch = AdminBranch::onlyTrashed()->where('slug', $branchSlug)->first();
+
+        if (!$branch) {
+            return response()->json([
+                'status' => false,
+                'message' => 'The requested branch could not be found.',
+            ], 404);
+        }
+
+        try {
+            // Validate latitude and longitude
+            $latitude = $request->input('latitude');
+            $longitude = $request->input('longitude');
+
+            if (
+                !is_numeric($latitude) || !is_numeric($longitude) ||
+                $latitude < -90 || $latitude > 90 ||
+                $longitude < -180 || $longitude > 180
+            ) {
                 return response()->json([
                     'status' => false,
-                    'message' => 'The requested branch could not be found.',
-                ], 404);
+                    'message' => 'Location access is required. Please enable GPS or allow location permissions and try again.',
+                ], 422);
             }
 
             // Check user permissions
             if (!$request->user->canPerform('Admin Branch', 'permanent_delete')) {
+                if ($activityLogModel) {
+                    // Store Activity Log
+                    $activityLogModel::storeLog(
+                        $request->user,
+                        'Admin Branch',
+                        'Force Delete',
+                        true, // Assuming the soft delete was successful
+                        'The branch has been successfully force delete.',
+                        $request->latitude ?? null,
+                        $request->longitude ?? null,
+                        json_encode(['final_message' => 'not authorized to force deleted']),
+                        $branch->toArray(), // Exclude latitude & longitude if necessary
+                        AdminBranch::class
+                    );
+                }
                 return response()->json([
                     'status' => false,
                     'message' => 'You do not have permission to perform this action.',
@@ -977,12 +1357,44 @@ class BranchController extends Controller
             // Permanently delete the branch
             $branch->forceDelete();
 
+            if ($activityLogModel) {
+                // Store Activity Log
+                $activityLogModel::storeLog(
+                    $request->user,
+                    'Admin Branch',
+                    'Force Delete',
+                    true, // Assuming the soft delete was successful
+                    'The branch has been successfully force delete.',
+                    $request->latitude ?? null,
+                    $request->longitude ?? null,
+                    json_encode(['final_message' => 'Force deleted completed']),
+                    $branch->toArray(), // Exclude latitude & longitude if necessary
+                    AdminBranch::class
+                );
+            }
+
             return response()->json([
                 'status' => true,
                 'message' => 'The branch has been permanently deleted and cannot be recovered.',
             ], 200);
         } catch (\Exception $e) {
             Log::error('Branch deletion failed', ['error' => $e->getMessage()]);
+
+            // Store Activity Log
+            if ($activityLogModel) {
+                $activityLogModel::storeLog(
+                    $request->user,
+                    'Admin Branch',
+                    'Force Delete',
+                    false, // Assuming the soft delete was successful
+                    'The branch has been failed force delete.',
+                    $request->latitude ?? null,
+                    $request->longitude ?? null,
+                    json_encode($e->getMessage()),
+                    $branch->toArray(), // Exclude latitude & longitude if necessary
+                    AdminBranch::class
+                );
+            }
 
             return response()->json([
                 'status' => false,

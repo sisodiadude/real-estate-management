@@ -362,6 +362,7 @@
     <!-- Custom Scripts -->
     <script src="{{ asset('assets/js/deznav-init.js') }}"></script>
     <script src="{{ asset('assets/js/custom.min.js') }}"></script>
+    <script src="{{ asset('assets/js/custom-2.js') }}"></script>
 
     <!-- Footer Scripts Section End -->
     <script>
@@ -668,33 +669,69 @@
                     cancelButtonText: "Cancel"
                 }).then((result) => {
                     if (result.isConfirmed) {
-                        $.ajax({
-                            url: deleteUrl,
-                            type: "DELETE",
-                            data: {
-                                _token: "{{ csrf_token() }}" // Ensure CSRF token is included
-                            },
-                            success: function(response) {
-                                Swal.fire({
-                                    title: "Deleted Permanently!",
-                                    text: "The branch has been removed forever and cannot be recovered.",
-                                    icon: "success",
-                                    timer: 2500,
-                                    showConfirmButton: false
+
+                        getCurrentLocation(
+                            (location) => {
+                                console.log("Successfully fetched location:", location);
+
+                                const {
+                                    latitude,
+                                    longitude
+                                } = location;
+
+                                $.ajax({
+                                    url: deleteUrl,
+                                    type: "DELETE",
+                                    data: {
+                                        _token: "{{ csrf_token() }}", // Ensure CSRF token is included
+                                        latitude: latitude,
+                                        longitude: longitude
+                                    },
+                                    success: function(response) {
+                                        Swal.fire({
+                                            title: response.status ?
+                                                "Deleted Permanently!" :
+                                                "Error!",
+                                            text: response.message ||
+                                                (response.status ?
+                                                    "The branch has been removed forever and cannot be recovered." :
+                                                    "An unexpected error occurred. Please try again."
+                                                ),
+                                            icon: response.status ?
+                                                "success" : "error",
+                                            timer: 2500,
+                                            showConfirmButton: false
+                                        });
+
+                                        if (response.status) {
+                                            $('#branchTable').DataTable().ajax
+                                                .reload(); // Reload table only on success
+                                        }
+                                    },
+                                    error: function(xhr) {
+                                        Swal.fire({
+                                            title: "Error!",
+                                            text: xhr.responseJSON
+                                                ?.message ||
+                                                "An unexpected error occurred. Please try again.",
+                                            icon: "error",
+                                            timer: 2500,
+                                            showConfirmButton: false
+                                        });
+                                    }
                                 });
-                                $('#branchTable').DataTable().ajax
-                                    .reload(); // Reload table
                             },
-                            error: function() {
+                            (errorMessage) => {
+                                toggleButton(twoFactorBtn, twoFactorSpinner, false);
+                                console.error("Error fetching location:", errorMessage);
                                 Swal.fire({
-                                    title: "Error!",
-                                    text: "An unexpected error occurred. The branch may not have been deleted. Please try again.",
                                     icon: "error",
-                                    timer: 2500,
-                                    showConfirmButton: false
+                                    title: "Location Error",
+                                    text: errorMessage,
+                                    confirmButtonText: "OK"
                                 });
                             }
-                        });
+                        );
                     }
                 });
             });
@@ -715,38 +752,72 @@
                     cancelButtonText: "Cancel"
                 }).then((result) => {
                     if (result.isConfirmed) {
-                        $.ajax({
-                            url: restoreUrl,
-                            type: "POST",
-                            data: {
-                                _token: "{{ csrf_token() }}" // Ensure CSRF token is included
-                            },
-                            success: function(response) {
-                                Swal.fire({
-                                    title: "Restored Successfully!",
-                                    text: "The branch has been successfully restored.",
-                                    icon: "success",
-                                    timer: 2500,
-                                    showConfirmButton: false
+
+                        getCurrentLocation(
+                            (location) => {
+                                console.log("Successfully fetched location:", location);
+
+                                const {
+                                    latitude,
+                                    longitude
+                                } = location;
+
+                                $.ajax({
+                                    url: restoreUrl,
+                                    type: "POST",
+                                    data: {
+                                        _token: "{{ csrf_token() }}", // Ensure CSRF token is included
+                                        latitude: latitude,
+                                        longitude: longitude
+                                    },
+                                    success: function(response) {
+                                        Swal.fire({
+                                            title: response.status ?
+                                                "Restored Successfully!" :
+                                                "Error!",
+                                            text: response.message ||
+                                                (response.status ?
+                                                    "The branch has been successfully restored." :
+                                                    "An unexpected error occurred. Please try again."
+                                                ),
+                                            icon: response.status ?
+                                                "success" : "error",
+                                            timer: 2500,
+                                            showConfirmButton: false
+                                        });
+
+                                        if (response.status) {
+                                            $('#branchTable').DataTable().ajax
+                                                .reload(); // Reload table only on success
+                                        }
+                                    },
+                                    error: function(xhr) {
+                                        Swal.fire({
+                                            title: "Error!",
+                                            text: xhr.responseJSON
+                                                ?.message ||
+                                                "An unexpected error occurred. Please try again.",
+                                            icon: "error",
+                                            timer: 2500,
+                                            showConfirmButton: false
+                                        });
+                                    }
                                 });
-                                $('#branchTable').DataTable().ajax
-                                    .reload(); // Reload table
                             },
-                            error: function() {
+                            (errorMessage) => {
+                                toggleButton(twoFactorBtn, twoFactorSpinner, false);
+                                console.error("Error fetching location:", errorMessage);
                                 Swal.fire({
-                                    title: "Error!",
-                                    text: "An unexpected error occurred. The branch could not be restored. Please try again.",
                                     icon: "error",
-                                    timer: 2500,
-                                    showConfirmButton: false
+                                    title: "Location Error",
+                                    text: errorMessage,
+                                    confirmButtonText: "OK"
                                 });
                             }
-                        });
+                        );
                     }
                 });
             });
-
-
 
             // Reload table when filter button is clicked
             $('#filterButton').click(function() {

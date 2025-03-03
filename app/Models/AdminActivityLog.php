@@ -95,7 +95,7 @@ class AdminActivityLog extends Model
             return self::create([
                 'module' => $module,
                 'action' => $action,
-                'description' => $description,
+                'description' => json_encode($description ?? []),
                 'data' => json_encode($data ?? []),
                 'model_class' => $modelClass,
                 'route' => $request->path(),
@@ -114,6 +114,7 @@ class AdminActivityLog extends Model
             ]);
         } catch (\Exception $e) {
             Log::error('Failed to store admin activity log: ' . $e->getMessage(), ['exception' => $e]);
+            prArr($e->getMessage(), 1);
             return null;
         }
     }

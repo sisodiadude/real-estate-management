@@ -184,11 +184,22 @@ class AdminBranch extends Model
 
         $branchNumber = $latestBranch ? (intval(substr($latestBranch->branch_id, -3)) + 1) : 1;
 
-        // Format: 001 (Incremental Code)
-        $branchCode = str_pad($branchNumber, 3, '0', STR_PAD_LEFT);
+        do {
+            // Format: 001 (Incremental Code)
+            $branchCode = str_pad($branchNumber, 3, '0', STR_PAD_LEFT);
 
-        // Combine Everything: BR-IN-HR-DEL-001
-        return "{$prefix}-{$countryCode}-{$stateCode}-{$cityCode}-{$branchCode}";
+            // Combine Everything: BR-IN-HR-DEL-001
+            $generatedBranchID = "{$prefix}-{$countryCode}-{$stateCode}-{$cityCode}-{$branchCode}";
+
+            // Check if this ID already exists in the database
+            $exists = self::where('branch_unique_id', $generatedBranchID)->exists();
+
+            if ($exists) {
+                $branchNumber++; // Increment if already exists
+            }
+        } while ($exists); // Repeat until a unique ID is found
+
+        return $generatedBranchID;
     }
 
     /**
