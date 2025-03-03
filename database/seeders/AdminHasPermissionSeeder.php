@@ -21,7 +21,7 @@ class AdminHasPermissionSeeder extends Seeder
             return;
         }
 
-        $permissions = AdminPermission::where('group', 'Admin Branch')->get();
+        $permissions = AdminPermission::all();
 
         foreach ($admins as $admin) {
             foreach ($permissions as $permission) {

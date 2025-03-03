@@ -39,12 +39,12 @@
                         <span class="nav-text">Departments</span>
                     </a>
                     <ul aria-expanded="false">
-                        @can('create', 'Admin Department')
-                            <li><a href="{{ route('admin.Departments.create') }}">Add Department</a></li>
-                        @endcan
-                        @can('view_all', 'Admin Department')
-                            <li><a href="{{ route('admin.Departments.index') }}">All Departments</a></li>
-                        @endcan
+                        @if ($user->canPerform('Admin Department', 'create'))
+                            <li><a href="{{ route('admin.departments.create') }}">Add Department</a></li>
+                        @endif
+                        @if ($user->canPerform('Admin Department', 'view_all'))
+                            <li><a href="{{ route('admin.departments.index') }}">All Departments</a></li>
+                        @endif
                     </ul>
                 </li>
             @endif
