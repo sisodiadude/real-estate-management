@@ -282,6 +282,11 @@ class AdminBranch extends Model
         return $this->belongsTo(Admin::class, 'leader_id');
     }
 
+    public function departments()
+    {
+        return $this->hasMany(AdminDepartment::class, 'branch_id', 'id');
+    }
+
     /**
      * Scope to filter branches by status.
      */

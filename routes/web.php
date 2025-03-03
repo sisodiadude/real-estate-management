@@ -6,6 +6,7 @@ use App\Http\Controllers\Common\StateController;
 use App\Http\Controllers\Common\CityController;
 use App\Http\Controllers\Admin\AuthController as AdminAuthController;
 use App\Http\Controllers\Admin\DashboradController as AdminDashboardController;
+use App\Http\Controllers\Admin\DepartmentController as AdminDepartmentController;
 use App\Http\Controllers\Admin\BranchController as AdminBranchController;
 /*
 |--------------------------------------------------------------------------
@@ -93,8 +94,8 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::prefix('departments')->name('departments.')->group(function () {
 
             // Branch CRUD
-            Route::get('create', [AdminBranchController::class, 'create'])->name('create'); // Create department form
-            Route::post('store', [AdminBranchController::class, 'store'])->name('store'); // Store department
+            Route::get('create', [AdminDepartmentController::class, 'create'])->name('create'); // Create department form
+            Route::post('store', [AdminDepartmentController::class, 'store'])->name('store'); // Store department
             Route::get('/', [AdminBranchController::class, 'index'])->name('index'); // List all departments
             Route::get('data', [AdminBranchController::class, 'getDepartments'])->name('getDepartments');
 

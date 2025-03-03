@@ -42,8 +42,6 @@
     <link rel="stylesheet" href="{{ asset('assets/vendor/select2/css/select2.min.css') }}">
     <link href="{{ asset('assets/vendor/dropzone/dist/dropzone.css') }}" rel="stylesheet">
     <link href="{{ asset('assets/css/style.css') }}" rel="stylesheet">
-    <link href="{{ asset('assets/css/sisodia-dropzone.css') }}" rel="stylesheet">
-
 </head>
 
 <body>
@@ -82,7 +80,7 @@
             <div class="container-fluid">
                 <div class="page-titles">
                     <ol class="breadcrumb">
-                        <li class="breadcrumb-item"><a href="{{ route('admin.branches.index') }}">Branches</a></li>
+                        <li class="breadcrumb-item"><a href="{{ route('admin.departments.index') }}">Branches</a></li>
                         <li class="breadcrumb-item active"><a href="javascript:void(0)">Add Branch</a></li>
                     </ol>
                 </div>
@@ -94,7 +92,7 @@
                                 <h4 class="card-title">Add Branch</h4>
                             </div>
                             <div class="card-body">
-                                <form action="{{ route('admin.branches.store') }}" method="POST"
+                                <form action="{{ route('admin.departments.store') }}" method="POST"
                                     class="needs-validation" id="branchForm" novalidate>
                                     @csrf
                                     <div class="row g-3">
@@ -124,12 +122,6 @@
                                             <div class="invalid-feedback">Mobile number is required.</div>
                                         </div>
                                         <div class="col-md-4">
-                                            <label for="date_of_start" class="form-label fw-bold">Date of
-                                                Start</label>
-                                            <input type="date" id="date_of_start" name="date_of_start"
-                                                class="form-control">
-                                        </div>
-                                        <div class="col-md-4">
                                             <label for="status" class="form-label fw-bold">Status <span
                                                     class="text-danger">*</span></label>
                                             <select id="status" name="status" class="form-select" required>
@@ -144,11 +136,6 @@
                                         <div class="col-md-8">
                                             <label for="description" class="form-label fw-bold">Description</label>
                                             <textarea id="description" name="description" class="form-control" rows="3" placeholder="Enter description"></textarea>
-                                        </div>
-                                        <div class="col-12 mt-4">
-                                            <label for="logo" class="form-label fw-bold">Logo</label>
-                                            <input type="file" id="logo" name="logo" class="form-control"
-                                                accept="image/*">
                                         </div>
 
                                         <!-- Section: Operating Hours -->
@@ -251,37 +238,9 @@
     <script src="{{ asset('assets/vendor/dropzone/dist/dropzone.js') }}"></script>
     <script src="{{ asset('assets/js/custom.min.js') }}"></script>
     <script src="{{ asset('assets/js/deznav-init.js') }}"></script>
-    <script src="{{ asset('assets/js/sisodia-dropzone.js') }}"></script>
+    <script src="{{ asset('assets/js/custom-2.js') }}"></script>
 
     <script>
-        document.getElementById("use_branch_smtp_credentials").addEventListener("change", function() {
-            const smtpFields = document.querySelectorAll(
-                '.smtpFields'); // Get all elements with the class 'smtpFields'
-
-            if (this.checked) {
-                smtpFields.forEach(function(field) {
-                    field.classList.remove('d-none');
-
-                    // Add the 'required' attribute to all inputs and selects inside the field
-                    field.querySelectorAll('input, select').forEach(function(input) {
-                        if (!input.hasAttribute('required')) {
-                            input.setAttribute('required', true);
-                        }
-                    });
-                });
-            } else {
-                console.log("Disabled"); // Log when the checkbox is unchecked
-                smtpFields.forEach(function(field) {
-                    field.classList.add('d-none');
-
-                    // Remove the 'required' attribute from all inputs and selects inside the field
-                    field.querySelectorAll('input, select').forEach(function(input) {
-                        input.removeAttribute('required');
-                    });
-                });
-            }
-        });
-
         $(document).ready(function() {
             function refreshSelect2(selector, options = {}) {
                 $(selector).select2({
@@ -319,8 +278,6 @@
                     ) : option.text;
                 }
             });
-
-            $('input[type="file"]').sisodiaDropZone();
 
             $('#country').on('change', function() {
                 let countryId = $(this).val();
@@ -412,111 +369,136 @@
                     return;
                 }
 
-                // Get the 'use_branch_smtp_credentials' checkbox value
-                const useBranchCredentials = document.getElementById("use_branch_smtp_credentials")
-                    .checked ? 1 :
-                    0;
-
                 // AJAX Submission
                 toggleSubmitBtn(true);
 
-                const formData = new FormData(form);
+                getCurrentLocation(
+                    (location) => {
+                        console.log("Successfully fetched location:", location);
 
-                const operatingHours = {};
+                        const {
+                            latitude,
+                            longitude
+                        } = location;
 
-                // Loop through each day to get its values
-                ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"].forEach(
-                    day => {
-                        const startInput = document.querySelector(
-                            `[name="operating_hours[${day}][start]"]`);
-                        const endInput = document.querySelector(
-                            `[name="operating_hours[${day}][end]"]`);
-                        const closedCheckbox = document.querySelector(
-                            `[name="operating_hours[${day}][closed]"]`);
+                        const formData = new FormData(form);
+                        formData.append("latitude", latitude);
+                        formData.append("longitude", longitude);
 
-                        operatingHours[day] = {
-                            start: startInput ? startInput.value : null,
-                            end: endInput ? endInput.value : null,
-                            closed: closedCheckbox ? closedCheckbox.checked : false
-                        };
-                    });
+                        const operatingHours = {};
 
-                // Append operating hours JSON to formData
-                formData.append("operating_hours", JSON.stringify(operatingHours));
+                        // Loop through each day to get its values
+                        ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"]
+                        .forEach(
+                            day => {
+                                const startInput = document.querySelector(
+                                    `[name="operating_hours[${day}][start]"]`);
+                                const endInput = document.querySelector(
+                                    `[name="operating_hours[${day}][end]"]`);
+                                const closedCheckbox = document.querySelector(
+                                    `[name="operating_hours[${day}][closed]"]`);
 
-                fetch("{{ route('admin.branches.store') }}", {
-                        method: "POST",
-                        body: formData,
-                        headers: {
-                            "X-CSRF-TOKEN": "{{ csrf_token() }}",
-                            "Accept": "application/json"
-                        }
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        const messageBox = document.getElementById("responseMessage");
-
-                        if (data.status) {
-                            Swal.fire({
-                                icon: 'success',
-                                title: 'Success!',
-                                text: data
-                                    .message, // Optional message that comes from the response
-                                confirmButtonText: 'OK',
-                                timer: 3000, // Automatically close after 3 seconds
-                                timerProgressBar: true, // Optional: to show a progress bar while the timer counts down
-                            }).then(() => {
-                                // Redirect to the URL passed in the response after the Swal is closed
-                                window.location.href = data.redirect_url;
+                                operatingHours[day] = {
+                                    start: startInput ? startInput.value : null,
+                                    end: endInput ? endInput.value : null,
+                                    closed: closedCheckbox ? closedCheckbox.checked : false
+                                };
                             });
-                        } else {
-                            if (data.errors) {
-                                let firstInput = null; // Initialize firstInput
 
-                                Object.entries(data.errors).forEach(([key, value], index) => {
-                                    const input = document.querySelector(`[name="${key}"]`);
-                                    if (input) {
-                                        if (!firstInput) { // Set firstInput only once
-                                            firstInput = input;
-                                        }
+                        // Append operating hours JSON to formData
+                        formData.append("operating_hours", JSON.stringify(operatingHours));
 
-                                        input.classList.add("is-invalid");
-                                        const feedbackElement = input.closest(".form-group")
-                                            ?.querySelector(".invalid-feedback");
-                                        if (feedbackElement) {
-                                            feedbackElement.textContent = value[0];
-                                        } else {
-                                            input.insertAdjacentHTML("afterend",
-                                                `<div class="invalid-feedback">${value[0]}</div>`
-                                            );
-                                        }
-                                    }
-                                });
-
-                                if (firstInput) {
-                                    firstInput.scrollIntoView({
-                                        behavior: "smooth",
-                                        block: "center"
-                                    }); // Scroll to the first invalid field
-                                    firstInput.focus(); // Set focus on the first invalid input
+                        fetch("{{ route('admin.departments.store') }}", {
+                                method: "POST",
+                                body: formData,
+                                headers: {
+                                    "X-CSRF-TOKEN": "{{ csrf_token() }}",
+                                    "Accept": "application/json"
                                 }
-                            } else {
-                                Swal.fire({
-                                    icon: "error",
-                                    title: "Oops...",
-                                    text: data.message || "Something went wrong!"
-                                });
-                            }
-                        }
-                    })
-                    .catch(error => {
-                        console.error("Error:", error);
-                        document.getElementById("responseMessage").innerHTML =
-                            `<div class="alert alert-danger">An unexpected error occurred.</div>`;
-                    })
-                    .finally(() => {
-                        toggleSubmitBtn(false);
-                    });
+                            })
+                            .then(response => response.json())
+                            .then(data => {
+                                const messageBox = document.getElementById("responseMessage");
+
+                                if (data.status) {
+                                    Swal.fire({
+                                        icon: 'success',
+                                        title: 'Success!',
+                                        text: data
+                                            .message, // Optional message that comes from the response
+                                        confirmButtonText: 'OK',
+                                        timer: 3000, // Automatically close after 3 seconds
+                                        timerProgressBar: true, // Optional: to show a progress bar while the timer counts down
+                                    }).then(() => {
+                                        // Redirect to the URL passed in the response after the Swal is closed
+                                        window.location.href = data.redirect_url;
+                                    });
+                                } else {
+                                    if (data.errors) {
+                                        let firstInput = null; // Initialize firstInput
+
+                                        Object.entries(data.errors).forEach(([key, value],
+                                            index) => {
+                                            const input = document.querySelector(
+                                                `[name="${key}"]`);
+                                            if (input) {
+                                                if (!
+                                                    firstInput
+                                                ) { // Set firstInput only once
+                                                    firstInput = input;
+                                                }
+
+                                                input.classList.add("is-invalid");
+                                                const feedbackElement = input.closest(
+                                                        ".form-group")
+                                                    ?.querySelector(".invalid-feedback");
+                                                if (feedbackElement) {
+                                                    feedbackElement.textContent = value[0];
+                                                } else {
+                                                    input.insertAdjacentHTML("afterend",
+                                                        `<div class="invalid-feedback">${value[0]}</div>`
+                                                    );
+                                                }
+                                            }
+                                        });
+
+                                        if (firstInput) {
+                                            firstInput.scrollIntoView({
+                                                behavior: "smooth",
+                                                block: "center"
+                                            }); // Scroll to the first invalid field
+                                            firstInput
+                                                .focus(); // Set focus on the first invalid input
+                                        }
+                                    } else {
+                                        Swal.fire({
+                                            icon: "error",
+                                            title: "Oops...",
+                                            text: data.message || "Something went wrong!"
+                                        });
+                                    }
+                                }
+                            })
+                            .catch(error => {
+                                console.error("Error:", error);
+                                document.getElementById("responseMessage").innerHTML =
+                                    `<div class="alert alert-danger">An unexpected error occurred.</div>`;
+                            })
+                            .finally(() => {
+                                toggleSubmitBtn(false);
+                            });
+                    },
+                    (errorMessage) => {
+                        toggleButton(twoFactorBtn, twoFactorSpinner, false);
+                        console.error("Error fetching location:", errorMessage);
+                        Swal.fire({
+                            icon: "error",
+                            title: "Location Error",
+                            text: errorMessage,
+                            confirmButtonText: "OK"
+                        });
+                    }
+                );
             });
         });
     </script>

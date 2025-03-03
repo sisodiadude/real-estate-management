@@ -114,6 +114,7 @@ class BranchController extends Controller
                 'status' => 'required|in:active,inactive,suspended,archived',
                 'description' => 'nullable|string',
                 'logo' => 'nullable|image|max:2048', // Max 2MB, accepts image files only
+                'type' => 'required|in:head_office,regional,franchise,sub_branch',
 
                 // Address & Location
                 'address_line1' => 'required|string|max:255',
@@ -236,8 +237,8 @@ class BranchController extends Controller
                 'gstin.unique' => 'This GSTIN is already in use.',
 
                 // Branch Type
-                'branch_type.required' => 'Branch type is required.',
-                'branch_type.in' => 'Invalid branch type selected.',
+                'type.required' => 'Branch type is required.',
+                'type.in' => 'Invalid branch type selected.',
 
                 // Operating Hours
                 'operating_hours.json' => 'Operating hours must be a valid JSON format.',
@@ -656,6 +657,7 @@ class BranchController extends Controller
                 'status' => 'required|in:active,inactive,suspended,archived',
                 'description' => 'nullable|string',
                 'logo' => 'nullable|image|max:2048', // Max 2MB, accepts image files only
+                'type' => 'required|in:head_office,regional,franchise,sub_branch',
 
                 // Address & Location
                 'address_line1' => 'required|string|max:255',
@@ -778,8 +780,8 @@ class BranchController extends Controller
                 'gstin.unique' => 'This GSTIN is already in use.',
 
                 // Branch Type
-                'branch_type.required' => 'Branch type is required.',
-                'branch_type.in' => 'Invalid branch type selected.',
+                'type.required' => 'Branch type is required.',
+                'type.in' => 'Invalid branch type selected.',
 
                 // Operating Hours
                 'operating_hours.json' => 'Operating hours must be a valid JSON format.',
