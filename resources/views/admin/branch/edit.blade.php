@@ -139,6 +139,32 @@
                                                 value="{{ old('date_of_start', $branch->date_of_start) }}">
                                         </div>
 
+                                        <!-- Type Dropdown -->
+                                        <div class="col-md-4">
+                                            <label for="type" class="form-label fw-bold">Type <span
+                                                    class="text-danger">*</span></label>
+                                            <select id="type" name="type" class="form-select" required>
+                                                <option value="">Select Type</option>
+                                                <option value="head_office"
+                                                    {{ old('type', $branch->type) == 'head_office' ? 'selected' : '' }}>
+                                                    Head Office
+                                                </option>
+                                                <option value="regional"
+                                                    {{ old('type', $branch->type) == 'regional' ? 'selected' : '' }}>
+                                                    Regional
+                                                </option>
+                                                <option value="franchise"
+                                                    {{ old('type', $branch->type) == 'franchise' ? 'selected' : '' }}>
+                                                    Franchise
+                                                </option>
+                                                <option value="sub_branch"
+                                                    {{ old('type', $branch->type) == 'sub_branch' ? 'selected' : '' }}>
+                                                    Sub Branch
+                                                </option>
+                                            </select>
+                                            <div class="invalid-feedback">Type is required.</div>
+                                        </div>
+
                                         <div class="col-md-4">
                                             <label for="status" class="form-label fw-bold">Status <span
                                                     class="text-danger">*</span></label>
@@ -255,16 +281,18 @@
 
                                         <div class="col-md-3">
                                             <label for="branch_latitude" class="form-label fw-bold">Latitude</label>
-                                            <input type="number" step="0.0000001" id="branch_latitude" name="branch_latitude"
-                                                class="form-control" placeholder="e.g., 12.9716"
+                                            <input type="number" step="0.0000001" id="branch_latitude"
+                                                name="branch_latitude" class="form-control"
+                                                placeholder="e.g., 12.9716"
                                                 value="{{ old('branch_latitude', $branch->latitude ?? '') }}">
                                             <div class="invalid-feedback">Please enter a valid latitude.</div>
                                         </div>
 
                                         <div class="col-md-3">
                                             <label for="branch_longitude" class="form-label fw-bold">Longitude</label>
-                                            <input type="number" step="0.0000001" id="branch_longitude" name="branch_longitude"
-                                                class="form-control" placeholder="e.g., 77.5946"
+                                            <input type="number" step="0.0000001" id="branch_longitude"
+                                                name="branch_longitude" class="form-control"
+                                                placeholder="e.g., 77.5946"
                                                 value="{{ old('branch_longitude', $branch->longitude ?? '') }}">
                                             <div class="invalid-feedback">Please enter a valid longitude.</div>
                                         </div>
@@ -1142,7 +1170,7 @@
                                             if (input) {
                                                 if (!
                                                     firstInput
-                                                    ) { // Set firstInput only once
+                                                ) { // Set firstInput only once
                                                     firstInput = input;
                                                 }
 

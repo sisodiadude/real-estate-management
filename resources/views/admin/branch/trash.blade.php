@@ -586,6 +586,26 @@
                         orderable: false,
                         className: 'text-center',
                         render: function(data) {
+                            let restoreButton = '';
+                            let deleteButton = '';
+
+                            if ({!! json_encode($hasPermissions) !!}.some(perm => perm.group ===
+                                    "Admin Branch" && perm
+                                    .action === "restore_trashed") && data.restore) {
+                                restoreButton =
+                                    `<a class="dropdown-item text-black restore-branch" href="javascript:void(0);" data-url="${data.restore}">Restore</a>`;
+                            }
+                            if ({!! json_encode($hasPermissions) !!}.some(perm => perm.group ===
+                                    "Admin Branch" && perm
+                                    .action === "permanent_delete") && data.delete) {
+                                deleteButton =
+                                    `<a class="dropdown-item text-black delete-branch" href="javascript:void(0);" data-url="${data.delete}">Delete</a>`;
+                            }
+
+                            if (!restoreButton && !deleteButton) {
+                                return ''; // If no permissions, return empty
+                            }
+
                             return `<div class="dropdown ms-auto">
                                 <div class="btn-link" data-bs-toggle="dropdown">
                                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -595,13 +615,14 @@
                                     </svg>
                                 </div>
                                 <div class="dropdown-menu dropdown-menu-end">
-                                    <a class="dropdown-item text-black restore-branch" href="javascript:void(0);" data-url="${data.restore}">Restore</a>
-                                    <a class="dropdown-item text-black delete-branch" href="javascript:void(0);" data-url="${data.delete}">Delete</a>
+                                    ${restoreButton}
+                                    ${deleteButton}
                                 </div>
                             </div>`;
                         }
                     }
                 ],
+                searching: false,
                 scrollX: false,
                 autoWidth: false,
                 responsive: false,

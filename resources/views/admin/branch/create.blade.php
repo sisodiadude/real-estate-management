@@ -130,6 +130,26 @@
                                                 class="form-control">
                                         </div>
                                         <div class="col-md-4">
+                                            <label for="type" class="form-label fw-bold">Type <span
+                                                    class="text-danger">*</span></label>
+                                            <select id="type" name="type" class="form-select" required>
+                                                <option value="">Select Type</option>
+                                                <option value="head_office">
+                                                    Head Office
+                                                </option>
+                                                <option value="regional">
+                                                    Regional
+                                                </option>
+                                                <option value="franchise">
+                                                    Franchise
+                                                </option>
+                                                <option value="sub_branch">
+                                                    Sub Branch
+                                                </option>
+                                            </select>
+                                            <div class="invalid-feedback">Type is required.</div>
+                                        </div>
+                                        <div class="col-md-4">
                                             <label for="status" class="form-label fw-bold">Status <span
                                                     class="text-danger">*</span></label>
                                             <select id="status" name="status" class="form-select" required>

@@ -237,8 +237,8 @@ class BranchController extends Controller
                 'gstin.unique' => 'This GSTIN is already in use.',
 
                 // Branch Type
-                'type.required' => 'Branch type is required.',
-                'type.in' => 'Invalid branch type selected.',
+                'type.required' => 'Type is required.',
+                'type.in' => 'Invalid type selected.',
 
                 // Operating Hours
                 'operating_hours.json' => 'Operating hours must be a valid JSON format.',
@@ -526,10 +526,12 @@ class BranchController extends Controller
                 $updator = $getFullName(optional($row->updator_details)->first_name, optional($row->updator_details)->last_name);
 
                 // Checking permissions for actions
+                $viewEdit = $request->user->canPerform('Admin Branch', 'view');
                 $canEdit = $request->user->canPerform('Admin Branch', 'edit');
                 $canDelete = $request->user->canPerform('Admin Branch', 'soft_delete');
 
                 // Generate URLs for edit and delete actions
+                $viewUrl = $viewEdit ? route('admin.branches.show', ['branchSlug' => $row->slug]) : null;
                 $editUrl = $canEdit ? route('admin.branches.edit', ['branchSlug' => $row->slug]) : null;
                 $deleteUrl = $canDelete ? route('admin.branches.delete', ['branchSlug' => $row->slug]) : null;
 
@@ -549,6 +551,7 @@ class BranchController extends Controller
                     'created_at' => $row->created_at->setTimezone($timezone)->format('Y-m-d H:i:s'),
                     'updated_at' => $row->updated_at->setTimezone($timezone)->format('Y-m-d H:i:s'),
                     'actions' => [
+                        'view' => $viewUrl,
                         'edit' => $editUrl,
                         'delete' => $deleteUrl
                     ]
@@ -780,8 +783,8 @@ class BranchController extends Controller
                 'gstin.unique' => 'This GSTIN is already in use.',
 
                 // Branch Type
-                'type.required' => 'Branch type is required.',
-                'type.in' => 'Invalid branch type selected.',
+                'type.required' => 'Type is required.',
+                'type.in' => 'Invalid type selected.',
 
                 // Operating Hours
                 'operating_hours.json' => 'Operating hours must be a valid JSON format.',
@@ -1404,5 +1407,27 @@ class BranchController extends Controller
                 'error_details' => config('app.debug') ? $e->getMessage() : null, // Only show details in debug mode
             ], 500);
         }
+    }
+
+    public function show($branchSlug, Request $request)
+    {
+        // Check user permissions
+        if (!$request->user->canPerform('Admin Branch', 'view')) {
+            abort(403, 'You do not have permission to view branche.');
+        }
+
+        // Fetch the branch by slug
+        $branch = AdminBranch::where('slug', $branchSlug)->first();
+
+        if (!$branch) {
+            abort(404, 'The requested branch was not found.');
+        }
+        // prArr($branch->toArray(), 1);
+        return view('admin.branch.show', [
+            'branch' => $branch,
+            'user' => $request->user,
+            'userType' => $request->userType,
+            'hasPermissions' => $request->user->permissions
+        ]);
     }
 }

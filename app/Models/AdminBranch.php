@@ -58,7 +58,7 @@ class AdminBranch extends Model
         'tax_details',
 
         // Branch Classification
-        'branch_type',
+        'type',
 
         // Operating Hours
         'operating_hours',

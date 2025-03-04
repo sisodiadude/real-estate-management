@@ -80,6 +80,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
             Route::get('{branchSlug}/edit', [AdminBranchController::class, 'edit'])->name('edit'); // Edit branch form
             Route::put('{branchSlug}/edit', [AdminBranchController::class, 'update'])->name('update'); // Update branch
             Route::delete('{branchSlug}', [AdminBranchController::class, 'delete'])->name('delete'); // Delete branch
+            Route::get('{branchSlug}', [AdminBranchController::class, 'show'])->name('show'); // Show full branch details
 
             // Soft Deleted Branches
             Route::get('trash', [AdminBranchController::class, 'trash'])->name('trash'); // View soft-deleted branches

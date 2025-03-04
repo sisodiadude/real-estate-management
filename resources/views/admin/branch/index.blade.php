@@ -490,7 +490,6 @@
     </script>
     <script>
         $(document).ready(function() {
-
             var currentAjaxRequest = null;
 
             var dataTable = $('#branchTable').DataTable({
@@ -523,7 +522,6 @@
                         if (jqXHR.responseJSON) {
                             $('#totalBranchCount').text(jqXHR.responseJSON
                                 .recordsTotal); // Use .text() for jQuery
-                            console.log("Total Records:", jqXHR.responseJSON.recordsTotal);
                         } else {
                             // console.warn("No responseJSON found");
                         }
@@ -579,21 +577,21 @@
                                 const googleMapsIcon =
                                     "{{ asset('assets/images/iconly/action/google-maps-locator.png') }}";
                                 googleMapsLink = `
-                <a href="${googleMapsUrl}" target="_blank" class="google-maps-link">
-                    <img src="${googleMapsIcon}" alt="Google Maps" style="width: 20px; height: 20px; margin-left: 5px;">
-                </a>
-            `;
+                                    <a href="${googleMapsUrl}" target="_blank" class="google-maps-link">
+                                        <img src="${googleMapsIcon}" alt="Google Maps" style="width: 20px; height: 20px; margin-left: 5px;">
+                                    </a>
+                                `;
                             }
 
                             return `<div class="address-container">
-            <span class="address-text">${truncatedAddress}</span>
-            ${data.length > maxLength ? '<br><button class="btn btn-link view-more">View More</button>' : ''}
-            ${googleMapsLink}
-            <div class="full-address" style="display: none;">
-                <p>${data}</p>
-                ${data.length > maxLength ? '<button class="btn btn-link view-less">View Less</button>' : ''}
-            </div>
-        </div>`;
+                                        <span class="address-text">${truncatedAddress}</span>
+                                        ${data.length > maxLength ? '<br><button class="btn btn-link view-more">View More</button>' : ''}
+                                        ${googleMapsLink}
+                                        <div class="full-address" style="display: none;">
+                                            <p>${data}</p>
+                                            ${data.length > maxLength ? '<button class="btn btn-link view-less">View Less</button>' : ''}
+                                        </div>
+                                    </div>`;
                         }
                     },
                     {
@@ -624,6 +622,34 @@
                         orderable: false,
                         className: 'text-center',
                         render: function(data) {
+                            let viewButton = '';
+                            let editButton = '';
+                            let deleteButton = '';
+
+                            if ({!! json_encode($hasPermissions) !!}.some(perm => perm.group ===
+                                    "Admin Branch" && perm
+                                    .action === "view") && data.view) {
+                                viewButton =
+                                    `<a class="dropdown-item text-black" href="${data.view}">View Details</a>`;
+                            }
+
+                            if ({!! json_encode($hasPermissions) !!}.some(perm => perm.group ===
+                                    "Admin Branch" && perm
+                                    .action === "edit") && data.edit) {
+                                editButton =
+                                    `<a class="dropdown-item text-black" href="${data.edit}">Edit</a>`;
+                            }
+                            if ({!! json_encode($hasPermissions) !!}.some(perm => perm.group ===
+                                    "Admin Branch" && perm
+                                    .action === "soft_delete") && data.delete) {
+                                deleteButton =
+                                    `<a class="dropdown-item text-black delete-branch" href="javascript:void(0);" data-url="${data.delete}">Delete</a>`;
+                            }
+
+                            if (!viewButton && !editButton && !deleteButton) {
+                                return ''; // If no permissions, return empty
+                            }
+
                             return `<div class="dropdown ms-auto">
                                 <div class="btn-link" data-bs-toggle="dropdown">
                                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -633,13 +659,15 @@
                                     </svg>
                                 </div>
                                 <div class="dropdown-menu dropdown-menu-end">
-                                    <a class="dropdown-item text-black" href="${data.edit}">Edit</a>
-                                    <a class="dropdown-item text-black delete-branch" href="javascript:void(0);" data-url="${data.delete}">Delete</a>
+                                    ${viewButton}
+                                    ${editButton}
+                                    ${deleteButton}
                                 </div>
                             </div>`;
                         }
                     }
                 ],
+                searching: false,
                 scrollX: false,
                 autoWidth: false,
                 responsive: false,
@@ -710,7 +738,6 @@
 
                         getCurrentLocation(
                             (location) => {
-                                console.log("Successfully fetched location:", location);
 
                                 const {
                                     latitude,

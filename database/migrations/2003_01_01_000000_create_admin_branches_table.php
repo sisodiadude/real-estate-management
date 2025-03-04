@@ -77,7 +77,7 @@ return new class extends Migration
             /** -------------------------------
              *  Branch Classification
              * ------------------------------- */
-            $table->enum('branch_type', ['head_office', 'regional', 'franchise', 'sub_branch'])
+            $table->enum('type', ['head_office', 'regional', 'franchise', 'sub_branch'])
                 ->default('sub_branch')
                 ->comment('Defines the type of branch');
 
