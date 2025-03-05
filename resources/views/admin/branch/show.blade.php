@@ -37,10 +37,22 @@
     <!-- Favicon icon -->
     <link rel="icon" type="image/png" sizes="16x16" href="{{ asset('assets/images/favicon.png') }}">
     <!-- Custom Stylesheet -->
+    <!-- Required Vendor Styles -->
     <link href="{{ asset('assets/vendor/bootstrap-select/dist/css/bootstrap-select.min.css') }}" rel="stylesheet">
     <link href="{{ asset('assets/vendor/bootstrap-datepicker-master/css/bootstrap-datepicker.min.css') }}"
         rel="stylesheet">
-    <link href="{{ asset('assets/vendor/dropzone/dist/dropzone.css') }}" rel="stylesheet">
+    <link rel="stylesheet" href="{{ asset('assets/vendor/select2/css/select2.min.css') }}">
+    <link href="{{ asset('assets/vendor/swiper/css/swiper-bundle.min.css') }}" rel="stylesheet">
+    <link href="{{ asset('assets/vendor/magnific-popup/magnific-popup.min.css') }}" rel="stylesheet">
+    <link href="{{ asset('assets/vendor/sweetalert2/dist/sweetalert2.min.css') }}" rel="stylesheet">
+
+    <!-- DataTables -->
+    <link href="{{ asset('assets/vendor/datatables/css/jquery.dataTables.min.css') }}" rel="stylesheet">
+
+    <!-- Additional Vendor Styles -->
+    <link href="{{ asset('assets/vendor/jqvmap/css/jqvmap.min.css') }}" rel="stylesheet">
+
+    <!-- Custom Styles -->
     <link href="{{ asset('assets/css/style.css') }}" rel="stylesheet">
 
 </head>
@@ -280,16 +292,121 @@
                                     <div class="card-header d-flex justify-content-between align-items-center">
                                         <h4 class="card-title">Departments</h4>
                                         <div>
-                                            <button class="btn btn-outline-danger me-2">
-                                                <i class="fas fa-trash-alt me-1"></i> View Trashed Departments
-                                            </button>
-                                            <button class="btn btn-primary">
-                                                <i class="fas fa-plus me-1"></i> Add Department
-                                            </button>
+                                            <!-- Create Button -->
+                                            @if ($user->canPerform('Admin Department', 'create'))
+                                                <a href="{{ route('admin.departments.create', ['branchSlug' => $branch->slug]) }}"
+                                                    class="btn btn-outline-primary me-2">
+                                                    <i class="fas fa-plus me-1"></i>
+                                                    Create Department
+                                                </a>
+                                            @endif
+
+                                            <!-- Trashed List Button -->
+                                            @if ($user->canPerform('Admin Branch', 'view_all_trashed'))
+                                                <a href="{{ route('admin.branches.trash') }}"
+                                                    class="btn btn-outline-danger me-2">
+                                                    <i class="fas fa-trash-alt me-1"></i>
+                                                    Trashed Departments
+                                                </a>
+                                            @endif
                                         </div>
                                     </div>
                                     <div class="card-body">
                                         <div class="table-responsive fs-14">
+                                            <div class="col-12">
+                                                <div class="filter cm-content-box box-primary shadow-sm rounded">
+                                                    <div
+                                                        class="content-title SlideToolHeader d-flex justify-content-between align-items-center px-3 py-2 rounded-top">
+                                                        <div class="cpa">
+                                                            <i class="fa-sharp fa-solid fa-filter me-2"></i>Filter
+                                                        </div>
+                                                        <div class="tools">
+                                                            <a href="javascript:void(0);" class="expand handle">
+                                                                <i class="fal fa-angle-down"></i>
+                                                            </a>
+                                                        </div>
+                                                    </div>
+                                                    <div class="cm-content-body form excerpt">
+                                                        <div class="card-body">
+                                                            <div class="row">
+                                                                <!-- Keyword Input -->
+                                                                <div class="mb-3 col-lg-3 col-md-6">
+                                                                    <label for="keyword"
+                                                                        class="form-label">Keyword</label>
+                                                                    <input type="text" id="keyword"
+                                                                        name="keyword" class="form-control"
+                                                                        placeholder="Enter Your Keyword..." required>
+                                                                </div>
+
+                                                                <!-- Created By -->
+                                                                <div class="mb-3 col-lg-3 col-md-6">
+                                                                    <label for="created_by" class="form-label">Created
+                                                                        By</label>
+                                                                    <select id="created_by" name="created_by"
+                                                                        class="form-select dropdown-select">
+                                                                        <option value="">Select User</option>
+                                                                        @foreach ($userGroups as $role => $users)
+                                                                            <optgroup label="{{ ucfirst($role) }}">
+                                                                                @foreach ($users as $user)
+                                                                                    <option
+                                                                                        value="{{ $user->id }}"
+                                                                                        data-role="{{ $role }}">
+                                                                                        {{ trim($user->first_name . ' ' . $user->last_name) }}
+                                                                                    </option>
+                                                                                @endforeach
+                                                                            </optgroup>
+                                                                        @endforeach
+                                                                    </select>
+                                                                </div>
+
+                                                                <!-- Last Updated By -->
+                                                                <div class="mb-3 col-lg-3 col-md-6">
+                                                                    <label for="updated_by" class="form-label">Last
+                                                                        Updated By</label>
+                                                                    <select id="updated_by" name="updated_by"
+                                                                        class="form-select dropdown-select">
+                                                                        <option value="">Select User</option>
+                                                                        @foreach ($userGroups as $role => $users)
+                                                                            <optgroup label="{{ ucfirst($role) }}">
+                                                                                @foreach ($users as $user)
+                                                                                    <option
+                                                                                        value="{{ $user->id }}"
+                                                                                        data-role="{{ $role }}">
+                                                                                        {{ trim($user->first_name . ' ' . $user->last_name) }}
+                                                                                    </option>
+                                                                                @endforeach
+                                                                            </optgroup>
+                                                                        @endforeach
+                                                                    </select>
+                                                                </div>
+
+                                                                <!-- Leader (Static Dropdown) -->
+                                                                <div class="mb-3 col-lg-3 col-md-6">
+                                                                    <label for="leader" class="form-label">Leader
+                                                                        Options</label>
+                                                                    <select id="leader" name="leader"
+                                                                        class="form-select dropdown-select">
+                                                                        <option value="">Select Option</option>
+                                                                        <option value="1">Leader 1</option>
+                                                                        <option value="2">Leader 2</option>
+                                                                    </select>
+                                                                </div>
+                                                            </div>
+
+                                                            <!-- Search Button -->
+                                                            <div class="row">
+                                                                <div class="col-lg-4 col-md-6">
+                                                                    <button id="filterDepartmentTable"
+                                                                        class="btn btn-primary w-100"
+                                                                        title="Click here to Search" type="button">
+                                                                        <i class="fa fa-search me-1"></i>Search
+                                                                    </button>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
                                             <table
                                                 class="table display mb-4 dataTablesCard overflow-hidden card-table dataTable"
                                                 id="departmentTable">
@@ -297,17 +414,17 @@
                                                     <tr>
                                                         <th>
                                                             <div class="form-check custom-checkbox ms-2">
-                                                                <input type="checkbox" class="form-check-input"
-                                                                    id="checkAll" required="">
+                                                                <input type="checkbox"
+                                                                    class="form-check-input select-all-departments"
+                                                                    id="checkAllDepartmentTableRows" required="">
                                                                 <label class="form-check-label"
-                                                                    for="checkAll"></label>
+                                                                    for="checkAllDepartmentTableRows"></label>
                                                             </div>
                                                         </th>
                                                         <th>ID</th>
                                                         <th>Name</th>
                                                         <th>Mobile</th>
                                                         <th>Email</th>
-                                                        <th>Address</th>
                                                         <th>Leader</th>
                                                         <th>Created By</th>
                                                         <th>Created At</th>
@@ -317,59 +434,6 @@
                                                     </tr>
                                                 </thead>
                                                 <tbody>
-                                                    <tr>
-                                                        <td>
-                                                            <div class="form-check custom-checkbox ms-2">
-                                                                <input type="checkbox" class="form-check-input"
-                                                                    id="customCheckBox5" required="">
-                                                                <label class="form-check-label"
-                                                                    for="customCheckBox5"></label>
-                                                            </div>
-                                                        </td>
-                                                        <td>#0001234</td>
-                                                        <td>26/04/2020, 12:42 AM</td>
-                                                        <td>26/04/2020, 12:42 AM</td>
-                                                        <td>James WItcwicky</td>
-                                                        <td class="text-ov">TY35 Avenue <br>GGLondon Center</td>
-                                                        <td class="text-ov">Flat 2551 Center<br> London 287223</td>
-                                                        <td>$521k</td>
-                                                        <td>ABC356</td>
-                                                        <td>Kevin Jr.</td>
-                                                        <td><span class="text-warning">Pending</span></td>
-                                                        <td class="text-end">
-                                                            <div class="dropdown ms-auto">
-                                                                <div class="btn-link" data-bs-toggle="dropdown">
-                                                                    <svg width="24" height="24"
-                                                                        viewBox="0 0 24 24" fill="none"
-                                                                        xmlns="http://www.w3.org/2000/svg">
-                                                                        <path
-                                                                            d="M11.0005 12C11.0005 12.5523 11.4482 13 12.0005 13C12.5528 13 13.0005 12.5523 13.0005 12C13.0005 11.4477 12.5528 11 12.0005 11C11.4482 11 11.0005 11.4477 11.0005 12Z"
-                                                                            stroke="#3E4954" stroke-width="2"
-                                                                            stroke-linecap="round"
-                                                                            stroke-linejoin="round"></path>
-                                                                        <path
-                                                                            d="M18.0005 12C18.0005 12.5523 18.4482 13 19.0005 13C19.5528 13 20.0005 12.5523 20.0005 12C20.0005 11.4477 19.5528 11 19.0005 11C18.4482 11 18.0005 11.4477 18.0005 12Z"
-                                                                            stroke="#3E4954" stroke-width="2"
-                                                                            stroke-linecap="round"
-                                                                            stroke-linejoin="round"></path>
-                                                                        <path
-                                                                            d="M4.00049 12C4.00049 12.5523 4.4482 13 5.00049 13C5.55277 13 6.00049 12.5523 6.00049 12C6.00049 11.4477 5.55277 11 5.00049 11C4.4482 11 4.00049 11.4477 4.00049 12Z"
-                                                                            stroke="#3E4954" stroke-width="2"
-                                                                            stroke-linecap="round"
-                                                                            stroke-linejoin="round"></path>
-                                                                    </svg>
-                                                                </div>
-                                                                <div class="dropdown-menu dropdown-menu-end">
-                                                                    <a class="dropdown-item text-black"
-                                                                        href="javascript:void(0);">Accept order</a>
-                                                                    <a class="dropdown-item text-black"
-                                                                        href="javascript:void(0);">Reject order</a>
-                                                                    <a class="dropdown-item text-black"
-                                                                        href="javascript:void(0);">View Details</a>
-                                                                </div>
-                                                            </div>
-                                                        </td>
-                                                    </tr>
                                                 </tbody>
                                             </table>
                                         </div>
@@ -1115,14 +1179,220 @@
     <!-- Main Wrapper End -->
 
     <!-- Footer Scripts Section Start -->
-    <!-- Required vendors -->
+
+    <!-- Required Vendors -->
     <script src="{{ asset('assets/vendor/global/global.min.js') }}"></script>
+
+    <!-- Bootstrap & UI Components -->
     <script src="{{ asset('assets/vendor/bootstrap-select/dist/js/bootstrap-select.min.js') }}"></script>
     <script src="{{ asset('assets/vendor/bootstrap-datepicker-master/js/bootstrap-datepicker.min.js') }}"></script>
-    <script src="{{ asset('assets/vendor/dropzone/dist/dropzone.js') }}"></script>
+    <script src="{{ asset('assets/vendor/select2/js/select2.full.min.js') }}"></script>
+
+    <!-- Swiper & Popup -->
+    <script src="{{ asset('assets/vendor/swiper/js/swiper-bundle.min.js') }}"></script>
+    <script src="{{ asset('assets/vendor/magnific-popup/magnific-popup.js') }}"></script>
+
+    <!-- Range Slider -->
+    <script src="{{ asset('assets/vendor/wnumb/wNumb.js') }}"></script>
+
+    <!-- Alerts & Notifications -->
+    <script src="{{ asset('assets/vendor/sweetalert2/dist/sweetalert2.min.js') }}"></script>
+
+    <!-- DataTables -->
+    <script src="{{ asset('assets/vendor/datatables/js/jquery.dataTables.min.js') }}"></script>
+
+    <!-- CMS & Dashboard -->
+    <script src="{{ asset('assets/js/dashboard/cms.js') }}"></script>
+
+    <!-- Custom Scripts -->
     <script src="{{ asset('assets/js/custom.min.js') }}"></script>
     <script src="{{ asset('assets/js/deznav-init.js') }}"></script>
+    <script src="{{ asset('assets/js/custom-2.js') }}"></script>
+    <script>
+        $(document).ready(function() {
+            var currentAjaxRequest = null;
 
+            var dataTable = $('#departmentTable').DataTable({
+                ajax: {
+                    url: "{{ route('admin.departments.getDepartments', ['branchSlug' => $branch->slug]) }}", // Ensure this route is correct
+                    type: 'GET',
+                    data: function(d) {
+                        d.search.value = $('#keyword').val();
+                        d.created_by = $('#created_by').val();
+                        d.created_by_role = $('#created_by option:selected').data('role');
+                        d.updated_by = $('#updated_by').val();
+                        d.updated_by_role = $('#updated_by option:selected').data('role');
+                        d.leader = $('#leader').val();
+                    },
+                    dataSrc: 'data', // Simplified to expect json.data
+                    beforeSend: function(jqXHR) {
+                        if (currentAjaxRequest) {
+                            currentAjaxRequest.abort();
+                        }
+                        $('#branchTable').addClass('processing');
+                        currentAjaxRequest = jqXHR;
+                    },
+                    complete: function(jqXHR) {
+                        currentAjaxRequest = null;
+                        $('#branchTable').removeClass('processing');
+
+                        if (jqXHR.responseJSON) {
+                            $('#totalBranchCount').text(jqXHR.responseJSON
+                                .recordsTotal); // Use .text() for jQuery
+                        } else {
+                            // console.warn("No responseJSON found");
+                        }
+                    }
+                },
+                columns: [{
+                        data: "checkbox",
+                        orderable: false,
+                        className: 'text-center',
+                        render: function(data) {
+                            return `<div class="form-check custom-checkbox ms-2">
+                                <input type="checkbox" class="form-check-input department-select" id="customCheckBox${data}" required>
+                                <label class="form-check-label" for="customCheckBox${data}"></label>
+                            </div>`;
+                        }
+                    },
+                    {
+                        data: "department_unique_id",
+                        className: 'text-center text-nowrap'
+                    },
+                    {
+                        data: "name",
+                        className: 'text-center text-nowrap'
+                    },
+                    {
+                        data: "mobile",
+                        className: 'text-center text-nowrap',
+                        render: function(data) {
+                            return data ? `<a href="tel:${data}">${data}</a>` : '';
+                        }
+                    },
+                    {
+                        data: "email",
+                        className: 'text-center text-nowrap',
+                        render: function(data) {
+                            return data ? `<a href="mailto:${data}">${data}</a>` : '';
+                        }
+                    },
+                    {
+                        data: "leader",
+                        orderable: false,
+                        className: 'text-center text-nowrap'
+                    },
+                    {
+                        data: "creator",
+                        orderable: false,
+                        className: 'text-center text-nowrap'
+                    },
+                    {
+                        data: "created_at",
+                        className: 'text-center text-nowrap'
+                    },
+                    {
+                        data: "updator",
+                        orderable: false,
+                        className: 'text-center text-nowrap'
+                    },
+                    {
+                        data: "updated_at",
+                        className: 'text-center text-nowrap'
+                    },
+                    {
+                        data: "actions",
+                        orderable: false,
+                        className: 'text-center',
+                        render: function(data) {
+                            let viewButton = '';
+                            let editButton = '';
+                            let deleteButton = '';
+
+                            if ({!! json_encode($hasPermissions) !!}.some(perm => perm.group ===
+                                    "Admin Department" && perm
+                                    .action === "view") && data.view) {
+                                viewButton =
+                                    `<a class="dropdown-item text-black" href="${data.view}">View Details</a>`;
+                            }
+
+                            if ({!! json_encode($hasPermissions) !!}.some(perm => perm.group ===
+                                    "Admin Department" && perm
+                                    .action === "edit") && data.edit) {
+                                editButton =
+                                    `<a class="dropdown-item text-black" href="${data.edit}">Edit</a>`;
+                            }
+                            if ({!! json_encode($hasPermissions) !!}.some(perm => perm.group ===
+                                    "Admin Department" && perm
+                                    .action === "soft_delete") && data.delete) {
+                                deleteButton =
+                                    `<a class="dropdown-item text-black delete-department" href="javascript:void(0);" data-url="${data.delete}">Delete</a>`;
+                            }
+
+                            if (!viewButton && !editButton && !deleteButton) {
+                                return ''; // If no permissions, return empty
+                            }
+
+                            return `<div class="dropdown ms-auto">
+                                <div class="btn-link" data-bs-toggle="dropdown">
+                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M11 12C11 12.5523 11.4482 13 12 13C12.5528 13 13 12.5523 13 12C13 11.4477 12.5528 11 12 11C11.4482 11 11 11.4477 11 12Z" stroke="#3E4954" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+                                        <path d="M18 12C18 12.5523 18.4482 13 19 13C19.5528 13 20 12.5523 20 12C20 11.4477 19.5528 11 19 11C18.4482 11 18 11.4477 18 12Z" stroke="#3E4954" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+                                        <path d="M4 12C4 12.5523 4.4482 13 5 13C5.55277 13 6 12.5523 6 12C6 11.4477 5.55277 11 5 11C4.4482 11 4 11.4477 4 12Z" stroke="#3E4954" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+                                    </svg>
+                                </div>
+                                <div class="dropdown-menu dropdown-menu-end">
+                                    ${viewButton}
+                                    ${editButton}
+                                    ${deleteButton}
+                                </div>
+                            </div>`;
+                        }
+                    }
+                ],
+                searching: false,
+                scrollX: false,
+                autoWidth: false,
+                responsive: false,
+                processing: true,
+                serverSide: true,
+                lengthMenu: [10, 25, 50, 100, 200, 500],
+                pageLength: 25,
+                language: {
+                    paginate: {
+                        previous: '<i class="fa fa-angle-double-left"></i>',
+                        next: '<i class="fa fa-angle-double-right"></i>'
+                    },
+                    emptyTable: "<strong>No branches found.</strong>", // Custom empty table message
+                    zeroRecords: "<strong>No matching records found.</strong>" // Custom message when search has no matches
+                },
+                fixedHeader: true,
+                scrollCollapse: true,
+                initComplete: function() {
+                    this.api().columns.adjust(); // Adjust column widths after initialization
+                }
+            });
+
+            // Checkbox Select All Functionality
+            $('#checkAllDepartmentTableRows').on('click', function() {
+                $('.department-select').prop('checked', this.checked);
+            });
+
+            // Ensure "Select All" checkbox updates correctly when individual checkboxes are clicked
+            $('#departmentTable').on('click', '.department-select', function() {
+                if ($('.department-select:checked').length === $('.department-select').length) {
+                    $('#checkAllDepartmentTableRows').prop('checked', true);
+                } else {
+                    $('#checkAllDepartmentTableRows').prop('checked', false);
+                }
+            });
+
+            // Reload table when filter button is clicked
+            $('#filterDepartmentTable').click(function() {
+                dataTable.ajax.reload();
+            });
+        });
+    </script>
 </body>
 
 </html>

@@ -44,7 +44,6 @@
 
     <!-- DataTables -->
     <link href="{{ asset('assets/vendor/datatables/css/jquery.dataTables.min.css') }}" rel="stylesheet">
-    {{-- <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/2.2.2/css/dataTables.dataTables.min.css"> --}}
 
     <!-- Additional Vendor Styles -->
     <link href="{{ asset('assets/vendor/jqvmap/css/jqvmap.min.css') }}" rel="stylesheet">
@@ -101,13 +100,25 @@
                         </nav>
                     </div>
                     <div class="d-flex gap-2">
+                        <!-- Refresh Button -->
                         <button class="btn btn-primary rounded light" onclick="location.reload();">
                             Refresh
                         </button>
+
+                        <!-- Create Button -->
+                        @if ($user->canPerform('Admin Branch', 'create'))
+                            <a href="{{ route('admin.branches.create') }}" class="btn btn-success rounded light">
+                                <i class="fas fa-plus me-1"></i>
+                                Create Branch
+                            </a>
+                        @endif
+
+                        <!-- Trashed List Button -->
                         @if ($user->canPerform('Admin Branch', 'view_all_trashed'))
-                            <a href="{{ route('admin.branches.trash') }}" class="btn btn-danger rounded light">View
-                                Trashed
-                                Branches</a>
+                            <a href="{{ route('admin.branches.trash') }}" class="btn btn-danger rounded light">
+                                <i class="fas fa-trash-alt me-1"></i>
+                                Trashed Branches
+                            </a>
                         @endif
                     </div>
                 </div>

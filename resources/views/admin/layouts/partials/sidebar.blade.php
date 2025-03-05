@@ -32,23 +32,6 @@
                 </li>
             @endif
 
-            @if ($user->canPerform('Admin Department', 'create') || $user->canPerform('Admin Department', 'view_all'))
-                <li>
-                    <a class="has-arrow ai-icon" href="javascript:void(0)" aria-expanded="false">
-                        <i class="flaticon-381-user-7"></i>
-                        <span class="nav-text">Departments</span>
-                    </a>
-                    <ul aria-expanded="false">
-                        @if ($user->canPerform('Admin Department', 'create'))
-                            <li><a href="{{ route('admin.departments.create') }}">Add Department</a></li>
-                        @endif
-                        @if ($user->canPerform('Admin Department', 'view_all'))
-                            <li><a href="{{ route('admin.departments.index') }}">All Departments</a></li>
-                        @endif
-                    </ul>
-                </li>
-            @endif
-
             <li><a class="has-arrow ai-icon" href="javascript:void(0)" aria-expanded="false">
                     <i class="flaticon-381-user-7"></i>
                     <span class="nav-text">Agents</span>

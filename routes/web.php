@@ -92,18 +92,18 @@ Route::prefix('admin')->name('admin.')->group(function () {
         // ========================
         // Department Management
         // ========================
-        Route::prefix('departments')->name('departments.')->group(function () {
+        Route::prefix('{branchSlug}/departments')->name('departments.')->group(function () {
 
             // Branch CRUD
             Route::get('create', [AdminDepartmentController::class, 'create'])->name('create'); // Create department form
             Route::post('store', [AdminDepartmentController::class, 'store'])->name('store'); // Store department
-            Route::get('/', [AdminBranchController::class, 'index'])->name('index'); // List all departments
-            Route::get('data', [AdminBranchController::class, 'getDepartments'])->name('getDepartments');
+            Route::get('data', [AdminDepartmentController::class, 'getDepartments'])->name('getDepartments');
 
             // department Details
             Route::get('{departmentSlug}/edit', [AdminBranchController::class, 'edit'])->name('edit'); // Edit department form
             Route::put('{departmentSlug}/edit', [AdminBranchController::class, 'update'])->name('update'); // Update department
             Route::delete('{departmentSlug}', [AdminBranchController::class, 'delete'])->name('delete'); // Delete department
+            Route::get('{departmentSlug}', [AdminBranchController::class, 'show'])->name('show'); // Show full branch details
 
             // Soft Deleted departments
             Route::get('trash', [AdminBranchController::class, 'trash'])->name('trash'); // View soft-deleted departments

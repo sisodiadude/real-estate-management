@@ -108,8 +108,8 @@ class BranchController extends Controller
             $validationRules = [
                 // Basic Information
                 'name' => 'required|string|max:100|unique:admin_branches,name',
-                'email' => 'nullable|email|max:255|unique:admin_branches,email',
-                'mobile' => 'nullable|string|max:20|unique:admin_branches,mobile|regex:/^\+?[0-9\s-]{10,20}$/',
+                'email' => 'required|email|max:255|unique:admin_branches,email',
+                'mobile' => 'required|string|max:20|unique:admin_branches,mobile|regex:/^\+?[0-9\s-]{10,20}$/',
                 'date_of_start' => 'nullable|date',
                 'status' => 'required|in:active,inactive,suspended,archived',
                 'description' => 'nullable|string',
@@ -141,18 +141,6 @@ class BranchController extends Controller
                 // SMTP Configuration (if enabled)
                 'use_branch_smtp_credentials' => 'required|boolean',
             ];
-
-            if (request()->input('use_branch_smtp_credentials')) {
-                $validationRules = array_merge($validationRules, [
-                    'smtp_host' => 'required|string|max:255',
-                    'smtp_port' => 'required|integer|min:1|max:65535',
-                    'smtp_username' => 'required|string|max:255',
-                    'smtp_password' => 'required|string|max:255',
-                    'smtp_encryption' => 'nullable|in:ssl,tls',
-                    'smtp_from_email' => 'required|email|max:255',
-                    'smtp_from_name' => 'required|string|max:255',
-                ]);
-            }
 
             // Check if use_branch_smtp_credentials is true and add SMTP validation rules
             if ($request->input('use_branch_smtp_credentials') === true) {
@@ -187,11 +175,13 @@ class BranchController extends Controller
                 'name.unique' => 'A branch with this name already exists.',
 
                 // Email
+                'email.required' => 'Branch email is required.',
                 'email.email' => 'Please enter a valid email address.',
                 'email.max' => 'Email address cannot exceed 255 characters.',
                 'email.unique' => 'This email is already associated with another branch.',
 
                 // Mobile
+                'mobile.required' => 'Branch mobile is required.',
                 'mobile.string' => 'Mobile number must be a valid string.',
                 'mobile.max' => 'Mobile number cannot exceed 20 characters.',
                 'mobile.unique' => 'This mobile number is already associated with another branch.',
@@ -1427,7 +1417,8 @@ class BranchController extends Controller
             'branch' => $branch,
             'user' => $request->user,
             'userType' => $request->userType,
-            'hasPermissions' => $request->user->permissions
+            'hasPermissions' => $request->user->permissions,
+            'userGroups' => ["admins" => Admin::orderBy('first_name', 'asc')->get()],
         ]);
     }
 }

@@ -250,54 +250,62 @@
                                         </div>
                                         <div class="col-12">
                                             <label class="form-label fw-bold">Set Operating Hours by Day</label>
-                                            <div id="operatingHoursContainer">
-                                                @foreach (['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'] as $day)
-                                                    <div class="row g-2 mb-2">
-                                                        <div class="col-md-3">
-                                                            <label
-                                                                class="form-label fw-bold">{{ $day }}</label>
-                                                        </div>
-                                                        <div class="col-md-3">
-                                                            <div class="input-group clockpicker"
-                                                                data-placement="bottom" data-align="top"
-                                                                data-autobtn-close="true">
-                                                                <input type="text" class="form-control"
-                                                                    value="10:00"
-                                                                    name="operating_hours[{{ strtolower($day) }}][start]"
-                                                                    placeholder="Start Time">
-                                                                <span class="input-group-text"><i
-                                                                        class="far fa-clock"></i></span>
-                                                            </div>
-                                                        </div>
+                                            @foreach (['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'] as $day)
+                                                <div class="row align-items-center g-2 mb-2 operating-hours-row">
+                                                    <div class="col-md-2">
+                                                        <label class="form-label fw-bold">{{ $day }}</label>
+                                                    </div>
 
-                                                        <div class="col-md-3">
-                                                            <div class="input-group clockpicker"
-                                                                data-placement="bottom" data-align="top"
-                                                                data-autobtn-close="true">
-                                                                <input type="text" class="form-control"
-                                                                    value="19:00"
-                                                                    name="operating_hours[{{ strtolower($day) }}][end]"
-                                                                    placeholder="End Time">
-                                                                <span class="input-group-text"><i
-                                                                        class="far fa-clock"></i></span>
-                                                            </div>
-                                                        </div>
-
-                                                        <!-- Closed Checkbox Centered -->
-                                                        <div
-                                                            class="col-md-3 d-flex align-items-center justify-content-center">
-                                                            <div class="form-check">
-                                                                <input class="form-check-input" type="checkbox"
-                                                                    name="operating_hours[{{ strtolower($day) }}][closed]"
-                                                                    value="1"
-                                                                    id="closed_{{ strtolower($day) }}">
-                                                                <label class="form-check-label"
-                                                                    for="closed_{{ strtolower($day) }}">Closed</label>
-                                                            </div>
+                                                    <div class="col-md-3">
+                                                        <div class="input-group clockpicker" data-placement="bottom"
+                                                            data-align="top" data-autobtn-close="true">
+                                                            <input type="text"
+                                                                class="form-control operating-hour-start"
+                                                                name="operating_hours[{{ strtolower($day) }}][start]"
+                                                                placeholder="Start Time" required>
+                                                            <span class="input-group-text"><i
+                                                                    class="far fa-clock"></i></span>
                                                         </div>
                                                     </div>
-                                                @endforeach
-                                            </div>
+
+                                                    <div class="col-md-3">
+                                                        <div class="input-group clockpicker" data-placement="bottom"
+                                                            data-align="top" data-autobtn-close="true">
+                                                            <input type="text"
+                                                                class="form-control operating-hour-end"
+                                                                name="operating_hours[{{ strtolower($day) }}][end]"
+                                                                placeholder="End Time" required>
+                                                            <span class="input-group-text"><i
+                                                                    class="far fa-clock"></i></span>
+                                                        </div>
+                                                    </div>
+
+                                                    <div
+                                                        class="col-md-2 d-flex align-items-center justify-content-center">
+                                                        <div class="form-check">
+                                                            <input class="form-check-input closed-checkbox"
+                                                                type="checkbox"
+                                                                name="operating_hours[{{ strtolower($day) }}][closed]"
+                                                                value="1" id="closed_{{ strtolower($day) }}">
+                                                            <label class="form-check-label"
+                                                                for="closed_{{ strtolower($day) }}">Closed</label>
+                                                        </div>
+                                                    </div>
+
+                                                    <div
+                                                        class="col-md-2 d-flex align-items-center justify-content-center">
+                                                        <div class="form-check">
+                                                            <input class="form-check-input open-24-checkbox"
+                                                                type="checkbox"
+                                                                name="operating_hours[{{ strtolower($day) }}][open_24]"
+                                                                value="1" id="open_24_{{ strtolower($day) }}">
+                                                            <label class="form-check-label"
+                                                                for="open_24_{{ strtolower($day) }}">24
+                                                                Hours</label>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            @endforeach
                                         </div>
 
                                         <!-- Section: Social Media Links -->
@@ -536,6 +544,45 @@
                     });
                 });
             }
+        });
+
+        // Handle 24 Hours and Closed Checkbox
+        document.querySelectorAll('.open-24-checkbox, .closed-checkbox').forEach(checkbox => {
+            checkbox.addEventListener('change', function() {
+
+                const row = this.closest('.operating-hours-row');
+
+                const startInput = row.querySelector('.operating-hour-start');
+                const endInput = row.querySelector('.operating-hour-end');
+                const oppositeCheckbox = row.querySelector(
+                    this.classList.contains('open-24-checkbox') ? '.closed-checkbox' :
+                    '.open-24-checkbox'
+                );
+
+                if (this.checked) {
+                    startInput.setAttribute('disabled', true);
+                    endInput.setAttribute('disabled', true);
+                    oppositeCheckbox.setAttribute('disabled', true);
+
+                    startInput.removeAttribute('required');
+                    endInput.removeAttribute('required');
+
+                    // Apply Bootstrap disabled styles
+                    startInput.classList.add('opacity-50', 'pe-none');
+                    endInput.classList.add('opacity-50', 'pe-none');
+                } else {
+                    startInput.removeAttribute('disabled');
+                    endInput.removeAttribute('disabled');
+                    oppositeCheckbox.removeAttribute('disabled');
+
+                    startInput.setAttribute('required', true);
+                    endInput.setAttribute('required', true);
+
+                    // Remove Bootstrap disabled styles
+                    startInput.classList.remove('opacity-50', 'pe-none');
+                    endInput.classList.remove('opacity-50', 'pe-none');
+                }
+            });
         });
 
         $(document).ready(function() {
@@ -917,11 +964,15 @@
                                     `[name="operating_hours[${day}][end]"]`);
                                 const closedCheckbox = document.querySelector(
                                     `[name="operating_hours[${day}][closed]"]`);
+                                const allTimeOpenCheckbox = document.querySelector(
+                                    `[name="operating_hours[${day}][open_24]"]`);
 
                                 operatingHours[day] = {
                                     start: startInput ? startInput.value : null,
                                     end: endInput ? endInput.value : null,
-                                    closed: closedCheckbox ? closedCheckbox.checked : false
+                                    closed: closedCheckbox ? closedCheckbox.checked : false,
+                                    allTimeOpen: allTimeOpenCheckbox ? allTimeOpenCheckbox
+                                        .checked : false
                                 };
                             });
 

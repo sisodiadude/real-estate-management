@@ -223,6 +223,14 @@ class AdminDepartment extends Model
         return $query->where('status', $status);
     }
 
+    /**
+     * Scope to filter departments by status.
+     */
+    public function scopeByBranchID($query, $branchID)
+    {
+        return $query->where('branch_id', $branchID);
+    }
+
     /** -------------------------------
      *  Audit Trail Relations
      * ------------------------------- */
