@@ -32,7 +32,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
     <!-- Favicon icon -->
-    <link rel="icon" type="image/png" sizes="16x16" href="{{ asset('assets/images/favicon.png') }}">
+    <link rel="icon" type="image/png" sizes="16x16" href="images/favicon.png">
     <link href="{{ asset('assets/css/style.css') }}" rel="stylesheet">
 
 </head>
@@ -41,10 +41,10 @@
     <div class="fix-wrapper">
         <div class="container">
             <div class="row justify-content-center align-items-center">
-                <div class="col-md-5">
+                <div class="col-md-6">
                     <div class="form-input-content text-center error-page">
-                        <h1 class="error-text  font-weight-bold">403</h1>
-                        <h4><i class="fa fa-times-circle text-danger"></i> Forbidden Error!</h4>
+                        <h1 class="error-text font-weight-bold">500</h1>
+                        <h4><i class="fa fa-times-circle text-danger"></i> Internal Server Error</h4>
                         <p>{{ $exception->getMessage() ?? 'You do not have permission to view this resource.' }}</p>
                         <div>
                             <a class="btn btn-primary" href="{{ route($redirectRoute) }}">Back to Home</a>

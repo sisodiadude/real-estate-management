@@ -1060,7 +1060,7 @@
                             });
                     },
                     (errorMessage) => {
-                        toggleButton(twoFactorBtn, twoFactorSpinner, false);
+                        toggleSubmitBtn(false);
                         console.error("Error fetching location:", errorMessage);
                         Swal.fire({
                             icon: "error",

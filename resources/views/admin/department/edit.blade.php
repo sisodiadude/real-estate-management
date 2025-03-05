@@ -88,8 +88,13 @@
                                 {{ $branch->name }}
                             </a>
                         </li>
+                        <li class="breadcrumb-item">
+                            <a href="javascript:void(0)">
+                                {{ $branch->slug }}
+                            </a>
+                        </li>
                         <li class="breadcrumb-item active">
-                            <a href="javascript:void(0)">Add Department</a>
+                            <a href="javascript:void(0)">Edit</a>
                         </li>
                     </ol>
                 </div>
@@ -99,12 +104,14 @@
                     <div class="col-12">
                         <div class="card">
                             <div class="card-header">
-                                <h4 class="card-title">Add Department</h4>
+                                <h4 class="card-title">Edit Department</h4>
                             </div>
                             <div class="card-body">
-                                <form action="{{ route('admin.departments.store', ['branchSlug' => $branch->slug]) }}"
+                                <form
+                                    action="{{ route('admin.departments.edit', ['branchSlug' => $branch->slug, 'departmentSlug' => $department->slug]) }}"
                                     method="POST" class="needs-validation" id="branchForm" novalidate>
                                     @csrf
+                                    @method('PUT')
                                     <div class="row g-3">
                                         <!-- Section: Basic Details -->
                                         <div class="col-12">
@@ -114,21 +121,24 @@
                                             <label for="name" class="form-label fw-bold">Name <span
                                                     class="text-danger">*</span></label>
                                             <input type="text" id="name" name="name" class="form-control"
-                                                placeholder="Enter name" required>
+                                                placeholder="Enter name" value="{{ old('name', $department->name) }}"
+                                                required>
                                             <div class="invalid-feedback">Name is required.</div>
                                         </div>
                                         <div class="col-md-4">
                                             <label for="email" class="form-label fw-bold">Email <span
                                                     class="text-danger">*</span></label>
                                             <input type="email" id="email" name="email" class="form-control"
-                                                placeholder="Enter email" required>
+                                                placeholder="Enter email"
+                                                value="{{ old('email', $department->email) }}" required>
                                             <div class="invalid-feedback">Valid email is required.</div>
                                         </div>
                                         <div class="col-md-4">
                                             <label for="mobile" class="form-label fw-bold">Mobile <span
                                                     class="text-danger">*</span></label>
                                             <input type="text" id="mobile" name="mobile" class="form-control"
-                                                placeholder="Enter mobile" required>
+                                                placeholder="Enter mobile"
+                                                value="{{ old('mobile', $department->mobile) }}" required>
                                             <div class="invalid-feedback">Mobile number is required.</div>
                                         </div>
                                         <div class="col-md-4">
@@ -136,16 +146,24 @@
                                                     class="text-danger">*</span></label>
                                             <select id="status" name="status" class="form-select" required>
                                                 <option value="">Select Status</option>
-                                                <option value="active" selected>Active</option>
-                                                <option value="inactive">Inactive</option>
-                                                <option value="suspended">Suspended</option>
-                                                <option value="archived">Archived</option>
+                                                <option value="active"
+                                                    {{ old('status', $department->status) == 'active' ? 'selected' : '' }}>
+                                                    Active</option>
+                                                <option value="inactive"
+                                                    {{ old('status', $department->status) == 'inactive' ? 'selected' : '' }}>
+                                                    Inactive</option>
+                                                <option value="suspended"
+                                                    {{ old('status', $department->status) == 'suspended' ? 'selected' : '' }}>
+                                                    Suspended</option>
+                                                <option value="archived"
+                                                    {{ old('status', $department->status) == 'archived' ? 'selected' : '' }}>
+                                                    Archived</option>
                                             </select>
                                             <div class="invalid-feedback">Status is required.</div>
                                         </div>
                                         <div class="col-md-8">
                                             <label for="description" class="form-label fw-bold">Description</label>
-                                            <textarea id="description" name="description" class="form-control" rows="3" placeholder="Enter description"></textarea>
+                                            <textarea id="description" name="description" class="form-control" rows="3" placeholder="Enter description">{{ old('description', $department->description) }}</textarea>
                                         </div>
 
                                         <!-- Section: Operating Hours -->
@@ -158,7 +176,7 @@
                                             <div class="form-check form-switch mb-3">
                                                 <input class="form-check-input" type="checkbox"
                                                     id="use_branch_operating_hours" name="use_branch_operating_hours"
-                                                    value="1">
+                                                    {{ $department->use_branch_operating_hours ? 'checked' : '' }}>
                                                 <label class="form-check-label fw-bold"
                                                     for="use_branch_operating_hours">Same as Branch</label>
                                             </div>
@@ -166,8 +184,28 @@
 
                                         <div class="operatingHoursContainer">
                                             <div class="col-12">
+                                                @php
+                                                    $operatingHours =
+                                                        json_decode($department->operating_hours, true) ?? [];
+                                                @endphp
                                                 <label class="form-label fw-bold">Set Operating Hours by Day</label>
                                                 @foreach (['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'] as $day)
+                                                    @php
+                                                        $dayKey = strtolower($day);
+                                                        $start = $operatingHours[$dayKey]['start'] ?? '';
+                                                        $end = $operatingHours[$dayKey]['end'] ?? '';
+                                                        $closed =
+                                                            isset($operatingHours[$dayKey]['closed']) &&
+                                                            $operatingHours[$dayKey]['closed']
+                                                                ? 'checked'
+                                                                : '';
+                                                        $allTimeOpen =
+                                                            isset($operatingHours[$dayKey]['allTimeOpen']) &&
+                                                            $operatingHours[$dayKey]['allTimeOpen']
+                                                                ? 'checked'
+                                                                : '';
+                                                    @endphp
+
                                                     <div class="row align-items-center g-2 mb-2 operating-hours-row">
                                                         <div class="col-md-2">
                                                             <label
@@ -181,6 +219,7 @@
                                                                 <input type="text"
                                                                     class="form-control operating-hour-start"
                                                                     name="operating_hours[{{ strtolower($day) }}][start]"
+                                                                    value="{{ $start }}"
                                                                     placeholder="Start Time" required>
                                                                 <span class="input-group-text"><i
                                                                         class="far fa-clock"></i></span>
@@ -194,6 +233,7 @@
                                                                 <input type="text"
                                                                     class="form-control operating-hour-end"
                                                                     name="operating_hours[{{ strtolower($day) }}][end]"
+                                                                    value="{{ $end }}"
                                                                     placeholder="End Time" required>
                                                                 <span class="input-group-text"><i
                                                                         class="far fa-clock"></i></span>
@@ -206,8 +246,8 @@
                                                                 <input class="form-check-input closed-checkbox"
                                                                     type="checkbox"
                                                                     name="operating_hours[{{ strtolower($day) }}][closed]"
-                                                                    value="1"
-                                                                    id="closed_{{ strtolower($day) }}">
+                                                                    value="1" id="closed_{{ strtolower($day) }}"
+                                                                    {{ $closed }}>
                                                                 <label class="form-check-label"
                                                                     for="closed_{{ strtolower($day) }}">Closed</label>
                                                             </div>
@@ -220,7 +260,8 @@
                                                                     type="checkbox"
                                                                     name="operating_hours[{{ strtolower($day) }}][open_24]"
                                                                     value="1"
-                                                                    id="open_24_{{ strtolower($day) }}">
+                                                                    id="open_24_{{ strtolower($day) }}"
+                                                                    {{ $allTimeOpen }}>
                                                                 <label class="form-check-label"
                                                                     for="open_24_{{ strtolower($day) }}">24
                                                                     Hours</label>
@@ -518,7 +559,7 @@
                         // Append operating hours JSON to formData
                         formData.append("operating_hours", JSON.stringify(operatingHours));
 
-                        fetch("{{ route('admin.departments.store', ['branchSlug' => $branch->slug]) }}", {
+                        fetch("{{ route('admin.departments.edit', ['branchSlug' => $branch->slug, 'departmentSlug' => $department->slug]) }}", {
                                 method: "POST",
                                 body: formData,
                                 headers: {

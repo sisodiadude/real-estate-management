@@ -83,7 +83,10 @@
                 <div class="page-titles">
                     <ol class="breadcrumb">
                         <li class="breadcrumb-item"><a href="{{ route('admin.branches.index') }}">Branches</a></li>
-                        <li class="breadcrumb-item active"><a href="javascript:void(0)">Edit Branch</a></li>
+                        <li class="breadcrumb-item"><a
+                                href="{{ route('admin.branches.show', ['branchSlug' => $branch->slug]) }}">{{ $branch->slug }}</a>
+                        </li>
+                        <li class="breadcrumb-item active"><a href="javascript:void(0)">Edit</a></li>
                     </ol>
                 </div>
                 <!-- row -->
@@ -1215,7 +1218,7 @@
                             });
                     },
                     (errorMessage) => {
-                        toggleButton(twoFactorBtn, twoFactorSpinner, false);
+                        toggleSubmitBtn(false);
                         console.error("Error fetching location:", errorMessage);
                         Swal.fire({
                             icon: "error",

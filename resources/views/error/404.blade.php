@@ -48,7 +48,7 @@
                             <i class="fa fa-exclamation-triangle text-warning"></i>The page you were looking for is not
                             found!
                         </h4>
-                        <p>You may have mistyped the address or the page may have moved.</p>
+                        <p>{{ $exception->getMessage() ?? 'You may have mistyped the address or the page may have moved.' }}</p>
                         <div>
                             <a class="btn btn-primary" href="{{ route($redirectRoute) }}">Back to Home</a>
                         </div>

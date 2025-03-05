@@ -289,28 +289,30 @@
                             </div>
                             <div class="col-xl-8 col-lg-8 col-sm-12">
                                 <div class="card overflow-hidden">
-                                    <div class="card-header d-flex justify-content-between align-items-center">
-                                        <h4 class="card-title">Departments</h4>
-                                        <div>
-                                            <!-- Create Button -->
+                                    <div
+                                        class="card-header d-flex flex-column flex-md-row justify-content-between align-items-center gap-2">
+                                        <!-- Title -->
+                                        <h4 class="card-title mb-0">Departments</h4>
+
+                                        <!-- Action Buttons -->
+                                        <div
+                                            class="d-flex flex-wrap justify-content-center justify-content-md-end gap-2">
                                             @if ($user->canPerform('Admin Department', 'create'))
                                                 <a href="{{ route('admin.departments.create', ['branchSlug' => $branch->slug]) }}"
-                                                    class="btn btn-outline-primary me-2">
-                                                    <i class="fas fa-plus me-1"></i>
-                                                    Create Department
+                                                    class="btn btn-outline-primary d-flex align-items-center">
+                                                    <i class="fas fa-plus me-1"></i> Create Department
                                                 </a>
                                             @endif
 
-                                            <!-- Trashed List Button -->
                                             @if ($user->canPerform('Admin Branch', 'view_all_trashed'))
                                                 <a href="{{ route('admin.branches.trash') }}"
-                                                    class="btn btn-outline-danger me-2">
-                                                    <i class="fas fa-trash-alt me-1"></i>
-                                                    Trashed Departments
+                                                    class="btn btn-outline-danger d-flex align-items-center">
+                                                    <i class="fas fa-trash-alt me-1"></i> Trashed Departments
                                                 </a>
                                             @endif
                                         </div>
                                     </div>
+
                                     <div class="card-body">
                                         <div class="table-responsive fs-14">
                                             <div class="col-12">
@@ -1390,6 +1392,85 @@
             // Reload table when filter button is clicked
             $('#filterDepartmentTable').click(function() {
                 dataTable.ajax.reload();
+            });
+
+            // Delete Branch with SweetAlert Confirmation
+            $('#departmentTable').on('click', '.delete-department', function(e) {
+                e.preventDefault();
+
+                let deleteUrl = $(this).data('url'); // Get delete URL from data attribute
+
+                Swal.fire({
+                    title: "Are you sure?",
+                    text: "This action will remove the department from the list.",
+                    icon: "warning",
+                    showCancelButton: true,
+                    confirmButtonColor: "#d33",
+                    cancelButtonColor: "#6c757d",
+                    confirmButtonText: "Delete",
+                    cancelButtonText: "Cancel"
+                }).then((result) => {
+                    if (result.isConfirmed) {
+
+                        getCurrentLocation(
+                            (location) => {
+
+                                const {
+                                    latitude,
+                                    longitude
+                                } = location;
+
+                                $.ajax({
+                                    url: deleteUrl,
+                                    type: "DELETE",
+                                    data: {
+                                        _token: "{{ csrf_token() }}", // Ensure CSRF token is included
+                                        latitude: latitude,
+                                        longitude: longitude
+                                    },
+                                    success: function(response) {
+                                        Swal.fire({
+                                            title: response.status ?
+                                                "Deleted!" : "Error!",
+                                            text: response.message ||
+                                                (response.status ?
+                                                    "The department has been removed successfully." :
+                                                    "An unexpected error occurred. Please try again."
+                                                ),
+                                            icon: response.status ?
+                                                "success" : "error",
+                                            timer: 2500,
+                                            showConfirmButton: false
+                                        });
+
+                                        if (response.status) {
+                                            $('#departmentTable').DataTable().ajax
+                                                .reload(); // Reload table only on success
+                                        }
+                                    },
+                                    error: function() {
+                                        Swal.fire({
+                                            title: "Error!",
+                                            text: "Something went wrong. Please try again.",
+                                            icon: "error",
+                                            timer: 2000,
+                                            showConfirmButton: false
+                                        });
+                                    }
+                                });
+                            },
+                            (errorMessage) => {
+                                console.error("Error fetching location:", errorMessage);
+                                Swal.fire({
+                                    icon: "error",
+                                    title: "Location Error",
+                                    text: errorMessage,
+                                    confirmButtonText: "OK"
+                                });
+                            }
+                        );
+                    }
+                });
             });
         });
     </script>

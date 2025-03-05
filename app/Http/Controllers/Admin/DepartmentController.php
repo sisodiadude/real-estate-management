@@ -41,7 +41,7 @@ class DepartmentController extends Controller
     /**
      * Show the form for creating a new department.
      */
-    public function create($branchSlug, Request $request)
+    public function create(string $branchSlug, Request $request)
     {
         // Verify if the user has the necessary permissions to create a department
         if (!$request->user->canPerform('Admin Department', 'create')) {
@@ -68,7 +68,7 @@ class DepartmentController extends Controller
     /**
      * Store a newly created department.
      */
-    public function store($branchSlug, Request $request)
+    public function store(string $branchSlug, Request $request)
     {
         $activityLogModel = strtolower($request->userType) === 'admin' ? AdminActivityLog::class : null;
 
@@ -274,7 +274,7 @@ class DepartmentController extends Controller
         }
     }
 
-    public function getDepartments($branchSlug, Request $request)
+    public function getDepartments(string $branchSlug, Request $request)
     {
 
         // Ensure the request is an AJAX request
@@ -418,5 +418,360 @@ class DepartmentController extends Controller
             "recordsFiltered" => $filteredRecords,
             "data" => $data
         ]);
+    }
+
+    public function edit(string $branchSlug, string $departmentSlug, Request $request)
+    {
+        try {
+            // Check user permissions
+            if (!$request->user->canPerform('Admin Department', 'edit')) {
+                return abort(403, 'Access Denied: You do not have permission to edit departments.');
+            }
+
+            // Fetch the branch and department in a single query to optimize performance
+            $branch = AdminBranch::where('slug', $branchSlug)->first();
+            $department = AdminDepartment::where('slug', $departmentSlug)->first();
+
+            if (!$branch || !$department) {
+                return abort(404, 'Resource Not Found: The requested branch or department does not exist.');
+            }
+
+            return view('admin.department.edit', [
+                'branch' => $branch,
+                'department' => $department,
+                'user' => $request->user,
+                'userType' => $request->userType,
+                'hasPermissions' => $request->user->permissions,
+            ]);
+        } catch (\Exception $e) {
+            // Log the error for debugging
+            Log::error('Error editing department: ' . $e->getMessage());
+
+            // Return a professional error response
+            return abort(500, $e->getMessage() ?: 'An unexpected error occurred while loading the department details. Please try again.');
+        }
+    }
+
+    /**
+     * Store a newly created department.
+     */
+    public function update(string $branchSlug, string $departmentSlug, Request $request)
+    {
+        $activityLogModel = strtolower($request->userType) === 'admin' ? AdminActivityLog::class : null;
+
+        try {
+
+            // Fetch the branch and department in a single query to optimize performance
+            $branch = AdminBranch::where('slug', $branchSlug)->first();
+            $department = AdminDepartment::where('slug', $departmentSlug)->first();
+
+            if (!$branch || !$department) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Resource Not Found: The requested branch or department does not exist.',
+                ], 404);
+            }
+
+            // Validate latitude and longitude
+            $latitude = $request->input('latitude');
+            $longitude = $request->input('longitude');
+
+            if (
+                !is_numeric($latitude) || !is_numeric($longitude) ||
+                $latitude < -90 || $latitude > 90 ||
+                $longitude < -180 || $longitude > 180
+            ) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Location access is required. Please enable GPS or allow location permissions and try again.',
+                ], 422);
+            }
+
+            // Check user permissions
+            if (!$request->user->canPerform('Admin Department', 'edit')) {
+                if ($activityLogModel) {
+                    // Store Activity Log
+                    $activityLogModel::storeLog(
+                        $request->user,
+                        'Admin Department',
+                        'Update',
+                        false,
+                        'Failed to update a department.',
+                        $request->latitude ?? null,
+                        $request->longitude ?? null,
+                        json_encode(['final_message' => 'not authorized to update department']),
+                        collect($request->except(['latitude', 'longitude', '_token', 'user', 'userType']))->toArray(), // Exclude latitude & longitude
+                        AdminDepartment::class
+                    );
+                }
+                return response()->json([
+                    'status' => false,
+                    'message' => 'You do not have permission to update departments.',
+                ], 403);
+            }
+
+            $validationRules = [
+                // Basic Information
+                'name' => 'required|string|max:100|unique:admin_departments,name,' . $department->id,
+                'email' => 'required|email|max:255|unique:admin_departments,email,' . $department->id,
+                'mobile' => [
+                    'required',
+                    'string',
+                    'max:20,' . $department->id . 'unique:admin_departments,mobile',
+                    'regex:/^\+?[0-9\s-]{10,20}$/'
+                ],
+                'status' => 'required|in:active,inactive,suspended,archived',
+                'description' => 'nullable|string|max:500',
+
+                // Use Branch SMTP Credentials (Required Boolean)
+                'use_branch_operating_hours' => 'required|boolean',
+            ];
+
+            // Conditionally require operating_hours if use_branch_operating_hours is true
+            $validationRules['operating_hours'] = $request->boolean('use_branch_operating_hours')
+                ? 'required|json'
+                : 'nullable|json';
+
+            // Validate the request
+            $validator = Validator::make($request->all(), $validationRules, [
+                // Department Name
+                'name.required' => 'Department name is required.',
+                'name.string' => 'Department name must be a valid string.',
+                'name.max' => 'Department name cannot exceed 100 characters.',
+                'name.unique' => 'A department with this name already exists.',
+
+                // Email
+                'email.required' => 'Department email is required.',
+                'email.email' => 'Please enter a valid email address.',
+                'email.max' => 'Email address cannot exceed 255 characters.',
+                'email.unique' => 'This email is already associated with another department.',
+
+                // Mobile
+                'mobile.required' => 'Department mobile is required.',
+                'mobile.string' => 'Mobile number must be a valid string.',
+                'mobile.max' => 'Mobile number cannot exceed 20 characters.',
+                'mobile.unique' => 'This mobile number is already associated with another department.',
+                'mobile.regex' => 'Please enter a valid mobile number (e.g., +1234567890, 9876543210).',
+
+                // Description
+                'description.string' => 'Description must be a valid text.',
+                'description.max' => 'Description cannot exceed 500 characters.',
+
+                // Use Branch Operating Hours
+                'use_branch_operating_hours.required' => 'Branch Operating Hours selection is required.',
+                'use_branch_operating_hours.boolean' => 'Branch Operating Hours must be true or false.',
+
+                // Operating Hours
+                'operating_hours.required' => 'Operating hours are required when using branch Operating Hours.',
+                'operating_hours.json' => 'Operating hours must be a valid JSON format.',
+
+                // Department Status
+                'status.required' => 'Department status is required.',
+                'status.in' => 'Invalid department status selected. Valid options: active, inactive, suspended, archived.',
+            ]);
+
+            // If validation fails, return errors
+            if ($validator->fails()) {
+                if ($activityLogModel) {
+                    // Store Activity Log
+                    $activityLogModel::storeLog(
+                        $request->user,
+                        'Admin Department',
+                        'update',
+                        false,
+                        'Failed to update a department.',
+                        $request->latitude,
+                        $request->longitude,
+                        json_encode($validator->errors()->toArray()),
+                        collect($request->except(['latitude', 'longitude', '_token', 'user', 'userType']))->toArray(), // Exclude latitude & longitude
+                        AdminDepartment::class
+                    );
+                }
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Validation errors occurred.',
+                    'errors' => $validator->errors()->toArray()
+                ], 422);
+            }
+
+            // Extract validated data
+            $validatedData = collect($validator->validated())->toArray();
+
+            // Begin transaction
+            DB::beginTransaction();
+
+            // Store old values before updating
+            $oldValues = $department->getOriginal();
+
+            // Update branch data
+            $department->update($validatedData);
+
+            // Commit transaction
+            DB::commit();
+
+            // Log success
+            Log::info('Department updated successfully', ['department_id' => $department->id, 'name' => $department->name]);
+
+            if ($activityLogModel) {
+                // Store Activity Log
+                $activityLogModel::storeLog(
+                    $request->user,
+                    'Admin Department',
+                    'Update',
+                    true,
+                    'A department has been successfully updated.',
+                    $request->latitude,
+                    $request->longitude,
+                    json_encode(['final_message' => 'Department updation activity recorded.']), // Description field updated
+                    [
+                        'old' => $oldValues, // Get original values before update
+                        'new' => $department->toArray()       // Get updated values after update
+                    ],
+                    AdminDepartment::class
+                );
+            }
+
+            // Return success response
+            return response()->json([
+                'status' => true,
+                'message' => 'Department updated successfully. Redirecting to the list.',
+                'redirect_url' => route('admin.branches.show', ['branchSlug' => $branch->slug]) // Replace 'department.list' with your actual route name
+            ], 201);
+        } catch (\Exception $e) {
+            // Rollback in case of error
+            DB::rollBack();
+
+            // Log the error
+            Log::error('Department creation failed', [
+                'error' => $e->getMessage(),
+                'request_data' => $request->all()
+            ]);
+
+            if ($activityLogModel) {
+                // Store Activity Log
+                $activityLogModel::storeLog(
+                    $request->user,
+                    'Admin Department',
+                    'Update',
+                    false,
+                    'Failed to update a department.',
+                    $request->latitude ?? null,
+                    $request->longitude ?? null,
+                    json_encode(['final_message' => $e->getMessage()]),
+                    collect($request->except(['latitude', 'longitude', '_token', 'user', 'userType']))->toArray(), // Exclude latitude & longitude
+                    AdminDepartment::class
+                );
+            }
+
+            // Return error response
+            return response()->json([
+                'status' => false,
+                'message' => 'An error occurred while creating the department.',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function delete(string $branchSlug, string $departmentSlug, Request $request)
+    {
+        $activityLogModel = strtolower($request->userType) === 'admin' ? AdminActivityLog::class : null;
+
+        // Fetch the branch and department in a single query to optimize performance
+        $branch = AdminBranch::where('slug', $branchSlug)->first();
+        $department = AdminDepartment::where('slug', $departmentSlug)->first();
+
+        if (!$branch || !$department) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Resource Not Found: The requested branch or department does not exist.',
+            ], 404);
+        }
+
+        try {
+            // Validate latitude and longitude
+            $latitude = $request->input('latitude');
+            $longitude = $request->input('longitude');
+
+            if (
+                !is_numeric($latitude) || !is_numeric($longitude) ||
+                $latitude < -90 || $latitude > 90 ||
+                $longitude < -180 || $longitude > 180
+            ) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Location access is required. Please enable GPS or allow location permissions and try again.',
+                ], 422);
+            }
+
+            // Check user permissions
+            if (!$request->user->canPerform('Admin Department', 'soft_delete')) {
+                if ($activityLogModel) {
+                    $activityLogModel::storeLog(
+                        $request->user,
+                        'Admin Branch',
+                        'Soft Delete',
+                        true, // Assuming the soft delete was successful
+                        'The department has been successfully soft deleted.',
+                        $request->latitude ?? null,
+                        $request->longitude ?? null,
+                        json_encode(['final_message' => 'not authorized to soft delete department']),
+                        $department->toArray(), // Exclude latitude & longitude if necessary
+                        AdminDepartment::class
+                    );
+                }
+                return response()->json([
+                    'status' => false,
+                    'message' => 'You do not have permission to perform this action.',
+                ], 403);
+            }
+
+            // Soft delete the branch
+            $department->delete();
+
+            if ($activityLogModel) {
+                // Store Activity Log
+                $activityLogModel::storeLog(
+                    $request->user,
+                    'Admin Department',
+                    'Soft Delete',
+                    true, // Assuming the soft delete was successful
+                    'The department has been successfully soft deleted.',
+                    $request->latitude ?? null,
+                    $request->longitude ?? null,
+                    json_encode(['final_message' => 'Soft deletion completed']),
+                    $department->toArray(), // Exclude latitude & longitude if necessary
+                    AdminDepartment::class
+                );
+            }
+
+            return response()->json([
+                'status' => true,
+                'message' => 'The department has been successfully deleted.',
+            ], 200);
+        } catch (\Exception $e) {
+            Log::error('Department deletion failed', ['error' => $e->getMessage()]);
+
+            // Store Activity Log
+            if ($activityLogModel) {
+                $activityLogModel::storeLog(
+                    $request->user,
+                    'Admin Department',
+                    'Soft Delete',
+                    false, // Assuming the soft delete was successful
+                    'The department has been failed soft deleted.',
+                    $request->latitude ?? null,
+                    $request->longitude ?? null,
+                    json_encode($e->getMessage()),
+                    $department->toArray(), // Exclude latitude & longitude if necessary
+                    AdminDepartment::class
+                );
+            }
+
+            return response()->json([
+                'status' => false,
+                'message' => 'An unexpected error occurred while processing your request. Please try again later.',
+                'error_details' => $e->getMessage(),
+            ], 500);
+        }
     }
 }

@@ -765,14 +765,23 @@
                                     },
                                     success: function(response) {
                                         Swal.fire({
-                                            title: "Deleted!",
-                                            text: "The branch has been removed successfully.",
-                                            icon: "success",
-                                            timer: 2000,
+                                            title: response.status ?
+                                                "Deleted!" : "Error!",
+                                            text: response.message ||
+                                                (response.status ?
+                                                    "The branch has been removed successfully." :
+                                                    "An unexpected error occurred. Please try again."
+                                                ),
+                                            icon: response.status ?
+                                                "success" : "error",
+                                            timer: 2500,
                                             showConfirmButton: false
                                         });
-                                        $('#branchTable').DataTable().ajax
-                                            .reload(); // Reload table
+
+                                        if (response.status) {
+                                            $('#branchTable').DataTable().ajax
+                                                .reload(); // Reload table only on success
+                                        }
                                     },
                                     error: function() {
                                         Swal.fire({
@@ -786,7 +795,6 @@
                                 });
                             },
                             (errorMessage) => {
-                                toggleButton(twoFactorBtn, twoFactorSpinner, false);
                                 console.error("Error fetching location:", errorMessage);
                                 Swal.fire({
                                     icon: "error",

@@ -46,6 +46,14 @@ class Handler extends ExceptionHandler
                     'exception' => $exception,
                     'redirectRoute' => $redirectRoute
                 ], Response::HTTP_NOT_FOUND);
+            } elseif ($exception->getStatusCode() == 500) {
+                // Check if the user came from an "admin" route
+                $redirectRoute = $request->is('admin/*') ? 'admin.dashboard' : 'dashboard';
+
+                return response()->view('error.500', [
+                    'exception' => $exception,
+                    'redirectRoute' => $redirectRoute
+                ], Response::HTTP_NOT_FOUND);
             }
         }
 
