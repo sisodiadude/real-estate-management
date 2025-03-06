@@ -39,6 +39,19 @@ class AdminPermissionSeeder extends Seeder
                     'restore_trashed' => 'Restore a soft-deleted admin department',
                     'permanent_delete' => 'Permanently delete an admin department',
                 ]
+            ],
+            [
+                'group' => 'Admin Team',
+                'actions' => [
+                    'create' => 'Create a new admin team',
+                    'view_all' => 'View all admin teams',
+                    'view' => 'View a specific admin team',
+                    'edit' => 'Edit an admin team',
+                    'soft_delete' => 'Soft delete an admin team',
+                    'view_all_trashed' => 'View all soft-deleted admin teams',
+                    'restore_trashed' => 'Restore a soft-deleted admin team',
+                    'permanent_delete' => 'Permanently delete an admin team',
+                ]
             ]
         ];
 

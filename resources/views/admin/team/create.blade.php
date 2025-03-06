@@ -78,20 +78,29 @@
         <!-- Content Body Start -->
         <div class="content-body">
             <div class="container-fluid">
-                <div class="page-titles">
-                    <ol class="breadcrumb">
-                        <li class="breadcrumb-item">
-                            <a href="{{ route('admin.branches.index') }}">Branches</a>
-                        </li>
-                        <li class="breadcrumb-item">
-                            <a href="{{ route('admin.branches.show', ['branchSlug' => $branch->slug]) }}">
-                                {{ $branch->name }}
-                            </a>
-                        </li>
-                        <li class="breadcrumb-item active">
-                            <a href="javascript:void(0)">Add Department</a>
-                        </li>
-                    </ol>
+                <div class="form-head page-titles d-flex align-items-center justify-content-between">
+                    <div>
+                        <h4 class="mb-1 fw-bold">Create New Team</h4>
+                        <nav aria-label="breadcrumb">
+                            <ol class="breadcrumb">
+                                <li class="breadcrumb-item"><a href="{{ route('admin.branches.index') }}">Branches</a>
+                                </li>
+                                <li class="breadcrumb-item"><a
+                                        href="{{ route('admin.branches.show', ['branchSlug' => $branch->slug]) }}">{{ $branch->name }}</a>
+                                </li>
+                                <li class="breadcrumb-item"><a
+                                        href="{{ route('admin.departments.show', ['branchSlug' => $branch->slug, 'departmentSlug' => $department->slug]) }}">{{ $department->name }}</a>
+                                </li>
+                                <li class="breadcrumb-item active"><a href="javascript:void(0)">Create Team</a></li>
+                            </ol>
+                        </nav>
+                    </div>
+                    <div class="d-flex gap-2">
+                        <!-- Refresh Button -->
+                        <button class="btn btn-primary rounded light" onclick="location.reload();">
+                            Refresh
+                        </button>
+                    </div>
                 </div>
 
                 <!-- row -->
@@ -102,7 +111,8 @@
                                 <h4 class="card-title">Add Department</h4>
                             </div>
                             <div class="card-body">
-                                <form action="{{ route('admin.departments.store', ['branchSlug' => $branch->slug]) }}"
+                                <form
+                                    action="{{ route('admin.teams.store', ['branchSlug' => $branch->slug, 'departmentSlug' => $department->slug]) }}"
                                     method="POST" class="needs-validation" id="branchForm" novalidate>
                                     @csrf
                                     <div class="row g-3">
@@ -146,89 +156,6 @@
                                         <div class="col-md-8">
                                             <label for="description" class="form-label fw-bold">Description</label>
                                             <textarea id="description" name="description" class="form-control" rows="3" placeholder="Enter description"></textarea>
-                                        </div>
-
-                                        <!-- Section: Operating Hours -->
-                                        <div class="col-12 mt-4">
-                                            <h5 class="text-primary fw-bold mb-3">Operating Hours</h5>
-                                        </div>
-
-                                        <!-- "Same as Branch" Checkbox -->
-                                        <div class="col-12">
-                                            <div class="form-check form-switch mb-3">
-                                                <input class="form-check-input" type="checkbox"
-                                                    id="use_branch_operating_hours" name="use_branch_operating_hours"
-                                                    value="1">
-                                                <label class="form-check-label fw-bold"
-                                                    for="use_branch_operating_hours">Same as Branch</label>
-                                            </div>
-                                        </div>
-
-                                        <div class="operatingHoursContainer">
-                                            <div class="col-12">
-                                                <label class="form-label fw-bold">Set Operating Hours by Day</label>
-                                                @foreach (['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'] as $day)
-                                                    <div class="row align-items-center g-2 mb-2 operating-hours-row">
-                                                        <div class="col-md-2">
-                                                            <label
-                                                                class="form-label fw-bold">{{ $day }}</label>
-                                                        </div>
-
-                                                        <div class="col-md-3">
-                                                            <div class="input-group clockpicker"
-                                                                data-placement="bottom" data-align="top"
-                                                                data-autobtn-close="true">
-                                                                <input type="text"
-                                                                    class="form-control operating-hour-start"
-                                                                    name="operating_hours[{{ strtolower($day) }}][start]"
-                                                                    placeholder="Start Time" required>
-                                                                <span class="input-group-text"><i
-                                                                        class="far fa-clock"></i></span>
-                                                            </div>
-                                                        </div>
-
-                                                        <div class="col-md-3">
-                                                            <div class="input-group clockpicker"
-                                                                data-placement="bottom" data-align="top"
-                                                                data-autobtn-close="true">
-                                                                <input type="text"
-                                                                    class="form-control operating-hour-end"
-                                                                    name="operating_hours[{{ strtolower($day) }}][end]"
-                                                                    placeholder="End Time" required>
-                                                                <span class="input-group-text"><i
-                                                                        class="far fa-clock"></i></span>
-                                                            </div>
-                                                        </div>
-
-                                                        <div
-                                                            class="col-md-2 d-flex align-items-center justify-content-center">
-                                                            <div class="form-check">
-                                                                <input class="form-check-input closed-checkbox"
-                                                                    type="checkbox"
-                                                                    name="operating_hours[{{ strtolower($day) }}][closed]"
-                                                                    value="1"
-                                                                    id="closed_{{ strtolower($day) }}">
-                                                                <label class="form-check-label"
-                                                                    for="closed_{{ strtolower($day) }}">Closed</label>
-                                                            </div>
-                                                        </div>
-
-                                                        <div
-                                                            class="col-md-2 d-flex align-items-center justify-content-center">
-                                                            <div class="form-check">
-                                                                <input class="form-check-input open-24-checkbox"
-                                                                    type="checkbox"
-                                                                    name="operating_hours[{{ strtolower($day) }}][open_24]"
-                                                                    value="1"
-                                                                    id="open_24_{{ strtolower($day) }}">
-                                                                <label class="form-check-label"
-                                                                    for="open_24_{{ strtolower($day) }}">24
-                                                                    Hours</label>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                @endforeach
-                                            </div>
                                         </div>
 
                                         <!-- Submit Buttons -->
@@ -298,69 +225,6 @@
             });
         });
 
-        document.getElementById("use_branch_operating_hours").addEventListener("change", function() {
-            const operatingHoursContainer = document.querySelector('.operatingHoursContainer');
-            if (this.checked) {
-                operatingHoursContainer.classList.add('d-none');
-
-                operatingHoursContainer.querySelectorAll('input, select').forEach(input => {
-                    input.removeAttribute('required');
-                    input.setAttribute('disabled', true);
-                    input.classList.add('opacity-50', 'pe-none'); // Apply Bootstrap styles
-                });
-            } else {
-                operatingHoursContainer.classList.remove('d-none');
-
-                operatingHoursContainer.querySelectorAll('input, select').forEach(input => {
-                    input.removeAttribute('disabled');
-                    input.classList.remove('opacity-50', 'pe-none'); // Remove Bootstrap styles
-                    if (input.classList.contains('operating-hour-start') || input.classList.contains(
-                            'operating-hour-end')) {
-                        input.setAttribute('required', true);
-                    }
-                });
-            }
-        });
-
-        // Handle 24 Hours and Closed Checkbox
-        document.querySelectorAll('.open-24-checkbox, .closed-checkbox').forEach(checkbox => {
-            checkbox.addEventListener('change', function() {
-
-                const row = this.closest('.operating-hours-row');
-
-                const startInput = row.querySelector('.operating-hour-start');
-                const endInput = row.querySelector('.operating-hour-end');
-                const oppositeCheckbox = row.querySelector(
-                    this.classList.contains('open-24-checkbox') ? '.closed-checkbox' :
-                    '.open-24-checkbox'
-                );
-
-                if (this.checked) {
-                    startInput.setAttribute('disabled', true);
-                    endInput.setAttribute('disabled', true);
-                    oppositeCheckbox.setAttribute('disabled', true);
-
-                    startInput.removeAttribute('required');
-                    endInput.removeAttribute('required');
-
-                    // Apply Bootstrap disabled styles
-                    startInput.classList.add('opacity-50', 'pe-none');
-                    endInput.classList.add('opacity-50', 'pe-none');
-                } else {
-                    startInput.removeAttribute('disabled');
-                    endInput.removeAttribute('disabled');
-                    oppositeCheckbox.removeAttribute('disabled');
-
-                    startInput.setAttribute('required', true);
-                    endInput.setAttribute('required', true);
-
-                    // Remove Bootstrap disabled styles
-                    startInput.classList.remove('opacity-50', 'pe-none');
-                    endInput.classList.remove('opacity-50', 'pe-none');
-                }
-            });
-        });
-
         document.addEventListener("DOMContentLoaded", function() {
             const form = document.getElementById("branchForm");
             const submitBtn = form.querySelector('button[type="submit"]');
@@ -409,11 +273,6 @@
                     return;
                 }
 
-                // Get the 'use_branch_operating_hours' checkbox value
-                const useBranchOperatingHours = document.getElementById("use_branch_operating_hours")
-                    .checked ? 1 :
-                    0;
-
                 // AJAX Submission
                 toggleSubmitBtn(true);
 
@@ -427,38 +286,11 @@
                         } = location;
 
                         const formData = new FormData(form);
-                        formData.append("use_branch_operating_hours", useBranchOperatingHours);
                         formData.append("latitude", latitude);
                         formData.append("longitude", longitude);
 
-                        const operatingHours = {};
 
-                        // Loop through each day to get its values
-                        ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"]
-                        .forEach(
-                            day => {
-                                const startInput = document.querySelector(
-                                    `[name="operating_hours[${day}][start]"]`);
-                                const endInput = document.querySelector(
-                                    `[name="operating_hours[${day}][end]"]`);
-                                const closedCheckbox = document.querySelector(
-                                    `[name="operating_hours[${day}][closed]"]`);
-                                const allTimeOpenCheckbox = document.querySelector(
-                                    `[name="operating_hours[${day}][open_24]"]`);
-
-                                operatingHours[day] = {
-                                    start: startInput ? startInput.value : null,
-                                    end: endInput ? endInput.value : null,
-                                    closed: closedCheckbox ? closedCheckbox.checked : false,
-                                    allTimeOpen: allTimeOpenCheckbox ? allTimeOpenCheckbox
-                                        .checked : false
-                                };
-                            });
-
-                        // Append operating hours JSON to formData
-                        formData.append("operating_hours", JSON.stringify(operatingHours));
-
-                        fetch("{{ route('admin.departments.store', ['branchSlug' => $branch->slug]) }}", {
+                        fetch("{{ route('admin.teams.store', ['branchSlug' => $branch->slug, 'departmentSlug' => $department->slug]) }}", {
                                 method: "POST",
                                 body: formData,
                                 headers: {

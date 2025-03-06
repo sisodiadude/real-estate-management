@@ -129,7 +129,7 @@ return new class extends Migration
              * ------------------------------- */
             $table->index(['email', 'mobile']);
             $table->index(['city_id', 'state_id', 'country_id']);
-            $table->index(['branch_type']);
+            $table->index(['type']);
         });
     }
 

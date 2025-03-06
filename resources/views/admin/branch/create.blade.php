@@ -85,8 +85,8 @@
                         <h4 class="mb-1 fw-bold">Create New Branch</h4>
                         <nav aria-label="breadcrumb">
                             <ol class="breadcrumb">
-                                <li class="breadcrumb-item"><a
-                                        href="{{ route('admin.branches.index') }}">Branches</a></li>
+                                <li class="breadcrumb-item"><a href="{{ route('admin.branches.index') }}">Branches</a>
+                                </li>
                                 <li class="breadcrumb-item active"><a href="javascript:void(0)">Create Branch</a></li>
                             </ol>
                         </nav>
@@ -747,13 +747,13 @@
                 <div class="col-md-4">
                     <select class="form-select dropdown-select" name="social_links[${index}][platform]">
                         <option value="">Select Platform</option>
-                        <option value="facebook">Facebook</option>
-                        <option value="linkedin">LinkedIn</option>
-                        <option value="twitter">Twitter</option>
-                        <option value="instagram">Instagram</option>
-                        <option value="youtube">YouTube</option>
-                        <option value="telegram">Telegram</option>
-                        <option value="snapchat">Snapchat</option>
+                        <option value="facebook" data-image="{{ asset('assets/images/iconly/social/circle/facebook.png') }}">Facebook</option>
+                        <option value="linkedin" data-image="{{ asset('assets/images/iconly/social/circle/linkedin.png') }}">LinkedIn</option>
+                        <option value="twitter" data-image="{{ asset('assets/images/iconly/social/circle/twitter.png') }}">Twitter</option>
+                        <option value="instagram" data-image="{{ asset('assets/images/iconly/social/circle/instagram.png') }}">Instagram</option>
+                        <option value="youtube" data-image="{{ asset('assets/images/iconly/social/circle/youtube.png') }}">YouTube</option>
+                        <option value="telegram" data-image="{{ asset('assets/images/iconly/social/circle/telegram.png') }}">Telegram</option>
+                        <option value="snapchat" data-image="{{ asset('assets/images/iconly/social/circle/snapchat.png') }}">Snapchat</option>
                     </select>
                 </div>
                 <div class="col-md-6">

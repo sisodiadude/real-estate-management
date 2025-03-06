@@ -93,12 +93,14 @@
             <div class="container-fluid">
                 <div class="form-head page-titles d-flex align-items-center justify-content-between">
                     <div>
-                        <h4 class="mb-1 fw-bold">Branch Details</h4>
+                        <h4 class="mb-1 fw-bold">Department Details</h4>
                         <nav aria-label="breadcrumb">
                             <ol class="breadcrumb">
-                                <li class="breadcrumb-item active"><a
-                                        href="{{ route('admin.branches.index') }}">Branches</a></li>
+                                <li class="breadcrumb-item"><a href="{{ route('admin.branches.index') }}">Branches</a>
+                                </li>
                                 <li class="breadcrumb-item"><a href="javascript:void(0)">{{ $branch->name }}</a></li>
+                                <li class="breadcrumb-item active"><a
+                                        href="javascript:void(0)">{{ $department->name }}</a></li>
                             </ol>
                         </nav>
                     </div>
@@ -114,48 +116,20 @@
                         <div class="row gx-lg-3">
                             <div class="col-xl-4 col-lg-4 col-sm-12">
                                 @php
-                                    $logoPath = public_path("assets/admin/branch/logo/{$branch->logo}");
-                                    $hasLogo = !empty($branch->logo) && file_exists($logoPath);
-                                    $mapUrl =
-                                        !empty($branch->latitude) && !empty($branch->longitude)
-                                            ? "https://www.google.com/maps?q={$branch->latitude},{$branch->longitude}"
-                                            : null;
-
                                     $statusClasses = [
                                         'active' => 'badge-success text-white',
                                         'inactive' => 'badge-secondary text-white',
                                         'suspended' => 'badge-warning text-dark',
                                         'archived' => 'badge-danger text-white',
                                     ];
-                                    $badgeClass = $statusClasses[$branch->status] ?? 'badge-light text-dark';
-
-                                    $taxDetails = json_decode($branch->tax_details, true);
-                                    $socialLinks = json_decode($branch->social_links, true);
-                                    $socialIcons = [
-                                        'instagram' => 'instagram.png',
-                                        'facebook' => 'facebook.png',
-                                        'twitter' => 'twitter.png',
-                                        'linkedin' => 'linkedin.png',
-                                        'youtube' => 'youtube.png',
-                                        'whatsapp' => 'whatsapp.png',
-                                        'telegram' => 'telegram.png',
-                                        'snapchat' => 'snapchat.png',
-                                    ];
+                                    $badgeClass = $statusClasses[$department->status] ?? 'badge-light text-dark';
                                 @endphp
 
                                 <div class="card shadow-sm rounded-lg border-0">
                                     <!-- Branch Header -->
-                                    <div class="text-center p-4 overlay-box position-relative"
-                                        style="background-size: cover;">
-                                        <div class="profile-photo mx-auto">
-                                            @if ($hasLogo)
-                                                <img src="{{ asset('assets/admin/branch/logo/' . $branch->logo) }}"
-                                                    class="img-fluid rounded-circle border border-white shadow-sm"
-                                                    width="100" alt="{{ $branch->name }}">
-                                            @endif
-                                        </div>
-                                        <h3 class="mt-3 mb-1 text-white">{{ $branch->name }}</h3>
-                                        <p class="text-white mb-0">{{ $branch->branch_unique_id }}</p>
+                                    <div class="text-center p-4 overlay-box position-relative">
+                                        <h3 class="mt-3 mb-1 text-white">{{ $department->name }}</h3>
+                                        <p class="text-white mb-0">{{ $department->department_unique_id }}</p>
                                     </div>
 
                                     <!-- Branch Details -->
@@ -164,9 +138,9 @@
                                             class="list-group-item d-flex justify-content-between flex-wrap align-items-center">
                                             <span class="fw-medium">Email</span>
                                             <strong class="text-dark w-75">
-                                                @if (!empty($branch->email))
-                                                    <a href="mailto:{{ $branch->email }}"
-                                                        class="text-dark text-decoration-none">{{ $branch->email }}</a>
+                                                @if (!empty($department->email))
+                                                    <a href="mailto:{{ $department->email }}"
+                                                        class="text-dark text-decoration-none">{{ $department->email }}</a>
                                                 @else
                                                     N/A
                                                 @endif
@@ -177,104 +151,34 @@
                                             class="list-group-item d-flex justify-content-between flex-wrap align-items-center">
                                             <span class="fw-medium">Mobile</span>
                                             <strong class="text-dark w-75">
-                                                @if (!empty($branch->mobile))
-                                                    <a href="tel:{{ $branch->mobile }}"
-                                                        class="text-dark text-decoration-none">{{ $branch->mobile }}</a>
+                                                @if (!empty($department->mobile))
+                                                    <a href="tel:{{ $department->mobile }}"
+                                                        class="text-dark text-decoration-none">{{ $department->mobile }}</a>
                                                 @else
                                                     N/A
                                                 @endif
                                             </strong>
                                         </li>
 
-                                        <li
-                                            class="list-group-item d-flex justify-content-between align-items-center flex-wrap">
-                                            <span class="fw-medium me-2">Address</span>
-                                            <div class="d-flex flex-grow-1 align-items-center justify-content-between">
-                                                <strong
-                                                    class="text-dark w-100 w-md-75">{{ $branch->full_address ?? 'N/A' }}</strong>
-                                                @if ($mapUrl)
-                                                    <a href="{{ $mapUrl }}" target="_blank"
-                                                        class="text-primary ms-2" title="View on Google Maps">
-                                                        <img src="{{ asset('assets/images/iconly/action/google-maps-locator.png') }}"
-                                                            alt="Map" width="20" height="20">
-                                                    </a>
-                                                @endif
-                                            </div>
-                                        </li>
-
-
-                                        @if (!empty($branch->status))
+                                        @if (!empty($department->status))
                                             <li
                                                 class="list-group-item d-flex justify-content-between flex-wrap align-items-center">
                                                 <span class="fw-medium">Status</span>
                                                 <span class="badge {{ $badgeClass }} px-3 py-2">
-                                                    {{ ucfirst($branch->status) }}
+                                                    {{ ucfirst($department->status) }}
                                                 </span>
                                             </li>
                                         @endif
 
                                         <li
                                             class="list-group-item d-flex justify-content-between flex-wrap align-items-center">
-                                            <span class="fw-medium">GSTIN</span>
-                                            <strong class="text-dark w-75">{{ $branch->gstin ?? 'N/A' }}</strong>
-                                        </li>
-
-                                        <li
-                                            class="list-group-item d-flex justify-content-between flex-wrap align-items-center">
-                                            <span class="fw-medium">Tax Details</span>
-                                            <strong class="text-dark w-75">
-                                                @if (!empty($taxDetails))
-                                                    @foreach ($taxDetails as $tax)
-                                                        {{ $tax['title'] }}
-                                                        ({{ $tax['percentage'] }}%)
-                                                        {{ !$loop->last ? ', ' : '' }}
-                                                    @endforeach
-                                                @else
-                                                    N/A
-                                                @endif
-                                            </strong>
-                                        </li>
-
-                                        <li
-                                            class="list-group-item d-flex justify-content-between flex-wrap align-items-center">
                                             <span class="fw-medium">Created At</span>
                                             <strong class="text-dark w-75">
-                                                @php $createdAt = $branch->created_at->setTimezone($timezone); @endphp
+                                                @php $createdAt = $department->created_at->setTimezone($timezone); @endphp
                                                 {{ $createdAt->format('l, F jS, Y \a\t h:i A') }}
                                                 ({{ $createdAt->diffForHumans() }})</strong>
                                         </li>
-
-                                        @if (!empty($branch->start_date))
-                                            <li
-                                                class="list-group-item d-flex justify-content-between flex-wrap align-items-center">
-                                                <span class="fw-medium">Work Started</span>
-                                                <strong class="text-dark w-75">
-                                                    @php $startDate = $branch->start_date->setTimezone($timezone); @endphp
-                                                    {{ $startDate->format('l, F jS, Y') }}
-                                                    ({{ $startDate->diffForHumans() }})
-                                                </strong>
-                                            </li>
-                                        @endif
                                     </ul>
-
-                                    <!-- Social Links -->
-                                    @if (!empty($socialLinks))
-                                        <div class="card-footer border-0 text-center bg-light">
-                                            <ul class="list-inline mb-0">
-                                                @foreach ($socialLinks as $social)
-                                                    @if (isset($socialIcons[strtolower($social['platform'])]))
-                                                        <li class="list-inline-item">
-                                                            <a href="{{ $social['url'] }}" target="_blank">
-                                                                <img src="{{ asset('assets/images/iconly/social/circle/' . $socialIcons[$social['platform']]) }}"
-                                                                    alt="{{ ucfirst($social['platform']) }}"
-                                                                    width="24" height="24">
-                                                            </a>
-                                                        </li>
-                                                    @endif
-                                                @endforeach
-                                            </ul>
-                                        </div>
-                                    @endif
 
                                     <!-- Description -->
                                     @if (!empty($branch->description))
@@ -291,11 +195,11 @@
                                 <div class="card overflow-hidden">
                                     <div class="card">
                                         <div class="card-header d-flex justify-content-between align-items-center">
-                                            <h4 class="card-title">Departments</h4>
+                                            <h4 class="card-title">Teams</h4>
                                             <!-- Create Department Button as Anchor -->
-                                            <a href="{{ route('admin.departments.create', ['branchSlug' => $branch->slug]) }}" class="btn btn-primary"
-                                                id="createDepartmentBtn">
-                                                <i class="la la-plus me-2"></i> Create Department
+                                            <a href="{{ route('admin.teams.create', ['branchSlug' => $branch->slug, 'departmentSlug' => $department->slug]) }}"
+                                                class="btn btn-primary" id="createTeamBtn">
+                                                <i class="la la-plus me-2"></i> Create Team
                                             </a>
                                         </div>
 
@@ -305,19 +209,19 @@
                                                 <ul class="nav nav-tabs">
                                                     <li class="nav-item">
                                                         <a class="nav-link active" data-bs-toggle="tab"
-                                                            href="#departments">
-                                                            <i class="la la-building me-2"></i> Active Departments
+                                                            href="#teams">
+                                                            <i class="la la-building me-2"></i> Active Teams
                                                         </a>
                                                     </li>
                                                     <li class="nav-item">
                                                         <a class="nav-link" data-bs-toggle="tab"
-                                                            href="#trashedDepartments">
-                                                            <i class="la la-trash me-2"></i> Trashed Departments
+                                                            href="#trashedTeams">
+                                                            <i class="la la-trash me-2"></i> Trashed Teams
                                                         </a>
                                                     </li>
                                                 </ul>
                                                 <div class="tab-content">
-                                                    <div class="tab-pane fade show active" id="departments"
+                                                    <div class="tab-pane fade show active" id="teams"
                                                         role="tabpanel">
                                                         <div class="pt-4">
                                                             <div class="table-responsive fs-14">
@@ -346,7 +250,7 @@
                                                                                         <label for="keyword"
                                                                                             class="form-label">Keyword</label>
                                                                                         <input type="text"
-                                                                                            id="department_keyword"
+                                                                                            id="team_keyword"
                                                                                             name="keyword"
                                                                                             class="form-control"
                                                                                             placeholder="Enter Your Keyword..."
@@ -360,7 +264,7 @@
                                                                                             class="form-label">Created
                                                                                             By</label>
                                                                                         <select
-                                                                                            id="department_created_by"
+                                                                                            id="team_created_by"
                                                                                             name="created_by"
                                                                                             class="form-select dropdown-select">
                                                                                             <option value="">
@@ -387,7 +291,7 @@
                                                                                             class="form-label">Last
                                                                                             Updated By</label>
                                                                                         <select
-                                                                                            id="department_updated_by"
+                                                                                            id="team_updated_by"
                                                                                             name="updated_by"
                                                                                             class="form-select dropdown-select">
                                                                                             <option value="">
@@ -413,7 +317,7 @@
                                                                                         <label for="leader"
                                                                                             class="form-label">Leader
                                                                                             Options</label>
-                                                                                        <select id="department_leader"
+                                                                                        <select id="team_leader"
                                                                                             name="leader"
                                                                                             class="form-select dropdown-select">
                                                                                             <option value="">
@@ -430,7 +334,7 @@
                                                                                         class="mb-3 col-lg-3 col-md-6">
                                                                                         <label for="status"
                                                                                             class="form-label">Status</label>
-                                                                                        <select id="department_status"
+                                                                                        <select id="team_status"
                                                                                             name="status"
                                                                                             class="form-select dropdown-select">
                                                                                             <option value="">
@@ -527,7 +431,7 @@
                                                                                         <label for="keyword"
                                                                                             class="form-label">Keyword</label>
                                                                                         <input type="text"
-                                                                                            id="trashed_department_keyword"
+                                                                                            id="trashed_team_keyword"
                                                                                             name="keyword"
                                                                                             class="form-control"
                                                                                             placeholder="Enter Your Keyword..."
@@ -541,7 +445,7 @@
                                                                                             class="form-label">Created
                                                                                             By</label>
                                                                                         <select
-                                                                                            id="trashed_department_created_by"
+                                                                                            id="trashed_team_created_by"
                                                                                             name="created_by"
                                                                                             class="form-select dropdown-select">
                                                                                             <option value="">
@@ -568,7 +472,7 @@
                                                                                             class="form-label">Last
                                                                                             Updated By</label>
                                                                                         <select
-                                                                                            id="trashed_department_updated_by"
+                                                                                            id="trashed_team_updated_by"
                                                                                             name="updated_by"
                                                                                             class="form-select dropdown-select">
                                                                                             <option value="">
@@ -595,7 +499,7 @@
                                                                                             class="form-label">Leader
                                                                                             Options</label>
                                                                                         <select
-                                                                                            id="trashed_department_leader"
+                                                                                            id="trashed_team_leader"
                                                                                             name="leader"
                                                                                             class="form-select dropdown-select">
                                                                                             <option value="">
@@ -1469,13 +1373,13 @@
                     url: "{{ route('admin.departments.getDepartments', ['branchSlug' => $branch->slug]) }}", // Ensure this route is correct
                     type: 'GET',
                     data: function(d) {
-                        d.search.value = $('#department_keyword').val();
-                        d.status = $('#department_status').val();
-                        d.created_by = $('#department_created_by').val();
-                        d.created_by_role = $('#department_created_by option:selected').data('role');
-                        d.updated_by = $('#department_updated_by').val();
-                        d.updated_by_role = $('#department_updated_by option:selected').data('role');
-                        d.leader = $('#department_leader').val();
+                        d.search.value = $('#team_keyword').val();
+                        d.status = $('#team_status').val();
+                        d.created_by = $('#team_created_by').val();
+                        d.created_by_role = $('#team_created_by option:selected').data('role');
+                        d.updated_by = $('#team_updated_by').val();
+                        d.updated_by_role = $('#team_updated_by option:selected').data('role');
+                        d.leader = $('#team_leader').val();
                     },
                     dataSrc: 'data', // Simplified to expect json.data
                     beforeSend: function(jqXHR) {
@@ -1509,7 +1413,7 @@
                         }
                     },
                     {
-                        data: "department_unique_id",
+                        data: "team_unique_id",
                         className: 'text-center text-nowrap'
                     },
                     {
@@ -1748,14 +1652,14 @@
                     url: "{{ route('admin.departments.trash.data', ['branchSlug' => $branch->slug]) }}", // Ensure this route is correct
                     type: 'GET',
                     data: function(d) {
-                        d.search.value = $('#trashed_department_keyword').val();
-                        d.created_by = $('#trashed_department_created_by').val();
-                        d.created_by_role = $('#trashed_department_created_by option:selected').data(
+                        d.search.value = $('#trashed_team_keyword').val();
+                        d.created_by = $('#trashed_team_created_by').val();
+                        d.created_by_role = $('#trashed_team_created_by option:selected').data(
                             'role');
-                        d.updated_by = $('#trashed_department_updated_by').val();
-                        d.updated_by_role = $('#trashed_department_updated_by option:selected').data(
+                        d.updated_by = $('#trashed_team_updated_by').val();
+                        d.updated_by_role = $('#trashed_team_updated_by option:selected').data(
                             'role');
-                        d.leader = $('#trashed_department_leader').val();
+                        d.leader = $('#trashed_team_leader').val();
                     },
                     dataSrc: 'data', // Simplified to expect json.data
                     beforeSend: function(jqXHR) {
@@ -1789,7 +1693,7 @@
                         }
                     },
                     {
-                        data: "department_unique_id",
+                        data: "team_unique_id",
                         className: 'text-center text-nowrap'
                     },
                     {

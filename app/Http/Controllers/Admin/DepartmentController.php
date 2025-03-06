@@ -6,12 +6,14 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Admin;
 use App\Models\AdminActivityLog;
+
 // Models
 use App\Models\City;
 use App\Models\State;
 use App\Models\Country;
 use App\Models\AdminBranch;
 use App\Models\AdminDepartment;
+
 // Laravel Facades
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -301,7 +303,7 @@ class DepartmentController extends Controller
         $updated_by_role = $request->input('updated_by_role', '');
         $leader = (int) $request->input('leader', 0);
 
-        $columns = ['department_unique_id', 'name', 'mobile', 'email', 'status','created_at', 'updated_at'];
+        $columns = ['department_unique_id', 'name', 'mobile', 'email', 'status', 'created_at', 'updated_at'];
         $orderColumn = $columns[$orderColumnIndex] ?? 'created_at';
         $orderDirection = in_array($orderDirection, ['asc', 'desc']) ? $orderDirection : 'desc';
 
@@ -968,10 +970,6 @@ class DepartmentController extends Controller
         $department = AdminDepartment::onlyTrashed()->where('slug', $departmentSlug)->first();
 
         if (!$branch || !$department) {
-            prArr([
-                'branchSlug' => $branchSlug,
-                'departmentSlug' => $departmentSlug
-            ], 1);
 
             return response()->json([
                 'status' => false,
@@ -1065,6 +1063,44 @@ class DepartmentController extends Controller
                 'message' => 'An unexpected error occurred while processing your request. Please try again later.',
                 'error_details' => config('app.debug') ? $e->getMessage() : null, // Only show details in debug mode
             ], 500);
+        }
+    }
+
+    public function show(string $branchSlug, string $departmentSlug, Request $request)
+    {
+        try {
+            // Check user permissions
+            if (!$request->user->canPerform('Admin Department', 'view')) {
+                abort(403, 'You do not have permission to view department.');
+            }
+
+            // Fetch the branch and department in a single query to optimize performance
+            $branch = AdminBranch::where('slug', $branchSlug)->first();
+            $department = AdminDepartment::where('slug', $departmentSlug)->first();
+
+            if (!$branch || !$department) {
+                abort(404, 'Resource Not Found: The requested branch or department does not exist.');
+            }
+
+            // Return the view with required data
+            return view('admin.department.show', [
+                'branch' => $branch,
+                'department' => $department,
+                'user' => $request->user,
+                'userType' => $request->userType,
+                'hasPermissions' => $request->user->permissions,
+                'userGroups' => ["admins" => Admin::orderBy('first_name', 'asc')->get()],
+            ]);
+        } catch (\Exception $e) {
+            // Log the error for debugging
+            Log::error("Error in Department Show: " . $e->getMessage(), [
+                'branchSlug' => $branchSlug,
+                'departmentSlug' => $departmentSlug,
+                'user_id' => $request->user->id ?? null
+            ]);
+
+            // Corrected abort statement
+            abort(500, $e->getMessage() ?? 'An unexpected error occurred. Please try again later.');
         }
     }
 }

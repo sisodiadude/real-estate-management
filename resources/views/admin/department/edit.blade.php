@@ -320,25 +320,6 @@
 
     <script>
         $(document).ready(function() {
-            function refreshSelect2(selector, options = {}) {
-                $(selector).select2({
-                    placeholder: options.placeholder || "Select an option",
-                    allowClear: options.allowClear !== undefined ? options.allowClear : true
-                });
-            }
-
-            function populateDropdown(selector, data, placeholder) {
-                let dropdown = $(selector);
-                dropdown.empty().append('<option value="">' + placeholder + '</option>');
-                $.each(data, function(key, value) {
-                    dropdown.append('<option value="' + value.id + '">' + value.name + '</option>');
-                });
-                refreshSelect2(selector, {
-                    placeholder: placeholder,
-                    allowClear: true
-                });
-            }
-
             $('select.dropdown-select').select2({
                 width: '100%',
                 templateResult: function(option) {
@@ -354,47 +335,6 @@
                     return imgUrl ? $(
                         `<span><img src="${imgUrl}" width="20" class="me-2"/> ${option.text}</span>`
                     ) : option.text;
-                }
-            });
-
-            $('#country').on('change', function() {
-                let countryId = $(this).val();
-                $('#state').html('<option value="">Loading...</option>');
-                $('#city').html('<option value="">Select a city</option>');
-
-                if (countryId) {
-                    $.ajax({
-                        url: `{{ route('states.index', '') }}/${countryId}`,
-                        type: "GET",
-                        success: function(data) {
-                            populateDropdown('#state', data, "Select a state");
-                        },
-                        error: function() {
-                            populateDropdown('#state', [], "Select a state");
-                        }
-                    });
-                } else {
-                    populateDropdown('#state', [], "Select a state");
-                }
-            });
-
-            $('#state').on('change', function() {
-                let stateId = $(this).val();
-                $('#city').html('<option value="">Loading...</option>');
-
-                if (stateId) {
-                    $.ajax({
-                        url: `{{ route('cities.index', '') }}/${stateId}`,
-                        type: "GET",
-                        success: function(data) {
-                            populateDropdown('#city', data, "Select a city");
-                        },
-                        error: function() {
-                            populateDropdown('#city', [], "Select a city");
-                        }
-                    });
-                } else {
-                    populateDropdown('#city', [], "Select a city");
                 }
             });
         });
