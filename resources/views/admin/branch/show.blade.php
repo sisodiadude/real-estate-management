@@ -289,156 +289,375 @@
                             </div>
                             <div class="col-xl-8 col-lg-8 col-sm-12">
                                 <div class="card overflow-hidden">
-                                    <div
-                                        class="card-header d-flex flex-column flex-md-row justify-content-between align-items-center gap-2">
-                                        <!-- Title -->
-                                        <h4 class="card-title mb-0">Departments</h4>
-
-                                        <!-- Action Buttons -->
-                                        <div
-                                            class="d-flex flex-wrap justify-content-center justify-content-md-end gap-2">
-                                            @if ($user->canPerform('Admin Department', 'create'))
-                                                <a href="{{ route('admin.departments.create', ['branchSlug' => $branch->slug]) }}"
-                                                    class="btn btn-outline-primary d-flex align-items-center">
-                                                    <i class="fas fa-plus me-1"></i> Create Department
-                                                </a>
-                                            @endif
-
-                                            @if ($user->canPerform('Admin Branch', 'view_all_trashed'))
-                                                <a href="{{ route('admin.branches.trash') }}"
-                                                    class="btn btn-outline-danger d-flex align-items-center">
-                                                    <i class="fas fa-trash-alt me-1"></i> Trashed Departments
-                                                </a>
-                                            @endif
+                                    <div class="card">
+                                        <div class="card-header">
+                                            <h4 class="card-title">Departments</h4>
                                         </div>
-                                    </div>
+                                        <div class="card-body">
+                                            <!-- Navigation Tabs -->
+                                            <div class="custom-tab-1">
+                                                <ul class="nav nav-tabs">
+                                                    <li class="nav-item">
+                                                        <a class="nav-link active" data-bs-toggle="tab"
+                                                            href="#departments">
+                                                            <i class="la la-building me-2"></i> Active Departments
+                                                        </a>
+                                                    </li>
+                                                    <li class="nav-item">
+                                                        <a class="nav-link" data-bs-toggle="tab"
+                                                            href="#trashedDepartments">
+                                                            <i class="la la-trash me-2"></i> Trashed Departments
+                                                        </a>
+                                                    </li>
+                                                </ul>
+                                                <div class="tab-content">
+                                                    <div class="tab-pane fade show active" id="departments"
+                                                        role="tabpanel">
+                                                        <div class="pt-4">
+                                                            <div class="table-responsive fs-14">
+                                                                <div class="col-12">
+                                                                    <div
+                                                                        class="filter cm-content-box box-primary shadow-sm rounded">
+                                                                        <div
+                                                                            class="content-title SlideToolHeader d-flex justify-content-between align-items-center px-3 py-2 rounded-top">
+                                                                            <div class="cpa">
+                                                                                <i
+                                                                                    class="fa-sharp fa-solid fa-filter me-2"></i>Filter
+                                                                            </div>
+                                                                            <div class="tools">
+                                                                                <a href="javascript:void(0);"
+                                                                                    class="expand handle">
+                                                                                    <i class="fal fa-angle-down"></i>
+                                                                                </a>
+                                                                            </div>
+                                                                        </div>
+                                                                        <div class="cm-content-body form excerpt">
+                                                                            <div class="card-body">
+                                                                                <div class="row">
+                                                                                    <!-- Keyword Input -->
+                                                                                    <div
+                                                                                        class="mb-3 col-lg-3 col-md-6">
+                                                                                        <label for="keyword"
+                                                                                            class="form-label">Keyword</label>
+                                                                                        <input type="text"
+                                                                                            id="department_keyword"
+                                                                                            name="keyword"
+                                                                                            class="form-control"
+                                                                                            placeholder="Enter Your Keyword..."
+                                                                                            required>
+                                                                                    </div>
 
-                                    <div class="card-body">
-                                        <div class="table-responsive fs-14">
-                                            <div class="col-12">
-                                                <div class="filter cm-content-box box-primary shadow-sm rounded">
-                                                    <div
-                                                        class="content-title SlideToolHeader d-flex justify-content-between align-items-center px-3 py-2 rounded-top">
-                                                        <div class="cpa">
-                                                            <i class="fa-sharp fa-solid fa-filter me-2"></i>Filter
-                                                        </div>
-                                                        <div class="tools">
-                                                            <a href="javascript:void(0);" class="expand handle">
-                                                                <i class="fal fa-angle-down"></i>
-                                                            </a>
+                                                                                    <!-- Created By -->
+                                                                                    <div
+                                                                                        class="mb-3 col-lg-3 col-md-6">
+                                                                                        <label for="created_by"
+                                                                                            class="form-label">Created
+                                                                                            By</label>
+                                                                                        <select
+                                                                                            id="department_created_by"
+                                                                                            name="created_by"
+                                                                                            class="form-select dropdown-select">
+                                                                                            <option value="">
+                                                                                                Select User</option>
+                                                                                            @foreach ($userGroups as $role => $users)
+                                                                                                <optgroup
+                                                                                                    label="{{ ucfirst($role) }}">
+                                                                                                    @foreach ($users as $user)
+                                                                                                        <option
+                                                                                                            value="{{ $user->id }}"
+                                                                                                            data-role="{{ $role }}">
+                                                                                                            {{ trim($user->first_name . ' ' . $user->last_name) }}
+                                                                                                        </option>
+                                                                                                    @endforeach
+                                                                                                </optgroup>
+                                                                                            @endforeach
+                                                                                        </select>
+                                                                                    </div>
+
+                                                                                    <!-- Last Updated By -->
+                                                                                    <div
+                                                                                        class="mb-3 col-lg-3 col-md-6">
+                                                                                        <label for="updated_by"
+                                                                                            class="form-label">Last
+                                                                                            Updated By</label>
+                                                                                        <select
+                                                                                            id="department_updated_by"
+                                                                                            name="updated_by"
+                                                                                            class="form-select dropdown-select">
+                                                                                            <option value="">
+                                                                                                Select User</option>
+                                                                                            @foreach ($userGroups as $role => $users)
+                                                                                                <optgroup
+                                                                                                    label="{{ ucfirst($role) }}">
+                                                                                                    @foreach ($users as $user)
+                                                                                                        <option
+                                                                                                            value="{{ $user->id }}"
+                                                                                                            data-role="{{ $role }}">
+                                                                                                            {{ trim($user->first_name . ' ' . $user->last_name) }}
+                                                                                                        </option>
+                                                                                                    @endforeach
+                                                                                                </optgroup>
+                                                                                            @endforeach
+                                                                                        </select>
+                                                                                    </div>
+
+                                                                                    <!-- Leader (Static Dropdown) -->
+                                                                                    <div
+                                                                                        class="mb-3 col-lg-3 col-md-6">
+                                                                                        <label for="leader"
+                                                                                            class="form-label">Leader
+                                                                                            Options</label>
+                                                                                        <select id="department_leader"
+                                                                                            name="leader"
+                                                                                            class="form-select dropdown-select">
+                                                                                            <option value="">
+                                                                                                Select Option</option>
+                                                                                            <option value="1">
+                                                                                                Leader 1</option>
+                                                                                            <option value="2">
+                                                                                                Leader 2</option>
+                                                                                        </select>
+                                                                                    </div>
+
+                                                                                    <!-- Status Dropdown -->
+                                                                                    <div
+                                                                                        class="mb-3 col-lg-3 col-md-6">
+                                                                                        <label for="status"
+                                                                                            class="form-label">Status</label>
+                                                                                        <select id="department_status"
+                                                                                            name="status"
+                                                                                            class="form-select dropdown-select">
+                                                                                            <option value="">
+                                                                                                Select Status</option>
+                                                                                            <option value="active">
+                                                                                                Active</option>
+                                                                                            <option value="inactive">
+                                                                                                Inactive</option>
+                                                                                            <option value="suspended">
+                                                                                                Suspended</option>
+                                                                                            <option value="archived">
+                                                                                                Archived</option>
+                                                                                        </select>
+                                                                                    </div>
+                                                                                </div>
+
+                                                                                <!-- Search Button -->
+                                                                                <div class="row">
+                                                                                    <div class="col-lg-4 col-md-6">
+                                                                                        <button
+                                                                                            id="filterDepartmentTable"
+                                                                                            class="btn btn-primary w-100"
+                                                                                            title="Click here to Search"
+                                                                                            type="button">
+                                                                                            <i
+                                                                                                class="fa fa-search me-1"></i>Search
+                                                                                        </button>
+                                                                                    </div>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                                <table
+                                                                    class="table display mb-4 dataTablesCard overflow-hidden card-table dataTable"
+                                                                    id="departmentTable">
+                                                                    <thead>
+                                                                        <tr>
+                                                                            <th>
+                                                                                <div
+                                                                                    class="form-check custom-checkbox ms-2">
+                                                                                    <input type="checkbox"
+                                                                                        class="form-check-input select-all-departments"
+                                                                                        id="checkAllDepartmentTableRows"
+                                                                                        required="">
+                                                                                    <label class="form-check-label"
+                                                                                        for="checkAllDepartmentTableRows"></label>
+                                                                                </div>
+                                                                            </th>
+                                                                            <th>ID</th>
+                                                                            <th>Name</th>
+                                                                            <th>Mobile</th>
+                                                                            <th>Email</th>
+                                                                            <th>Status</th>
+                                                                            <th>Leader</th>
+                                                                            <th>Created By</th>
+                                                                            <th>Created At</th>
+                                                                            <th>Updated By</th>
+                                                                            <th>Updated At</th>
+                                                                            <th class="text-end">Action</th>
+                                                                        </tr>
+                                                                    </thead>
+                                                                    <tbody>
+                                                                    </tbody>
+                                                                </table>
+                                                            </div>
                                                         </div>
                                                     </div>
-                                                    <div class="cm-content-body form excerpt">
-                                                        <div class="card-body">
-                                                            <div class="row">
-                                                                <!-- Keyword Input -->
-                                                                <div class="mb-3 col-lg-3 col-md-6">
-                                                                    <label for="keyword"
-                                                                        class="form-label">Keyword</label>
-                                                                    <input type="text" id="keyword"
-                                                                        name="keyword" class="form-control"
-                                                                        placeholder="Enter Your Keyword..." required>
-                                                                </div>
+                                                    <div class="tab-pane fade" id="trashedDepartments">
+                                                        <div class="pt-4">
+                                                            <div class="table-responsive fs-14">
+                                                                <div class="col-12">
+                                                                    <div
+                                                                        class="filter cm-content-box box-primary shadow-sm rounded">
+                                                                        <div
+                                                                            class="content-title SlideToolHeader d-flex justify-content-between align-items-center px-3 py-2 rounded-top">
+                                                                            <div class="cpa">
+                                                                                <i
+                                                                                    class="fa-sharp fa-solid fa-filter me-2"></i>Filter
+                                                                            </div>
+                                                                            <div class="tools">
+                                                                                <a href="javascript:void(0);"
+                                                                                    class="expand handle">
+                                                                                    <i class="fal fa-angle-down"></i>
+                                                                                </a>
+                                                                            </div>
+                                                                        </div>
+                                                                        <div class="cm-content-body form excerpt">
+                                                                            <div class="card-body">
+                                                                                <div class="row">
+                                                                                    <!-- Keyword Input -->
+                                                                                    <div
+                                                                                        class="mb-3 col-lg-3 col-md-6">
+                                                                                        <label for="keyword"
+                                                                                            class="form-label">Keyword</label>
+                                                                                        <input type="text"
+                                                                                            id="trashed_department_keyword"
+                                                                                            name="keyword"
+                                                                                            class="form-control"
+                                                                                            placeholder="Enter Your Keyword..."
+                                                                                            required>
+                                                                                    </div>
 
-                                                                <!-- Created By -->
-                                                                <div class="mb-3 col-lg-3 col-md-6">
-                                                                    <label for="created_by" class="form-label">Created
-                                                                        By</label>
-                                                                    <select id="created_by" name="created_by"
-                                                                        class="form-select dropdown-select">
-                                                                        <option value="">Select User</option>
-                                                                        @foreach ($userGroups as $role => $users)
-                                                                            <optgroup label="{{ ucfirst($role) }}">
-                                                                                @foreach ($users as $user)
-                                                                                    <option
-                                                                                        value="{{ $user->id }}"
-                                                                                        data-role="{{ $role }}">
-                                                                                        {{ trim($user->first_name . ' ' . $user->last_name) }}
-                                                                                    </option>
-                                                                                @endforeach
-                                                                            </optgroup>
-                                                                        @endforeach
-                                                                    </select>
-                                                                </div>
+                                                                                    <!-- Created By -->
+                                                                                    <div
+                                                                                        class="mb-3 col-lg-3 col-md-6">
+                                                                                        <label for="created_by"
+                                                                                            class="form-label">Created
+                                                                                            By</label>
+                                                                                        <select
+                                                                                            id="trashed_department_created_by"
+                                                                                            name="created_by"
+                                                                                            class="form-select dropdown-select">
+                                                                                            <option value="">
+                                                                                                Select User</option>
+                                                                                            @foreach ($userGroups as $role => $users)
+                                                                                                <optgroup
+                                                                                                    label="{{ ucfirst($role) }}">
+                                                                                                    @foreach ($users as $user)
+                                                                                                        <option
+                                                                                                            value="{{ $user->id }}"
+                                                                                                            data-role="{{ $role }}">
+                                                                                                            {{ trim($user->first_name . ' ' . $user->last_name) }}
+                                                                                                        </option>
+                                                                                                    @endforeach
+                                                                                                </optgroup>
+                                                                                            @endforeach
+                                                                                        </select>
+                                                                                    </div>
 
-                                                                <!-- Last Updated By -->
-                                                                <div class="mb-3 col-lg-3 col-md-6">
-                                                                    <label for="updated_by" class="form-label">Last
-                                                                        Updated By</label>
-                                                                    <select id="updated_by" name="updated_by"
-                                                                        class="form-select dropdown-select">
-                                                                        <option value="">Select User</option>
-                                                                        @foreach ($userGroups as $role => $users)
-                                                                            <optgroup label="{{ ucfirst($role) }}">
-                                                                                @foreach ($users as $user)
-                                                                                    <option
-                                                                                        value="{{ $user->id }}"
-                                                                                        data-role="{{ $role }}">
-                                                                                        {{ trim($user->first_name . ' ' . $user->last_name) }}
-                                                                                    </option>
-                                                                                @endforeach
-                                                                            </optgroup>
-                                                                        @endforeach
-                                                                    </select>
-                                                                </div>
+                                                                                    <!-- Last Updated By -->
+                                                                                    <div
+                                                                                        class="mb-3 col-lg-3 col-md-6">
+                                                                                        <label for="updated_by"
+                                                                                            class="form-label">Last
+                                                                                            Updated By</label>
+                                                                                        <select
+                                                                                            id="trashed_department_updated_by"
+                                                                                            name="updated_by"
+                                                                                            class="form-select dropdown-select">
+                                                                                            <option value="">
+                                                                                                Select User</option>
+                                                                                            @foreach ($userGroups as $role => $users)
+                                                                                                <optgroup
+                                                                                                    label="{{ ucfirst($role) }}">
+                                                                                                    @foreach ($users as $user)
+                                                                                                        <option
+                                                                                                            value="{{ $user->id }}"
+                                                                                                            data-role="{{ $role }}">
+                                                                                                            {{ trim($user->first_name . ' ' . $user->last_name) }}
+                                                                                                        </option>
+                                                                                                    @endforeach
+                                                                                                </optgroup>
+                                                                                            @endforeach
+                                                                                        </select>
+                                                                                    </div>
 
-                                                                <!-- Leader (Static Dropdown) -->
-                                                                <div class="mb-3 col-lg-3 col-md-6">
-                                                                    <label for="leader" class="form-label">Leader
-                                                                        Options</label>
-                                                                    <select id="leader" name="leader"
-                                                                        class="form-select dropdown-select">
-                                                                        <option value="">Select Option</option>
-                                                                        <option value="1">Leader 1</option>
-                                                                        <option value="2">Leader 2</option>
-                                                                    </select>
-                                                                </div>
-                                                            </div>
+                                                                                    <!-- Leader (Static Dropdown) -->
+                                                                                    <div
+                                                                                        class="mb-3 col-lg-3 col-md-6">
+                                                                                        <label for="leader"
+                                                                                            class="form-label">Leader
+                                                                                            Options</label>
+                                                                                        <select
+                                                                                            id="trashed_department_leader"
+                                                                                            name="leader"
+                                                                                            class="form-select dropdown-select">
+                                                                                            <option value="">
+                                                                                                Select Option</option>
+                                                                                            <option value="1">
+                                                                                                Leader 1</option>
+                                                                                            <option value="2">
+                                                                                                Leader 2</option>
+                                                                                        </select>
+                                                                                    </div>
+                                                                                </div>
 
-                                                            <!-- Search Button -->
-                                                            <div class="row">
-                                                                <div class="col-lg-4 col-md-6">
-                                                                    <button id="filterDepartmentTable"
-                                                                        class="btn btn-primary w-100"
-                                                                        title="Click here to Search" type="button">
-                                                                        <i class="fa fa-search me-1"></i>Search
-                                                                    </button>
+                                                                                <!-- Search Button -->
+                                                                                <div class="row">
+                                                                                    <div class="col-lg-4 col-md-6">
+                                                                                        <button
+                                                                                            id="trashedFilterDepartmentTable"
+                                                                                            class="btn btn-primary w-100"
+                                                                                            title="Click here to Search"
+                                                                                            type="button">
+                                                                                            <i
+                                                                                                class="fa fa-search me-1"></i>Search
+                                                                                        </button>
+                                                                                    </div>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
                                                                 </div>
+                                                                <table
+                                                                    class="table display mb-4 dataTablesCard overflow-hidden card-table dataTable"
+                                                                    id="trashedDepartmentTable">
+                                                                    <thead>
+                                                                        <tr>
+                                                                            <th>
+                                                                                <div
+                                                                                    class="form-check custom-checkbox ms-2">
+                                                                                    <input type="checkbox"
+                                                                                        class="form-check-input select-all-departments"
+                                                                                        id="checkAllTrashedDepartmentTableRows"
+                                                                                        required="">
+                                                                                    <label class="form-check-label"
+                                                                                        for="checkAllTrashedDepartmentTableRows"></label>
+                                                                                </div>
+                                                                            </th>
+                                                                            <th>ID</th>
+                                                                            <th>Name</th>
+                                                                            <th>Mobile</th>
+                                                                            <th>Email</th>
+                                                                            <th>Leader</th>
+                                                                            <th>Created By</th>
+                                                                            <th>Created At</th>
+                                                                            <th>Deleted By</th>
+                                                                            <th>Deleted At</th>
+                                                                            <th class="text-end">Action</th>
+                                                                        </tr>
+                                                                    </thead>
+                                                                    <tbody>
+                                                                    </tbody>
+                                                                </table>
                                                             </div>
                                                         </div>
                                                     </div>
                                                 </div>
                                             </div>
-                                            <table
-                                                class="table display mb-4 dataTablesCard overflow-hidden card-table dataTable"
-                                                id="departmentTable">
-                                                <thead>
-                                                    <tr>
-                                                        <th>
-                                                            <div class="form-check custom-checkbox ms-2">
-                                                                <input type="checkbox"
-                                                                    class="form-check-input select-all-departments"
-                                                                    id="checkAllDepartmentTableRows" required="">
-                                                                <label class="form-check-label"
-                                                                    for="checkAllDepartmentTableRows"></label>
-                                                            </div>
-                                                        </th>
-                                                        <th>ID</th>
-                                                        <th>Name</th>
-                                                        <th>Mobile</th>
-                                                        <th>Email</th>
-                                                        <th>Leader</th>
-                                                        <th>Created By</th>
-                                                        <th>Created At</th>
-                                                        <th>Updated By</th>
-                                                        <th>Updated At</th>
-                                                        <th class="text-end">Action</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                </tbody>
-                                            </table>
                                         </div>
+                                    </div>
+                                    <div class="card-body">
                                         <div class="row border-top">
                                             <h4 class="title my-3">Property Status</h4>
                                             <div class="col-lg-6">
@@ -1084,9 +1303,10 @@
                                         </li>
                                         <li>
                                             <a href="javascript:void(0);"><svg xmlns="http://www.w3.org/2000/svg"
-                                                    width="20" height="20" viewBox="0 0 24 24" fill="none"
-                                                    stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                                    stroke-linejoin="round" class="feather feather-folder">
+                                                    width="20" height="20" viewBox="0 0 24 24"
+                                                    fill="none" stroke="currentColor" stroke-width="2"
+                                                    stroke-linecap="round" stroke-linejoin="round"
+                                                    class="feather feather-folder">
                                                     <path
                                                         d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z" />
                                                 </svg> Doc <span><i
@@ -1094,9 +1314,10 @@
                                         </li>
                                         <li>
                                             <a href="javascript:void(0);"><svg xmlns="http://www.w3.org/2000/svg"
-                                                    width="20" height="20" viewBox="0 0 24 24" fill="none"
-                                                    stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                                    stroke-linejoin="round" class="feather feather-folder">
+                                                    width="20" height="20" viewBox="0 0 24 24"
+                                                    fill="none" stroke="currentColor" stroke-width="2"
+                                                    stroke-linecap="round" stroke-linejoin="round"
+                                                    class="feather feather-folder">
                                                     <path
                                                         d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z" />
                                                 </svg> Others <span><i
@@ -1104,9 +1325,10 @@
                                         </li>
                                         <li>
                                             <a href="javascript:void(0);"><svg xmlns="http://www.w3.org/2000/svg"
-                                                    width="20" height="20" viewBox="0 0 24 24" fill="none"
-                                                    stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                                    stroke-linejoin="round" class="feather feather-folder">
+                                                    width="20" height="20" viewBox="0 0 24 24"
+                                                    fill="none" stroke="currentColor" stroke-width="2"
+                                                    stroke-linecap="round" stroke-linejoin="round"
+                                                    class="feather feather-folder">
                                                     <path
                                                         d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z" />
                                                 </svg> My Drive <span><i
@@ -1114,9 +1336,10 @@
                                         </li>
                                         <li>
                                             <a href="javascript:void(0);"><svg xmlns="http://www.w3.org/2000/svg"
-                                                    width="20" height="20" viewBox="0 0 24 24" fill="none"
-                                                    stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                                    stroke-linejoin="round" class="feather feather-folder">
+                                                    width="20" height="20" viewBox="0 0 24 24"
+                                                    fill="none" stroke="currentColor" stroke-width="2"
+                                                    stroke-linecap="round" stroke-linejoin="round"
+                                                    class="feather feather-folder">
                                                     <path
                                                         d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z" />
                                                 </svg> Client files <span><i
@@ -1124,9 +1347,10 @@
                                         </li>
                                         <li>
                                             <a href="javascript:void(0);"><svg xmlns="http://www.w3.org/2000/svg"
-                                                    width="20" height="20" viewBox="0 0 24 24" fill="none"
-                                                    stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                                    stroke-linejoin="round" class="feather feather-folder">
+                                                    width="20" height="20" viewBox="0 0 24 24"
+                                                    fill="none" stroke="currentColor" stroke-width="2"
+                                                    stroke-linecap="round" stroke-linejoin="round"
+                                                    class="feather feather-folder">
                                                     <path
                                                         d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z" />
                                                 </svg> Others <span><i
@@ -1134,9 +1358,10 @@
                                         </li>
                                         <li>
                                             <a href="javascript:void(0);"><svg xmlns="http://www.w3.org/2000/svg"
-                                                    width="20" height="20" viewBox="0 0 24 24" fill="none"
-                                                    stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                                    stroke-linejoin="round" class="feather feather-folder">
+                                                    width="20" height="20" viewBox="0 0 24 24"
+                                                    fill="none" stroke="currentColor" stroke-width="2"
+                                                    stroke-linecap="round" stroke-linejoin="round"
+                                                    class="feather feather-folder">
                                                     <path
                                                         d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z" />
                                                 </svg> Music <span><i
@@ -1144,9 +1369,10 @@
                                         </li>
                                         <li>
                                             <a href="javascript:void(0);"><svg xmlns="http://www.w3.org/2000/svg"
-                                                    width="20" height="20" viewBox="0 0 24 24" fill="none"
-                                                    stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                                    stroke-linejoin="round" class="feather feather-folder">
+                                                    width="20" height="20" viewBox="0 0 24 24"
+                                                    fill="none" stroke="currentColor" stroke-width="2"
+                                                    stroke-linecap="round" stroke-linejoin="round"
+                                                    class="feather feather-folder">
                                                     <path
                                                         d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z" />
                                                 </svg> Features <span><i
@@ -1212,31 +1438,51 @@
     <script src="{{ asset('assets/js/custom-2.js') }}"></script>
     <script>
         $(document).ready(function() {
-            var currentAjaxRequest = null;
 
-            var dataTable = $('#departmentTable').DataTable({
+            $('select.dropdown-select').select2({
+                width: '100%',
+                templateResult: function(option) {
+                    if (!option.id) return option.text; // Handle placeholder
+                    let imgUrl = $(option.element).data('image');
+                    return imgUrl ? $(
+                        `<span><img src="${imgUrl}" width="20" class="me-2"/> ${option.text}</span>`
+                    ) : $(`<span>${option.text}</span>`);
+                },
+                templateSelection: function(option) {
+                    if (!option.id) return option.text; // Handle placeholder
+                    let imgUrl = $(option.element).data('image');
+                    return imgUrl ? $(
+                        `<span><img src="${imgUrl}" width="20" class="me-2"/> ${option.text}</span>`
+                    ) : option.text;
+                }
+            });
+
+            var currentDepartmentAjaxRequest = null;
+
+            var departmentDataTable = $('#departmentTable').DataTable({
                 ajax: {
                     url: "{{ route('admin.departments.getDepartments', ['branchSlug' => $branch->slug]) }}", // Ensure this route is correct
                     type: 'GET',
                     data: function(d) {
-                        d.search.value = $('#keyword').val();
-                        d.created_by = $('#created_by').val();
-                        d.created_by_role = $('#created_by option:selected').data('role');
-                        d.updated_by = $('#updated_by').val();
-                        d.updated_by_role = $('#updated_by option:selected').data('role');
-                        d.leader = $('#leader').val();
+                        d.search.value = $('#department_keyword').val();
+                        d.status = $('#department_status').val();
+                        d.created_by = $('#department_created_by').val();
+                        d.created_by_role = $('#department_created_by option:selected').data('role');
+                        d.updated_by = $('#department_updated_by').val();
+                        d.updated_by_role = $('#department_updated_by option:selected').data('role');
+                        d.leader = $('#department_leader').val();
                     },
                     dataSrc: 'data', // Simplified to expect json.data
                     beforeSend: function(jqXHR) {
-                        if (currentAjaxRequest) {
-                            currentAjaxRequest.abort();
+                        if (currentDepartmentAjaxRequest) {
+                            currentDepartmentAjaxRequest.abort();
                         }
-                        $('#branchTable').addClass('processing');
-                        currentAjaxRequest = jqXHR;
+                        $('#departmentTable').addClass('processing');
+                        currentDepartmentAjaxRequest = jqXHR;
                     },
                     complete: function(jqXHR) {
-                        currentAjaxRequest = null;
-                        $('#branchTable').removeClass('processing');
+                        currentDepartmentAjaxRequest = null;
+                        $('#departmentTable').removeClass('processing');
 
                         if (jqXHR.responseJSON) {
                             $('#totalBranchCount').text(jqXHR.responseJSON
@@ -1277,6 +1523,21 @@
                         className: 'text-center text-nowrap',
                         render: function(data) {
                             return data ? `<a href="mailto:${data}">${data}</a>` : '';
+                        }
+                    },
+                    {
+                        data: "status",
+                        className: 'text-center text-nowrap',
+                        render: function(data) {
+                            let statusBadge = {
+                                "active": "success",
+                                "inactive": "secondary",
+                                "suspended": "warning",
+                                "archived": "danger"
+                            };
+                            let badgeClass = statusBadge[data] ||
+                            "dark"; // Default if status is unknown
+                            return `<span class="badge bg-${badgeClass} text-uppercase">${data}</span>`;
                         }
                     },
                     {
@@ -1391,7 +1652,7 @@
 
             // Reload table when filter button is clicked
             $('#filterDepartmentTable').click(function() {
-                dataTable.ajax.reload();
+                departmentDataTable.ajax.reload();
             });
 
             // Delete Branch with SweetAlert Confirmation
@@ -1445,7 +1706,9 @@
 
                                         if (response.status) {
                                             $('#departmentTable').DataTable().ajax
-                                                .reload(); // Reload table only on success
+                                                .reload();
+                                            $('#trashedDepartmentTable').DataTable()
+                                                .ajax.reload();
                                         }
                                     },
                                     error: function() {
@@ -1460,6 +1723,347 @@
                                 });
                             },
                             (errorMessage) => {
+                                console.error("Error fetching location:", errorMessage);
+                                Swal.fire({
+                                    icon: "error",
+                                    title: "Location Error",
+                                    text: errorMessage,
+                                    confirmButtonText: "OK"
+                                });
+                            }
+                        );
+                    }
+                });
+            });
+
+            var currentTrashedDepartmentAjaxRequest = null;
+
+            var trashedDepartmentDataTable = $('#trashedDepartmentTable').DataTable({
+                ajax: {
+                    url: "{{ route('admin.departments.trash.data', ['branchSlug' => $branch->slug]) }}", // Ensure this route is correct
+                    type: 'GET',
+                    data: function(d) {
+                        d.search.value = $('#trashed_department_keyword').val();
+                        d.created_by = $('#trashed_department_created_by').val();
+                        d.created_by_role = $('#trashed_department_created_by option:selected').data(
+                            'role');
+                        d.updated_by = $('#trashed_department_updated_by').val();
+                        d.updated_by_role = $('#trashed_department_updated_by option:selected').data(
+                            'role');
+                        d.leader = $('#trashed_department_leader').val();
+                    },
+                    dataSrc: 'data', // Simplified to expect json.data
+                    beforeSend: function(jqXHR) {
+                        if (currentTrashedDepartmentAjaxRequest) {
+                            currentTrashedDepartmentAjaxRequest.abort();
+                        }
+                        $('#trashedDepartmentTable').addClass('processing');
+                        currentTrashedDepartmentAjaxRequest = jqXHR;
+                    },
+                    complete: function(jqXHR) {
+                        currentTrashedDepartmentAjaxRequest = null;
+                        $('#trashedDepartmentTable').removeClass('processing');
+
+                        if (jqXHR.responseJSON) {
+                            $('#totalBranchCount').text(jqXHR.responseJSON
+                                .recordsTotal); // Use .text() for jQuery
+                        } else {
+                            // console.warn("No responseJSON found");
+                        }
+                    }
+                },
+                columns: [{
+                        data: "checkbox",
+                        orderable: false,
+                        className: 'text-center',
+                        render: function(data) {
+                            return `<div class="form-check custom-checkbox ms-2">
+                                <input type="checkbox" class="form-check-input trashed-department-select" id="customCheckBox${data}" required>
+                                <label class="form-check-label" for="customCheckBox${data}"></label>
+                            </div>`;
+                        }
+                    },
+                    {
+                        data: "department_unique_id",
+                        className: 'text-center text-nowrap'
+                    },
+                    {
+                        data: "name",
+                        className: 'text-center text-nowrap'
+                    },
+                    {
+                        data: "mobile",
+                        className: 'text-center text-nowrap',
+                        render: function(data) {
+                            return data ? `<a href="tel:${data}">${data}</a>` : '';
+                        }
+                    },
+                    {
+                        data: "email",
+                        className: 'text-center text-nowrap',
+                        render: function(data) {
+                            return data ? `<a href="mailto:${data}">${data}</a>` : '';
+                        }
+                    },
+                    {
+                        data: "leader",
+                        orderable: false,
+                        className: 'text-center text-nowrap'
+                    },
+                    {
+                        data: "creator",
+                        orderable: false,
+                        className: 'text-center text-nowrap'
+                    },
+                    {
+                        data: "created_at",
+                        className: 'text-center text-nowrap'
+                    },
+                    {
+                        data: "deletor",
+                        orderable: false,
+                        className: 'text-center text-nowrap'
+                    },
+                    {
+                        data: "deleted_at",
+                        className: 'text-center text-nowrap'
+                    },
+                    {
+                        data: "actions",
+                        orderable: false,
+                        className: 'text-center',
+                        render: function(data) {
+                            let restoreButton = '';
+                            let deleteButton = '';
+
+                            if ({!! json_encode($hasPermissions) !!}.some(perm => perm.group ===
+                                    "Admin Department" && perm
+                                    .action === "restore_trashed") && data.restore) {
+                                restoreButton =
+                                    `<a class="dropdown-item text-black restore-trashed-department" href="javascript:void(0);" data-url="${data.restore}">Restore</a>`;
+                            }
+                            if ({!! json_encode($hasPermissions) !!}.some(perm => perm.group ===
+                                    "Admin Department" && perm
+                                    .action === "permanent_delete") && data.delete) {
+                                deleteButton =
+                                    `<a class="dropdown-item text-black delete-trashed-department" href="javascript:void(0);" data-url="${data.delete}">Delete</a>`;
+                            }
+
+                            if (!restoreButton && !deleteButton) {
+                                return ''; // If no permissions, return empty
+                            }
+
+                            return `<div class="dropdown ms-auto">
+                                <div class="btn-link" data-bs-toggle="dropdown">
+                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M11 12C11 12.5523 11.4482 13 12 13C12.5528 13 13 12.5523 13 12C13 11.4477 12.5528 11 12 11C11.4482 11 11 11.4477 11 12Z" stroke="#3E4954" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+                                        <path d="M18 12C18 12.5523 18.4482 13 19 13C19.5528 13 20 12.5523 20 12C20 11.4477 19.5528 11 19 11C18.4482 11 18 11.4477 18 12Z" stroke="#3E4954" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+                                        <path d="M4 12C4 12.5523 4.4482 13 5 13C5.55277 13 6 12.5523 6 12C6 11.4477 5.55277 11 5 11C4.4482 11 4 11.4477 4 12Z" stroke="#3E4954" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+                                    </svg>
+                                </div>
+                                <div class="dropdown-menu dropdown-menu-end">
+                                    ${restoreButton}
+                                    ${deleteButton}
+                                </div>
+                            </div>`;
+                        }
+                    }
+                ],
+                searching: false,
+                scrollX: false,
+                autoWidth: false,
+                responsive: false,
+                processing: true,
+                serverSide: true,
+                lengthMenu: [10, 25, 50, 100, 200, 500],
+                pageLength: 25,
+                language: {
+                    paginate: {
+                        previous: '<i class="fa fa-angle-double-left"></i>',
+                        next: '<i class="fa fa-angle-double-right"></i>'
+                    },
+                    emptyTable: "<strong>No branches found.</strong>", // Custom empty table message
+                    zeroRecords: "<strong>No matching records found.</strong>" // Custom message when search has no matches
+                },
+                fixedHeader: true,
+                scrollCollapse: true,
+                initComplete: function() {
+                    this.api().columns.adjust(); // Adjust column widths after initialization
+                }
+            });
+
+            // Checkbox Select All Functionality
+            $('#checkAllTrashedDepartmentTableRows').on('click', function() {
+                $('.trashed-department-select').prop('checked', this.checked);
+            });
+
+            $('#trashedDepartmentTable').on('click', '.trashed-department-select', function() {
+                if ($('.trashed-department-select:checked').length === $('.trashed-department-select')
+                    .length) {
+                    $('#checkAllTrashedDepartmentTableRows').prop('checked', true);
+                } else {
+                    $('#checkAllTrashedDepartmentTableRows').prop('checked', false);
+                }
+            });
+
+            // Delete department with SweetAlert Confirmation
+            $('#trashedDepartmentTable').on('click', '.delete-trashed-department', function(e) {
+                e.preventDefault();
+
+                let deleteUrl = $(this).data('url'); // Get delete URL from data attribute
+
+                Swal.fire({
+                    title: "Are you absolutely sure?",
+                    text: "This action is irreversible! The department will be permanently deleted and cannot be restored.",
+                    icon: "warning",
+                    showCancelButton: true,
+                    confirmButtonColor: "#d33",
+                    cancelButtonColor: "#6c757d",
+                    confirmButtonText: "Yes, Delete Permanently",
+                    cancelButtonText: "Cancel"
+                }).then((result) => {
+                    if (result.isConfirmed) {
+
+                        getCurrentLocation(
+                            (location) => {
+                                console.log("Successfully fetched location:", location);
+
+                                const {
+                                    latitude,
+                                    longitude
+                                } = location;
+
+                                $.ajax({
+                                    url: deleteUrl,
+                                    type: "DELETE",
+                                    data: {
+                                        _token: "{{ csrf_token() }}", // Ensure CSRF token is included
+                                        latitude: latitude,
+                                        longitude: longitude
+                                    },
+                                    success: function(response) {
+                                        Swal.fire({
+                                            title: response.status ?
+                                                "Deleted Permanently!" :
+                                                "Error!",
+                                            text: response.message ||
+                                                (response.status ?
+                                                    "The department has been removed forever and cannot be recovered." :
+                                                    "An unexpected error occurred. Please try again."
+                                                ),
+                                            icon: response.status ?
+                                                "success" : "error",
+                                            timer: 2500,
+                                            showConfirmButton: false
+                                        });
+
+                                        if (response.status) {
+                                            $('#departmentTable').DataTable().ajax
+                                                .reload();
+                                            $('#trashedDepartmentTable').DataTable()
+                                                .ajax.reload();
+                                        }
+                                    },
+                                    error: function(xhr) {
+                                        Swal.fire({
+                                            title: "Error!",
+                                            text: xhr.responseJSON
+                                                ?.message ||
+                                                "An unexpected error occurred. Please try again.",
+                                            icon: "error",
+                                            timer: 2500,
+                                            showConfirmButton: false
+                                        });
+                                    }
+                                });
+                            },
+                            (errorMessage) => {
+                                toggleButton(twoFactorBtn, twoFactorSpinner, false);
+                                console.error("Error fetching location:", errorMessage);
+                                Swal.fire({
+                                    icon: "error",
+                                    title: "Location Error",
+                                    text: errorMessage,
+                                    confirmButtonText: "OK"
+                                });
+                            }
+                        );
+                    }
+                });
+            });
+
+            $('#trashedDepartmentTable').on('click', '.restore-trashed-department', function(e) {
+                e.preventDefault();
+
+                let restoreUrl = $(this).data('url'); // Get restore URL from data attribute
+
+                Swal.fire({
+                    title: "Restore Department?",
+                    text: "This will bring back the department and make it active again.",
+                    icon: "question",
+                    showCancelButton: true,
+                    confirmButtonColor: "#28a745",
+                    cancelButtonColor: "#6c757d",
+                    confirmButtonText: "Yes, Restore",
+                    cancelButtonText: "Cancel"
+                }).then((result) => {
+                    if (result.isConfirmed) {
+
+                        getCurrentLocation(
+                            (location) => {
+                                console.log("Successfully fetched location:", location);
+
+                                const {
+                                    latitude,
+                                    longitude
+                                } = location;
+
+                                $.ajax({
+                                    url: restoreUrl,
+                                    type: "POST",
+                                    data: {
+                                        _token: "{{ csrf_token() }}", // Ensure CSRF token is included
+                                        latitude: latitude,
+                                        longitude: longitude
+                                    },
+                                    success: function(response) {
+                                        Swal.fire({
+                                            title: response.status ?
+                                                "Restored Successfully!" :
+                                                "Error!",
+                                            text: response.message ||
+                                                (response.status ?
+                                                    "The department has been successfully restored." :
+                                                    "An unexpected error occurred. Please try again."
+                                                ),
+                                            icon: response.status ?
+                                                "success" : "error",
+                                            timer: 2500,
+                                            showConfirmButton: false
+                                        });
+
+                                        if (response.status) {
+                                            $('#departmentTable').DataTable().ajax
+                                                .reload();
+                                            $('#trashedDepartmentTable').DataTable()
+                                                .ajax.reload();
+                                        }
+                                    },
+                                    error: function(xhr) {
+                                        Swal.fire({
+                                            title: "Error!",
+                                            text: xhr.responseJSON
+                                                ?.message ||
+                                                "An unexpected error occurred. Please try again.",
+                                            icon: "error",
+                                            timer: 2500,
+                                            showConfirmButton: false
+                                        });
+                                    }
+                                });
+                            },
+                            (errorMessage) => {
+                                toggleButton(twoFactorBtn, twoFactorSpinner, false);
                                 console.error("Error fetching location:", errorMessage);
                                 Swal.fire({
                                     icon: "error",

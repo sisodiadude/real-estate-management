@@ -276,62 +276,43 @@ class DepartmentController extends Controller
 
     public function getDepartments(string $branchSlug, Request $request)
     {
-
-        // Ensure the request is an AJAX request
         if (!$request->ajax()) {
-            return response()->json([
-                'status' => false,
-                'error' => 'Invalid request.'
-            ], 400);
+            return response()->json(['status' => false, 'error' => 'Invalid request.'], 400);
         }
 
-        // Ensure the user has permission to view branches
         if (!$request->user->canPerform('Admin Department', 'view_all')) {
-            return response()->json([
-                'status' => false,
-                'error' => 'You do not have permission to view branches.'
-            ], 403);
+            return response()->json(['status' => false, 'error' => 'You do not have permission to view branches.'], 403);
         }
 
-        // Retrieve the branch by slug
         $branch = AdminBranch::where('slug', $branchSlug)->first();
-
         if (!$branch) {
-            return response()->json([
-                'status' => false,
-                'message' => 'Branch not found. Please verify the branch information and try again.'
-            ], 404);
+            return response()->json(['status' => false, 'message' => 'Branch not found. Please verify and try again.'], 404);
         }
 
-        // Pagination and ordering parameters from DataTables
         $start = (int) $request->input('start', 0);
         $length = (int) $request->input('length', 10);
         $orderColumnIndex = (int) $request->input('order.0.column', 0);
-        // echo "$orderColumnIndex <br>";
-        // die;
         $orderDirection = strtolower($request->input('order.0.dir', 'desc'));
         $searchValue = $request->input('search.value', '');
+        $status = $request->input('status', '');
         $created_by = (int) $request->input('created_by', 0);
         $created_by_role = $request->input('created_by_role', '');
         $updated_by = (int) $request->input('updated_by', 0);
         $updated_by_role = $request->input('updated_by_role', '');
         $leader = (int) $request->input('leader', 0);
-        $fromDateFilter = $request->input('fromDate');
-        $toDateFilter = $request->input('toDate');
 
-        // Columns available for ordering
-        $columns = ['department_unique_id', 'name', 'mobile', 'email', 'created_at', 'updated_at'];
-
-        // Ensure a valid column is selected for ordering
+        $columns = ['department_unique_id', 'name', 'mobile', 'email', 'status','created_at', 'updated_at'];
         $orderColumn = $columns[$orderColumnIndex] ?? 'created_at';
         $orderDirection = in_array($orderDirection, ['asc', 'desc']) ? $orderDirection : 'desc';
 
-        // Fetch branches with filtering
-        $query = AdminDepartment::query()->byStatus('active')->byBranchID($branch->id);
+        $query = AdminDepartment::byBranchID($branch->id);
 
-        // Apply search filter
-        if ($request->filled('search.value')) {
-            $searchValue = $request->input('search.value');
+        // Apply filters
+        if ($request->filled('status')) {
+            $query->byStatus($status);
+        }
+
+        if (!empty($searchValue)) {
             $query->where(function ($q) use ($searchValue) {
                 $q->where('department_unique_id', 'like', "%{$searchValue}%")
                     ->orWhere('name', 'like', "%{$searchValue}%")
@@ -357,61 +338,40 @@ class DepartmentController extends Controller
             $query->where('leader_id', $leader);
         }
 
-        // Apply date range filter
         if ($request->filled('fromDate')) {
-            $toDateFilter = $toDateFilter ?? now()->toDateString();
-            $query->whereBetween('date_of_joining', [$fromDateFilter, $toDateFilter]);
+            $toDate = $request->input('toDate', now()->toDateString());
+            $query->whereBetween('date_of_joining', [$request->input('fromDate'), $toDate]);
         }
 
-        // Get total and filtered record count
-        $totalRecords = AdminDepartment::byStatus('active')->byBranchID($branch->id)->count();
+        $totalRecords = AdminDepartment::byBranchID($branch->id)->count();
         $filteredRecords = $query->count();
 
-        // Apply ordering and pagination
         $data = $query->orderBy($orderColumn, $orderDirection)
             ->offset($start)
             ->limit($length)
             ->get()
             ->map(function ($row) use ($request, $branch) {
-
-                // Helper function to format names
-                $getFullName = fn($firstName, $lastName) => trim("{$firstName} {$lastName}") ?: 'N/A';
-
-                $leader = $getFullName(optional($row->leader())->first_name, optional($row->leader())->last_name);
-                $creator = $getFullName(optional($row->creator_details)->first_name, optional($row->creator_details)->last_name);
-                $updator = $getFullName(optional($row->updator_details)->first_name, optional($row->updator_details)->last_name);
-
-                // Checking permissions for actions
-                $viewEdit = $request->user->canPerform('Admin Department', 'view');
-                $canEdit = $request->user->canPerform('Admin Department', 'edit');
-                $canDelete = $request->user->canPerform('Admin Department', 'soft_delete');
-
-                // Generate URLs for edit and delete actions
-                $viewUrl = $viewEdit ? route('admin.departments.show', ['branchSlug' => $branch->slug, 'departmentSlug' => $row->slug]) : null;
-                $editUrl = $canEdit ? route('admin.departments.edit', ['branchSlug' => $branch->slug, 'departmentSlug' => $row->slug]) : null;
-                $deleteUrl = $canDelete ? route('admin.departments.delete', ['branchSlug' => $branch->slug, 'departmentSlug' => $row->slug]) : null;
-
-                $timezone = $request->user->country->timezones[0]['zoneName'] ?? 'UTC';
+                $getFullName = fn($first, $last) => trim("{$first} {$last}") ?: 'N/A';
 
                 return [
                     'department_unique_id' => $row->department_unique_id,
                     'name' => $row->name,
                     'mobile' => $row->mobile,
                     'email' => $row->email,
-                    'leader' => $leader,
-                    'creator' => $creator,
-                    'updator' => $updator,
-                    'created_at' => $row->created_at->setTimezone($timezone)->format('Y-m-d H:i:s'),
-                    'updated_at' => $row->updated_at->setTimezone($timezone)->format('Y-m-d H:i:s'),
+                    'status' => $row->status,
+                    'leader' => $getFullName(optional($row->leader)->first_name, optional($row->leader)->last_name),
+                    'creator' => $getFullName(optional($row->creator_details)->first_name, optional($row->creator_details)->last_name),
+                    'updator' => $getFullName(optional($row->updator_details)->first_name, optional($row->updator_details)->last_name),
+                    'created_at' => $row->created_at->setTimezone($request->user->country->timezones[0]['zoneName'] ?? 'UTC')->format('Y-m-d H:i:s'),
+                    'updated_at' => $row->updated_at->setTimezone($request->user->country->timezones[0]['zoneName'] ?? 'UTC')->format('Y-m-d H:i:s'),
                     'actions' => [
-                        'view' => $viewUrl,
-                        'edit' => $editUrl,
-                        'delete' => $deleteUrl
+                        'view' => $request->user->canPerform('Admin Department', 'view') ? route('admin.departments.show', ['branchSlug' => $branch->slug, 'departmentSlug' => $row->slug]) : null,
+                        'edit' => $request->user->canPerform('Admin Department', 'edit') ? route('admin.departments.edit', ['branchSlug' => $branch->slug, 'departmentSlug' => $row->slug]) : null,
+                        'delete' => $request->user->canPerform('Admin Department', 'soft_delete') ? route('admin.departments.delete', ['branchSlug' => $branch->slug, 'departmentSlug' => $row->slug]) : null
                     ]
                 ];
             });
 
-        // Prepare JSON response
         return response()->json([
             "draw" => (int) $request->input('draw', 0),
             "recordsTotal" => $totalRecords,
@@ -771,6 +731,339 @@ class DepartmentController extends Controller
                 'status' => false,
                 'message' => 'An unexpected error occurred while processing your request. Please try again later.',
                 'error_details' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function getTrashedDepartments(string $branchSlug, Request $request)
+    {
+        // Ensure the request is an AJAX request
+        if (!$request->ajax()) {
+            return response()->json([
+                'status' => false,
+                'error' => 'Invalid request.'
+            ], 400);
+        }
+
+        // Check user permissions
+        if (!$request->user->canPerform('Admin Department', 'view_all_trashed')) {
+            return response()->json([
+                'status' => false,
+                'error' => 'You do not have permission to view trashed branches.'
+            ], 403);
+        }
+
+        // Retrieve branch by slug
+        $branch = AdminBranch::where('slug', $branchSlug)->first();
+
+        if (!$branch) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Branch not found. Please verify the branch information and try again.'
+            ], 404);
+        }
+
+        // DataTables parameters
+        $start = (int) $request->input('start', 0);
+        $length = (int) $request->input('length', 10);
+        $orderColumnIndex = (int) $request->input('order.0.column', 0);
+        $orderDirection = strtolower($request->input('order.0.dir', 'desc'));
+        $searchValue = $request->input('search.value', '');
+        $deletedBy = (int) $request->input('deleted_by', 0);
+        $deletedByRole = $request->input('deleted_by_role', '');
+        $leader = (int) $request->input('leader', 0);
+        $fromDateFilter = $request->input('fromDate');
+        $toDateFilter = $request->input('toDate', now()->toDateString());
+
+        // Columns available for ordering
+        $columns = ['department_unique_id', 'name', 'mobile', 'email', 'created_at', 'updated_at'];
+        $orderColumn = $columns[$orderColumnIndex] ?? 'created_at';
+        $orderDirection = in_array($orderDirection, ['asc', 'desc']) ? $orderDirection : 'desc';
+
+        // Fetch trashed departments
+        $query = AdminDepartment::onlyTrashed()->byBranchID($branch->id);
+
+        if ($searchValue) {
+            $query->where(function ($q) use ($searchValue) {
+                $q->where('department_unique_id', 'like', "%{$searchValue}%")
+                    ->orWhere('name', 'like', "%{$searchValue}%")
+                    ->orWhere('mobile', 'like', "%{$searchValue}%")
+                    ->orWhere('email', 'like', "%{$searchValue}%");
+            });
+        }
+
+        if ($deletedBy > 0 && $deletedByRole) {
+            $query->where('last_updated_by_id', $deletedBy)
+                ->where('last_updated_by_type', $deletedByRole === 'admins' ? 'App\Models\Admin' : 'App\Models\AdminEmployee');
+        }
+
+        if ($leader > 0) {
+            $query->where('leader_id', $leader);
+        }
+
+        if ($fromDateFilter) {
+            $query->whereBetween('date_of_joining', [$fromDateFilter, $toDateFilter]);
+        }
+
+        // Get total and filtered record count
+        $totalRecords = AdminDepartment::onlyTrashed()->byBranchID($branch->id)->count();
+        $filteredRecords = $query->count();
+
+        // Apply ordering and pagination
+        $data = $query->orderBy($orderColumn, $orderDirection)
+            ->offset($start)
+            ->limit($length)
+            ->get()
+            ->map(function ($row) use ($request, $branch) {
+                $getFullName = fn($firstName, $lastName) => trim("{$firstName} {$lastName}") ?: 'N/A';
+
+                return [
+                    'department_unique_id' => $row->department_unique_id,
+                    'name' => $row->name,
+                    'mobile' => $row->mobile,
+                    'email' => $row->email,
+                    'leader' => $getFullName(optional($row->leader())->first_name, optional($row->leader())->last_name),
+                    'creator' => $getFullName(optional($row->creator_details)->first_name, optional($row->creator_details)->last_name),
+                    'deletor' => $getFullName(optional($row->updator_details)->first_name, optional($row->updator_details)->last_name),
+                    'created_at' => $row->created_at->setTimezone($request->user->country->timezones[0]['zoneName'] ?? 'UTC')->format('Y-m-d H:i:s'),
+                    'deleted_at' => $row->updated_at->setTimezone($request->user->country->timezones[0]['zoneName'] ?? 'UTC')->format('Y-m-d H:i:s'),
+                    'actions' => [
+                        'restore' => $request->user->canPerform('Admin Department', 'restore_trashed')
+                            ? route('admin.departments.restore', ['branchSlug' => $branch->slug, 'departmentSlug' => $row->slug])
+                            : null,
+                        'delete' => $request->user->canPerform('Admin Department', 'permanent_delete')
+                            ? route('admin.departments.destroy', ['branchSlug' => $branch->slug, 'departmentSlug' => $row->slug])
+                            : null
+                    ]
+                ];
+            });
+
+        // Return JSON response
+        return response()->json([
+            "draw" => (int) $request->input('draw', 0),
+            "recordsTotal" => $totalRecords,
+            "recordsFiltered" => $filteredRecords,
+            "data" => $data
+        ]);
+    }
+
+    public function restore(string $branchSlug, string $departmentSlug, Request $request)
+    {
+        $activityLogModel = strtolower($request->userType) === 'admin' ? AdminActivityLog::class : null;
+
+        // Fetch the branch and department in a single query to optimize performance
+        $branch = AdminBranch::where('slug', $branchSlug)->first();
+        $department = AdminDepartment::withTrashed()->where('slug', $departmentSlug)->first();
+
+        if (!$branch || !$department) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Resource Not Found: The requested branch or department does not exist.',
+            ], 404);
+        }
+
+        try {
+            // Validate latitude and longitude
+            $latitude = $request->input('latitude');
+            $longitude = $request->input('longitude');
+
+            if (
+                !is_numeric($latitude) || !is_numeric($longitude) ||
+                $latitude < -90 || $latitude > 90 ||
+                $longitude < -180 || $longitude > 180
+            ) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Location access is required. Please enable GPS or allow location permissions and try again.',
+                ], 422);
+            }
+
+            // Check user permissions
+            if (!$request->user->canPerform('Admin Department', 'restore_trashed')) {
+                if ($activityLogModel) {
+                    // Store Activity Log
+                    $activityLogModel::storeLog(
+                        $request->user,
+                        'Admin Department',
+                        'Restore',
+                        true, // Assuming the soft delete was successful
+                        'The department has been successfully restore.',
+                        $request->latitude ?? null,
+                        $request->longitude ?? null,
+                        json_encode(['final_message' => 'not authorized to restore department']),
+                        $department->toArray(), // Exclude latitude & longitude if necessary
+                        AdminDepartment::class
+                    );
+                }
+                return response()->json([
+                    'status' => false,
+                    'message' => 'You do not have permission to perform this action.',
+                ], 403);
+            }
+
+            // Ensure the department is actually deleted before attempting to restore
+            if (!$department->trashed()) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'This department is already active and does not need restoration.',
+                ], 400);
+            }
+
+            // Restore the department
+            $department->restore();
+
+            if ($activityLogModel) {
+                // Store Activity Log
+                $activityLogModel::storeLog(
+                    $request->user,
+                    'Admin Department',
+                    'Restore',
+                    true, // Assuming the soft delete was successful
+                    'The department has been successfully restore.',
+                    $request->latitude ?? null,
+                    $request->longitude ?? null,
+                    json_encode(['final_message' => 'Restored completed']),
+                    $department->toArray(), // Exclude latitude & longitude if necessary
+                    AdminDepartment::class
+                );
+            }
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Department restored successfully.',
+            ], 200);
+        } catch (\Exception $e) {
+            Log::error('Department restoration failed', ['error' => $e->getMessage()]);
+
+            // Store Activity Log
+            if ($activityLogModel) {
+                $activityLogModel::storeLog(
+                    $request->user,
+                    'Admin Department',
+                    'Restore',
+                    false, // Assuming the soft delete was successful
+                    'The department has been failed restore.',
+                    $request->latitude ?? null,
+                    $request->longitude ?? null,
+                    json_encode($e->getMessage()),
+                    $department->toArray(), // Exclude latitude & longitude if necessary
+                    AdminDepartment::class
+                );
+            }
+
+            return response()->json([
+                'status' => false,
+                'message' => 'An unexpected error occurred while processing your request. Please try again later.',
+                'error_details' => config('app.debug') ? $e->getMessage() : null, // Only show details in debug mode
+            ], 500);
+        }
+    }
+
+    public function destroy(string $branchSlug, string $departmentSlug, Request $request)
+    {
+        $activityLogModel = strtolower($request->userType) === 'admin' ? AdminActivityLog::class : null;
+
+        // Fetch the branch and department in a single query to optimize performance
+        $branch = AdminBranch::where('slug', $branchSlug)->first();
+        $department = AdminDepartment::onlyTrashed()->where('slug', $departmentSlug)->first();
+
+        if (!$branch || !$department) {
+            prArr([
+                'branchSlug' => $branchSlug,
+                'departmentSlug' => $departmentSlug
+            ], 1);
+
+            return response()->json([
+                'status' => false,
+                'message' => 'Resource Not Found: The requested branch or department does not exist.',
+            ], 404);
+        }
+
+        try {
+            // Validate latitude and longitude
+            $latitude = $request->input('latitude');
+            $longitude = $request->input('longitude');
+
+            if (
+                !is_numeric($latitude) || !is_numeric($longitude) ||
+                $latitude < -90 || $latitude > 90 ||
+                $longitude < -180 || $longitude > 180
+            ) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Location access is required. Please enable GPS or allow location permissions and try again.',
+                ], 422);
+            }
+
+            // Check user permissions
+            if (!$request->user->canPerform('Admin Department', 'permanent_delete')) {
+                if ($activityLogModel) {
+                    // Store Activity Log
+                    $activityLogModel::storeLog(
+                        $request->user,
+                        'Admin Department',
+                        'Force Delete',
+                        true, // Assuming the soft delete was successful
+                        'The department has been failed force delete.',
+                        $request->latitude ?? null,
+                        $request->longitude ?? null,
+                        json_encode(['final_message' => 'not authorized to force deleted']),
+                        $department->toArray(), // Exclude latitude & longitude if necessary
+                        AdminDepartment::class
+                    );
+                }
+                return response()->json([
+                    'status' => false,
+                    'message' => 'You do not have permission to perform this action.',
+                ], 403);
+            }
+
+            // Permanently delete the department
+            $department->forceDelete();
+
+            if ($activityLogModel) {
+                // Store Activity Log
+                $activityLogModel::storeLog(
+                    $request->user,
+                    'Admin Department',
+                    'Force Delete',
+                    true, // Assuming the soft delete was successful
+                    'The department has been successfully force delete.',
+                    $request->latitude ?? null,
+                    $request->longitude ?? null,
+                    json_encode(['final_message' => 'Force deleted completed']),
+                    $department->toArray(), // Exclude latitude & longitude if necessary
+                    AdminDepartment::class
+                );
+            }
+
+            return response()->json([
+                'status' => true,
+                'message' => 'The department has been permanently deleted and cannot be recovered.',
+            ], 200);
+        } catch (\Exception $e) {
+            Log::error('Department deletion failed', ['error' => $e->getMessage()]);
+
+            // Store Activity Log
+            if ($activityLogModel) {
+                $activityLogModel::storeLog(
+                    $request->user,
+                    'Admin Department',
+                    'Force Delete',
+                    false, // Assuming the soft delete was successful
+                    'The department has been failed force delete.',
+                    $request->latitude ?? null,
+                    $request->longitude ?? null,
+                    json_encode($e->getMessage()),
+                    $department->toArray(), // Exclude latitude & longitude if necessary
+                    AdminDepartment::class
+                );
+            }
+
+            return response()->json([
+                'status' => false,
+                'message' => 'An unexpected error occurred while processing your request. Please try again later.',
+                'error_details' => config('app.debug') ? $e->getMessage() : null, // Only show details in debug mode
             ], 500);
         }
     }

@@ -402,7 +402,6 @@ class BranchController extends Controller
 
     public function getBranches(Request $request)
     {
-
         // Ensure the request is an AJAX request
         if (!$request->ajax()) {
             return response()->json([
@@ -427,6 +426,7 @@ class BranchController extends Controller
         // die;
         $orderDirection = strtolower($request->input('order.0.dir', 'desc'));
         $searchValue = $request->input('search.value', '');
+        $status = $request->input('status', '');
         $country = (int) $request->input('country', 0);
         $state = (int) $request->input('state', 0);
         $city = (int) $request->input('city', 0);
@@ -439,18 +439,21 @@ class BranchController extends Controller
         $toDateFilter = $request->input('toDate');
 
         // Columns available for ordering
-        $columns = ['branch_unique_id', 'name', 'mobile', 'email', 'created_at', 'updated_at'];
+        $columns = ['branch_unique_id', 'name', 'mobile', 'email', 'status', 'created_at', 'updated_at'];
 
         // Ensure a valid column is selected for ordering
         $orderColumn = $columns[$orderColumnIndex] ?? 'created_at';
         $orderDirection = in_array($orderDirection, ['asc', 'desc']) ? $orderDirection : 'desc';
 
         // Fetch branches with filtering
-        $query = AdminBranch::query()->byStatus('active');
+        $query = AdminBranch::query();
+
+        if ($request->filled('status')) {
+            $query->byStatus($status);
+        }
 
         // Apply search filter
         if ($request->filled('search.value')) {
-            $searchValue = $request->input('search.value');
             $query->where(function ($q) use ($searchValue) {
                 $q->where('branch_unique_id', 'like', "%{$searchValue}%")
                     ->orWhere('name', 'like', "%{$searchValue}%")
@@ -498,7 +501,7 @@ class BranchController extends Controller
         }
 
         // Get total and filtered record count
-        $totalRecords = AdminBranch::byStatus('active')->count();
+        $totalRecords = AdminBranch::count();
         $filteredRecords = $query->count();
 
         // Apply ordering and pagination
@@ -532,6 +535,7 @@ class BranchController extends Controller
                     'name' => $row->name,
                     'mobile' => $row->mobile,
                     'email' => $row->email,
+                    'status' => $row->status,
                     'latitude' => $row->latitude,
                     'longitude' => $row->longitude,
                     'address' => $row->full_address,

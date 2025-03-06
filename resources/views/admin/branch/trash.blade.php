@@ -92,9 +92,9 @@
                         <h4 class="mb-1 fw-bold">Trashed Branches</h4>
                         <nav aria-label="breadcrumb">
                             <ol class="breadcrumb">
-                                <li class="breadcrumb-item active"><a
-                                        href="{{ route('admin.branches.index') }}">Branches</a></li>
-                                <li class="breadcrumb-item"><a href="javascript:void(0)">Trashed</a></li>
+                                <li class="breadcrumb-item"><a href="{{ route('admin.branches.index') }}">Branches</a>
+                                </li>
+                                <li class="breadcrumb-item active"><a href="javascript:void(0)">Trashed</a></li>
                             </ol>
                         </nav>
                     </div>

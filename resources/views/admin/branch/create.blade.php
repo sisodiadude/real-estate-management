@@ -80,11 +80,23 @@
         <!-- Content Body Start -->
         <div class="content-body">
             <div class="container-fluid">
-                <div class="page-titles">
-                    <ol class="breadcrumb">
-                        <li class="breadcrumb-item"><a href="{{ route('admin.branches.index') }}">Branches</a></li>
-                        <li class="breadcrumb-item active"><a href="javascript:void(0)">Add Branch</a></li>
-                    </ol>
+                <div class="form-head page-titles d-flex align-items-center justify-content-between">
+                    <div>
+                        <h4 class="mb-1 fw-bold">Create New Branch</h4>
+                        <nav aria-label="breadcrumb">
+                            <ol class="breadcrumb">
+                                <li class="breadcrumb-item"><a
+                                        href="{{ route('admin.branches.index') }}">Branches</a></li>
+                                <li class="breadcrumb-item active"><a href="javascript:void(0)">Create Branch</a></li>
+                            </ol>
+                        </nav>
+                    </div>
+                    <div class="d-flex gap-2">
+                        <!-- Refresh Button -->
+                        <button class="btn btn-primary rounded light" onclick="location.reload();">
+                            Refresh
+                        </button>
+                    </div>
                 </div>
                 <!-- row -->
                 <div class="row">

@@ -80,14 +80,26 @@
         <!-- Content Body Start -->
         <div class="content-body">
             <div class="container-fluid">
-                <div class="page-titles">
-                    <ol class="breadcrumb">
-                        <li class="breadcrumb-item"><a href="{{ route('admin.branches.index') }}">Branches</a></li>
-                        <li class="breadcrumb-item"><a
-                                href="{{ route('admin.branches.show', ['branchSlug' => $branch->slug]) }}">{{ $branch->slug }}</a>
-                        </li>
-                        <li class="breadcrumb-item active"><a href="javascript:void(0)">Edit</a></li>
-                    </ol>
+                <div class="form-head page-titles d-flex align-items-center justify-content-between">
+                    <div>
+                        <h4 class="mb-1 fw-bold">Edit Branch: {{ $branch->name }}</h4>
+                        <nav aria-label="breadcrumb">
+                            <ol class="breadcrumb">
+                                <li class="breadcrumb-item"><a href="{{ route('admin.branches.index') }}">Branches</a>
+                                </li>
+                                <li class="breadcrumb-item"><a
+                                        href="{{ route('admin.branches.show', ['branchSlug' => $branch->slug]) }}">{{ $branch->name }}</a>
+                                </li>
+                                <li class="breadcrumb-item active"><a href="javascript:void(0)">Edit</a></li>
+                            </ol>
+                        </nav>
+                    </div>
+                    <div class="d-flex gap-2">
+                        <!-- Refresh Button -->
+                        <button class="btn btn-primary rounded light" onclick="location.reload();">
+                            Refresh
+                        </button>
+                    </div>
                 </div>
                 <!-- row -->
                 <div class="row">

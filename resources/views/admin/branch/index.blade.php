@@ -93,9 +93,9 @@
                         <h4 class="mb-1 fw-bold">Branch List</h4>
                         <nav aria-label="breadcrumb">
                             <ol class="breadcrumb">
-                                <li class="breadcrumb-item active"><a
+                                <li class="breadcrumb-item"><a
                                         href="{{ route('admin.branches.index') }}">Branches</a></li>
-                                <li class="breadcrumb-item"><a href="javascript:void(0)">list</a></li>
+                                <li class="breadcrumb-item active"><a href="javascript:void(0)">list</a></li>
                             </ol>
                         </nav>
                     </div>
@@ -270,6 +270,24 @@
                                             </select>
                                         </div>
 
+                                        <!-- Status Selection -->
+                                        <div class="mb-3 col-lg-3 col-md-6">
+                                            <label for="status" class="form-label">Status</label>
+                                            <select id="status" name="status"
+                                                class="form-select dropdown-select">
+                                                <option value="">
+                                                    Select Status</option>
+                                                <option value="active">
+                                                    Active</option>
+                                                <option value="inactive">
+                                                    Inactive</option>
+                                                <option value="suspended">
+                                                    Suspended</option>
+                                                <option value="archived">
+                                                    Archived</option>
+                                            </select>
+                                        </div>
+
                                         <!-- Created By -->
                                         <div class="mb-3 col-lg-3 col-md-6">
                                             <label for="created_by" class="form-label">Created By</label>
@@ -352,6 +370,7 @@
                                         <th>Name</th>
                                         <th>Mobile</th>
                                         <th>Email</th>
+                                        <th>Status</th>
                                         <th>Address</th>
                                         <th>Leader</th>
                                         <th>Created By</th>
@@ -509,6 +528,7 @@
                     type: 'GET',
                     data: function(d) {
                         d.search.value = $('#keyword').val();
+                        d.status = $('#status').val();
                         d.country = $('#country').val();
                         d.state = $('#state').val();
                         d.city = $('#city').val();
@@ -569,6 +589,21 @@
                         className: 'text-center text-nowrap',
                         render: function(data) {
                             return data ? `<a href="mailto:${data}">${data}</a>` : '';
+                        }
+                    },
+                    {
+                        data: "status",
+                        className: 'text-center text-nowrap',
+                        render: function(data) {
+                            let statusBadge = {
+                                "active": "success",
+                                "inactive": "secondary",
+                                "suspended": "warning",
+                                "archived": "danger"
+                            };
+                            let badgeClass = statusBadge[data] ||
+                            "dark"; // Default if status is unknown
+                            return `<span class="badge bg-${badgeClass} text-uppercase">${data}</span>`;
                         }
                     },
                     {
