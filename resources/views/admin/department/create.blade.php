@@ -102,7 +102,7 @@
                                 <h4 class="card-title">Add Department</h4>
                             </div>
                             <div class="card-body">
-                                <form action="{{ route('admin.departments.store', ['branchSlug' => $branch->slug]) }}"
+                                <form action="{{ route('admin.branches.departments.store', ['branchSlug' => $branch->slug]) }}"
                                     method="POST" class="needs-validation" id="branchForm" novalidate>
                                     @csrf
                                     <div class="row g-3">
@@ -458,7 +458,7 @@
                         // Append operating hours JSON to formData
                         formData.append("operating_hours", JSON.stringify(operatingHours));
 
-                        fetch("{{ route('admin.departments.store', ['branchSlug' => $branch->slug]) }}", {
+                        fetch("{{ route('admin.branches.departments.store', ['branchSlug' => $branch->slug]) }}", {
                                 method: "POST",
                                 body: formData,
                                 headers: {

@@ -197,7 +197,7 @@
                                         <div class="card-header d-flex justify-content-between align-items-center">
                                             <h4 class="card-title">Teams</h4>
                                             <!-- Create Department Button as Anchor -->
-                                            <a href="{{ route('admin.teams.create', ['branchSlug' => $branch->slug, 'departmentSlug' => $department->slug]) }}"
+                                            <a href="{{ route('admin.branches.departments.teams.create', ['branchSlug' => $branch->slug, 'departmentSlug' => $department->slug]) }}"
                                                 class="btn btn-primary" id="createTeamBtn">
                                                 <i class="la la-plus me-2"></i> Create Team
                                             </a>
@@ -1370,7 +1370,7 @@
 
             var teamDataTable = $('#teamTable').DataTable({
                 ajax: {
-                    url: "{{ route('admin.teams.getTeams', ['branchSlug' => $branch->slug, 'departmentSlug' => $department->slug]) }}", // Ensure this route is correct
+                    url: "{{ route('admin.branches.departments.teams.getTeams', ['branchSlug' => $branch->slug, 'departmentSlug' => $department->slug]) }}", // Ensure this route is correct
                     type: 'GET',
                     data: function(d) {
                         d.search.value = $('#team_keyword').val();
@@ -1649,7 +1649,7 @@
 
             var trashedDepartmentDataTable = $('#trashedTeamTable').DataTable({
                 ajax: {
-                    url: "{{ route('admin.teams.trash.data', ['branchSlug' => $branch->slug, 'departmentSlug' => $department->slug]) }}", // Ensure this route is correct
+                    url: "{{ route('admin.branches.departments.teams.trash.data', ['branchSlug' => $branch->slug, 'departmentSlug' => $department->slug]) }}", // Ensure this route is correct
                     type: 'GET',
                     data: function(d) {
                         d.search.value = $('#trashed_team_keyword').val();

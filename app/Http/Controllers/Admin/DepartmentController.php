@@ -367,9 +367,9 @@ class DepartmentController extends Controller
                     'created_at' => $row->created_at->setTimezone($request->user->country->timezones[0]['zoneName'] ?? 'UTC')->format('Y-m-d H:i:s'),
                     'updated_at' => $row->updated_at->setTimezone($request->user->country->timezones[0]['zoneName'] ?? 'UTC')->format('Y-m-d H:i:s'),
                     'actions' => [
-                        'view' => $request->user->canPerform('Admin Department', 'view') ? route('admin.departments.show', ['branchSlug' => $branch->slug, 'departmentSlug' => $row->slug]) : null,
-                        'edit' => $request->user->canPerform('Admin Department', 'edit') ? route('admin.departments.edit', ['branchSlug' => $branch->slug, 'departmentSlug' => $row->slug]) : null,
-                        'delete' => $request->user->canPerform('Admin Department', 'soft_delete') ? route('admin.departments.delete', ['branchSlug' => $branch->slug, 'departmentSlug' => $row->slug]) : null
+                        'view' => $request->user->canPerform('Admin Department', 'view') ? route('admin.branches.departments.show', ['branchSlug' => $branch->slug, 'departmentSlug' => $row->slug]) : null,
+                        'edit' => $request->user->canPerform('Admin Department', 'edit') ? route('admin.branches.departments.edit', ['branchSlug' => $branch->slug, 'departmentSlug' => $row->slug]) : null,
+                        'delete' => $request->user->canPerform('Admin Department', 'soft_delete') ? route('admin.branches.departments.delete', ['branchSlug' => $branch->slug, 'departmentSlug' => $row->slug]) : null
                     ]
                 ];
             });
@@ -831,10 +831,10 @@ class DepartmentController extends Controller
                     'deleted_at' => $row->updated_at->setTimezone($request->user->country->timezones[0]['zoneName'] ?? 'UTC')->format('Y-m-d H:i:s'),
                     'actions' => [
                         'restore' => $request->user->canPerform('Admin Department', 'restore_trashed')
-                            ? route('admin.departments.restore', ['branchSlug' => $branch->slug, 'departmentSlug' => $row->slug])
+                            ? route('admin.branches.departments.restore', ['branchSlug' => $branch->slug, 'departmentSlug' => $row->slug])
                             : null,
                         'delete' => $request->user->canPerform('Admin Department', 'permanent_delete')
-                            ? route('admin.departments.destroy', ['branchSlug' => $branch->slug, 'departmentSlug' => $row->slug])
+                            ? route('admin.branches.departments.destroy', ['branchSlug' => $branch->slug, 'departmentSlug' => $row->slug])
                             : null
                     ]
                 ];

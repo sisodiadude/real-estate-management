@@ -199,7 +199,7 @@
                                         <div class="card-header d-flex justify-content-between align-items-center">
                                             <h4 class="card-title">Teams</h4>
                                             <!-- Create Department Button as Anchor -->
-                                            <a href="{{ route('admin.teams.create', ['branchSlug' => $branch->slug, 'departmentSlug' => $department->slug]) }}"
+                                            <a href="{{ route('admin.branches.departments.teams.create', ['branchSlug' => $branch->slug, 'departmentSlug' => $department->slug]) }}"
                                                 class="btn btn-primary" id="createTeamBtn">
                                                 <i class="la la-plus me-2"></i> Create Team
                                             </a>
@@ -579,22 +579,37 @@
                                                                     Sale</p>
                                                                 <span class="fs-13">Target 3k/month</span>
                                                             </div>
+
+                                                            @php
+                                                                $percentage = 25; // Example percentage value
+                                                                $fillColor = 'rgb(60, 76, 184)'; // Primary color
+                                                                $bgColor = 'rgba(236, 236, 236, 1)'; // Background color
+
+                                                                // Convert percentage to Peity data format (e.g., 25% -> 25/100)
+                                                                $value1 = $percentage;
+                                                                $value2 = 100 - $percentage;
+                                                            @endphp
+
+
                                                             <div
                                                                 class="d-inline-block position-relative donut-chart-sale">
                                                                 <span class="donut1"
-                                                                    data-peity="{ &quot;fill&quot;: [&quot;rgb(60, 76, 184)&quot;, &quot;rgba(236, 236, 236, 1)&quot;],   &quot;innerRadius&quot;: 38, &quot;radius&quot;: 10}"
-                                                                    style="display: none;">5/8</span><svg
-                                                                    class="peity" height="90" width="90">
+                                                                    data-peity='{ "fill": ["{{ $fillColor }}", "{{ $bgColor }}"], "innerRadius": 38, "radius": 10 }'
+                                                                    style="display: none;">{{ $value1 }}/{{ $value1 + $value2 }}</span>
+                                                                <svg class="peity" height="90" width="90">
                                                                     <path
                                                                         d="M 45 0 A 45 45 0 1 1 13.180194846605364 76.81980515339464 L 18.129942314911197 71.87005768508881 A 38 38 0 1 0 45 7"
-                                                                        data-value="5" fill="rgb(60, 76, 184)">
+                                                                        data-value="{{ $value1 }}"
+                                                                        fill="{{ $fillColor }}">
                                                                     </path>
                                                                     <path
                                                                         d="M 13.180194846605364 76.81980515339464 A 45 45 0 0 1 44.99999999999999 0 L 44.99999999999999 7 A 38 38 0 0 0 18.129942314911197 71.87005768508881"
-                                                                        data-value="3" fill="rgba(236, 236, 236, 1)">
+                                                                        data-value="{{ $value2 }}"
+                                                                        fill="{{ $bgColor }}">
                                                                     </path>
                                                                 </svg>
-                                                                <small class="text-primary">71%</small>
+                                                                <small
+                                                                    class="text-primary">{{ $percentage }}%</small>
                                                                 <span class="circle bgl-primary"></span>
                                                             </div>
                                                         </div>
@@ -1366,7 +1381,7 @@
 
             var teamDataTable = $('#teamTable').DataTable({
                 ajax: {
-                    url: "{{ route('admin.teams.getTeams', ['branchSlug' => $branch->slug, 'departmentSlug' => $department->slug]) }}", // Ensure this route is correct
+                    url: "{{ route('admin.branches.departments.teams.getTeams', ['branchSlug' => $branch->slug, 'departmentSlug' => $department->slug]) }}", // Ensure this route is correct
                     type: 'GET',
                     data: function(d) {
                         d.search.value = $('#team_keyword').val();
@@ -1645,7 +1660,7 @@
 
             var trashedDepartmentDataTable = $('#trashedTeamTable').DataTable({
                 ajax: {
-                    url: "{{ route('admin.teams.trash.data', ['branchSlug' => $branch->slug, 'departmentSlug' => $department->slug]) }}", // Ensure this route is correct
+                    url: "{{ route('admin.branches.departments.teams.trash.data', ['branchSlug' => $branch->slug, 'departmentSlug' => $department->slug]) }}", // Ensure this route is correct
                     type: 'GET',
                     data: function(d) {
                         d.search.value = $('#trashed_team_keyword').val();

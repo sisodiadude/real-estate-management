@@ -92,7 +92,7 @@
                                         href="{{ route('admin.departments.show', ['branchSlug' => $branch->slug, 'departmentSlug' => $department->slug]) }}">{{ $department->name }}</a>
                                 </li>
                                 <li class="breadcrumb-item"><a
-                                        href="{{ route('admin.teams.show', ['branchSlug' => $branch->slug, 'departmentSlug' => $department->slug, 'teamSlug' => $team->slug]) }}">{{ $team->name }}</a>
+                                        href="{{ route('admin.branches.departments.teams.show', ['branchSlug' => $branch->slug, 'departmentSlug' => $department->slug, 'teamSlug' => $team->slug]) }}">{{ $team->name }}</a>
                                 </li>
                                 <li class="breadcrumb-item active"><a href="javascript:void(0)">Edit</a></li>
                             </ol>
@@ -115,7 +115,7 @@
                             </div>
                             <div class="card-body">
                                 <form
-                                    action="{{ route('admin.teams.update', ['branchSlug' => $branch->slug, 'departmentSlug' => $department->slug, 'teamSlug' => $team->slug]) }}"
+                                    action="{{ route('admin.branches.departments.teams.update', ['branchSlug' => $branch->slug, 'departmentSlug' => $department->slug, 'teamSlug' => $team->slug]) }}"
                                     method="POST" class="needs-validation" id="branchForm" novalidate>
                                     @csrf
                                     @method('PUT')
@@ -305,7 +305,7 @@
                         formData.append("longitude", longitude);
 
 
-                        fetch("{{ route('admin.teams.update', ['branchSlug' => $branch->slug, 'departmentSlug' => $department->slug, 'teamSlug' => $team->slug]) }}", {
+                        fetch("{{ route('admin.branches.departments.teams.update', ['branchSlug' => $branch->slug, 'departmentSlug' => $department->slug, 'teamSlug' => $team->slug]) }}", {
                                 method: "POST",
                                 body: formData,
                                 headers: {

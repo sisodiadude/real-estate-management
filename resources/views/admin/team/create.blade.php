@@ -112,7 +112,7 @@
                             </div>
                             <div class="card-body">
                                 <form
-                                    action="{{ route('admin.teams.store', ['branchSlug' => $branch->slug, 'departmentSlug' => $department->slug]) }}"
+                                    action="{{ route('admin.branches.departments.teams.store', ['branchSlug' => $branch->slug, 'departmentSlug' => $department->slug]) }}"
                                     method="POST" class="needs-validation" id="branchForm" novalidate>
                                     @csrf
                                     <div class="row g-3">
@@ -290,7 +290,7 @@
                         formData.append("longitude", longitude);
 
 
-                        fetch("{{ route('admin.teams.store', ['branchSlug' => $branch->slug, 'departmentSlug' => $department->slug]) }}", {
+                        fetch("{{ route('admin.branches.departments.teams.store', ['branchSlug' => $branch->slug, 'departmentSlug' => $department->slug]) }}", {
                                 method: "POST",
                                 body: formData,
                                 headers: {

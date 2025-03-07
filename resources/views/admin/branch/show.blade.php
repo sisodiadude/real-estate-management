@@ -293,7 +293,7 @@
                                         <div class="card-header d-flex justify-content-between align-items-center">
                                             <h4 class="card-title">Departments</h4>
                                             <!-- Create Department Button as Anchor -->
-                                            <a href="{{ route('admin.departments.create', ['branchSlug' => $branch->slug]) }}" class="btn btn-primary"
+                                            <a href="{{ route('admin.branches.departments.create', ['branchSlug' => $branch->slug]) }}" class="btn btn-primary"
                                                 id="createDepartmentBtn">
                                                 <i class="la la-plus me-2"></i> Create Department
                                             </a>
@@ -1466,7 +1466,7 @@
 
             var departmentDataTable = $('#departmentTable').DataTable({
                 ajax: {
-                    url: "{{ route('admin.departments.getDepartments', ['branchSlug' => $branch->slug]) }}", // Ensure this route is correct
+                    url: "{{ route('admin.branches.departments.getDepartments', ['branchSlug' => $branch->slug]) }}", // Ensure this route is correct
                     type: 'GET',
                     data: function(d) {
                         d.search.value = $('#department_keyword').val();
@@ -1745,7 +1745,7 @@
 
             var trashedDepartmentDataTable = $('#trashedDepartmentTable').DataTable({
                 ajax: {
-                    url: "{{ route('admin.departments.trash.data', ['branchSlug' => $branch->slug]) }}", // Ensure this route is correct
+                    url: "{{ route('admin.branches.departments.trash.data', ['branchSlug' => $branch->slug]) }}", // Ensure this route is correct
                     type: 'GET',
                     data: function(d) {
                         d.search.value = $('#trashed_department_keyword').val();

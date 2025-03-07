@@ -348,9 +348,9 @@ class TeamController extends Controller
                     'created_at' => $row->created_at->setTimezone($request->user->country->timezones[0]['zoneName'] ?? 'UTC')->format('Y-m-d H:i:s'),
                     'updated_at' => $row->updated_at->setTimezone($request->user->country->timezones[0]['zoneName'] ?? 'UTC')->format('Y-m-d H:i:s'),
                     'actions' => [
-                        'view' => $request->user->canPerform('Admin Team', 'view') ? route('admin.teams.show', ['branchSlug' => $branch->slug, 'departmentSlug' => $department->slug, 'teamSlug' => $row->slug]) : null,
-                        'edit' => $request->user->canPerform('Admin Team', 'edit') ? route('admin.teams.edit', ['branchSlug' => $branch->slug, 'departmentSlug' => $department->slug, 'teamSlug' => $row->slug]) : null,
-                        'delete' => $request->user->canPerform('Admin Team', 'soft_delete') ? route('admin.teams.delete', ['branchSlug' => $branch->slug, 'departmentSlug' => $department->slug, 'teamSlug' => $row->slug]) : null
+                        'view' => $request->user->canPerform('Admin Team', 'view') ? route('admin.branches.departments.teams.show', ['branchSlug' => $branch->slug, 'departmentSlug' => $department->slug, 'teamSlug' => $row->slug]) : null,
+                        'edit' => $request->user->canPerform('Admin Team', 'edit') ? route('admin.branches.departments.teams.edit', ['branchSlug' => $branch->slug, 'departmentSlug' => $department->slug, 'teamSlug' => $row->slug]) : null,
+                        'delete' => $request->user->canPerform('Admin Team', 'soft_delete') ? route('admin.branches.departments.teams.delete', ['branchSlug' => $branch->slug, 'departmentSlug' => $department->slug, 'teamSlug' => $row->slug]) : null
                     ]
                 ];
             });
@@ -822,8 +822,8 @@ class TeamController extends Controller
                     'created_at' => $row->created_at->setTimezone($request->user->country->timezones[0]['zoneName'] ?? 'UTC')->format('Y-m-d H:i:s'),
                     'deleted_at' => $row->updated_at->setTimezone($request->user->country->timezones[0]['zoneName'] ?? 'UTC')->format('Y-m-d H:i:s'),
                     'actions' => [
-                        'restore' => $request->user->canPerform('Admin Team', 'restore_trashed') ? route('admin.teams.restore', ['branchSlug' => $branch->slug, 'departmentSlug' => $department->slug, 'teamSlug' => $row->slug]) : null,
-                        'delete' => $request->user->canPerform('Admin Team', 'permanent_delete') ? route('admin.teams.destroy', ['branchSlug' => $branch->slug, 'departmentSlug' => $department->slug, 'teamSlug' => $row->slug]) : null
+                        'restore' => $request->user->canPerform('Admin Team', 'restore_trashed') ? route('admin.branches.departments.teams.restore', ['branchSlug' => $branch->slug, 'departmentSlug' => $department->slug, 'teamSlug' => $row->slug]) : null,
+                        'delete' => $request->user->canPerform('Admin Team', 'permanent_delete') ? route('admin.branches.departments.teams.destroy', ['branchSlug' => $branch->slug, 'departmentSlug' => $department->slug, 'teamSlug' => $row->slug]) : null
                     ]
                 ];
             });
