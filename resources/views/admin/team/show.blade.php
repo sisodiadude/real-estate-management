@@ -199,9 +199,9 @@
                                         <div class="card-header d-flex justify-content-between align-items-center">
                                             <h4 class="card-title">Teams</h4>
                                             <!-- Create Department Button as Anchor -->
-                                            <a href="{{ route('admin.branches.departments.teams.create', ['branchSlug' => $branch->slug, 'departmentSlug' => $department->slug]) }}"
-                                                class="btn btn-primary" id="createTeamBtn">
-                                                <i class="la la-plus me-2"></i> Create Team
+                                            <a href="{{ route('admin.branches.departments.teams.employees.create', ['branchSlug' => $branch->slug, 'departmentSlug' => $department->slug, 'teamSlug' => $team->slug]) }}"
+                                                class="btn btn-primary" id="createEmployeeBtn">
+                                                <i class="la la-plus me-2"></i> Create Employeee
                                             </a>
                                         </div>
 

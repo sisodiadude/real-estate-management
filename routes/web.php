@@ -9,6 +9,7 @@ use App\Http\Controllers\Admin\DashboradController as AdminDashboardController;
 use App\Http\Controllers\Admin\DepartmentController as AdminDepartmentController;
 use App\Http\Controllers\Admin\BranchController as AdminBranchController;
 use App\Http\Controllers\Admin\TeamController as AdminTeamController;
+use App\Http\Controllers\Admin\EmployeeController as AdminEmployeeController;
 
 /*
 |--------------------------------------------------------------------------
@@ -154,26 +155,26 @@ Route::prefix('admin')->name('admin.')->group(function () {
                     Route::prefix('{teamSlug}/employees')->name('employees.')->group(function () {
 
                         // Branch CRUD
-                        Route::get('create', [AdminTeamController::class, 'create'])->name('create'); // Create department form
-                        Route::post('store', [AdminTeamController::class, 'store'])->name('store'); // Store department
-                        Route::get('/', [AdminTeamController::class, 'index'])->name('index'); // List all departments
-                        Route::get('data', [AdminTeamController::class, 'getTeams'])->name('getTeams');
+                        Route::get('create', [AdminEmployeeController::class, 'create'])->name('create'); // Create employee form
+                        Route::post('store', [AdminEmployeeController::class, 'store'])->name('store'); // Store employee
+                        Route::get('/', [AdminEmployeeController::class, 'index'])->name('index'); // List all employees
+                        Route::get('data', [AdminEmployeeController::class, 'getTeams'])->name('getTeams');
 
-                        // Soft Deleted Departments (Moved ABOVE `show` to avoid conflicts)
-                        Route::get('trash', [AdminTeamController::class, 'trash'])->name('trash'); // View soft-deleted departments
-                        Route::get('trash/data', [AdminTeamController::class, 'getTrashedTeams'])->name('trash.data'); // AJAX DataTables for soft-deleted departments
+                        // Soft Deleted Employees (Moved ABOVE `show` to avoid conflicts)
+                        Route::get('trash', [AdminEmployeeController::class, 'trash'])->name('trash'); // View soft-deleted employees
+                        Route::get('trash/data', [AdminEmployeeController::class, 'getTrashedTeams'])->name('trash.data'); // AJAX DataTables for soft-deleted employees
 
                         // Department Details
-                        Route::get('{employeeSlug}/edit', [AdminTeamController::class, 'edit'])->name('edit'); // Edit department form
-                        Route::put('{employeeSlug}/edit', [AdminTeamController::class, 'update'])->name('update'); // Update department
-                        Route::delete('{employeeSlug}', [AdminTeamController::class, 'delete'])->name('delete'); // Delete department
+                        Route::get('{employeeSlug}/edit', [AdminEmployeeController::class, 'edit'])->name('edit'); // Edit employee form
+                        Route::put('{employeeSlug}/edit', [AdminEmployeeController::class, 'update'])->name('update'); // Update employee
+                        Route::delete('{employeeSlug}', [AdminEmployeeController::class, 'delete'])->name('delete'); // Delete employee
 
-                        // Prevent "trash" from being treated as a department slug
-                        Route::get('{employeeSlug}', [AdminTeamController::class, 'show'])->name('show'); // Show full department details
+                        // Prevent "trash" from being treated as a employee slug
+                        Route::get('{employeeSlug}', [AdminEmployeeController::class, 'show'])->name('show'); // Show full employee details
 
-                        // Restore & Destroy Soft Deleted Departments
-                        Route::post('{employeeSlug}/restore', [AdminTeamController::class, 'restore'])->name('restore'); // Restore soft-deleted department
-                        Route::delete('{employeeSlug}/destroy', [AdminTeamController::class, 'destroy'])->name('destroy'); // Permanently delete department
+                        // Restore & Destroy Soft Deleted Employees
+                        Route::post('{employeeSlug}/restore', [AdminEmployeeController::class, 'restore'])->name('restore'); // Restore soft-deleted employee
+                        Route::delete('{employeeSlug}/destroy', [AdminEmployeeController::class, 'destroy'])->name('destroy'); // Permanently delete employee
                     });
                 });
             });

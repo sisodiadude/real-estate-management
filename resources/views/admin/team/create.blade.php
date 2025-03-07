@@ -89,7 +89,7 @@
                                         href="{{ route('admin.branches.show', ['branchSlug' => $branch->slug]) }}">{{ $branch->name }}</a>
                                 </li>
                                 <li class="breadcrumb-item"><a
-                                        href="{{ route('admin.departments.show', ['branchSlug' => $branch->slug, 'departmentSlug' => $department->slug]) }}">{{ $department->name }}</a>
+                                        href="{{ route('admin.branches.departments.show', ['branchSlug' => $branch->slug, 'departmentSlug' => $department->slug]) }}">{{ $department->name }}</a>
                                 </li>
                                 <li class="breadcrumb-item active"><a href="javascript:void(0)">Create Team</a></li>
                             </ol>

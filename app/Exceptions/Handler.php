@@ -5,6 +5,7 @@ namespace App\Exceptions;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 use Throwable;
 use Illuminate\Http\Response;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 
 class Handler extends ExceptionHandler
 {
@@ -29,34 +30,38 @@ class Handler extends ExceptionHandler
         });
     }
 
+    /**
+     * Render an exception into an HTTP response.
+     */
     public function render($request, Throwable $exception)
     {
-        if ($exception instanceof \Symfony\Component\HttpKernel\Exception\HttpException) {
-            if ($exception->getStatusCode() == 403) {
-                return response()->view('error.403', [
-                    'exception' => $exception
-                ], Response::HTTP_FORBIDDEN);
-            }
+        if ($exception instanceof HttpException) {
+            $statusCode = $exception->getStatusCode();
+            $redirectRoute = $this->getRedirectRoute($request);
 
-            if ($exception->getStatusCode() == 404) {
-                // Check if the user came from an "admin" route
-                $redirectRoute = $request->is('admin/*') ? 'admin.dashboard' : 'dashboard';
+            $view = match ($statusCode) {
+                Response::HTTP_FORBIDDEN => 'error.403',
+                Response::HTTP_NOT_FOUND => 'error.404',
+                Response::HTTP_INTERNAL_SERVER_ERROR => 'error.500',
+                default => null,
+            };
 
-                return response()->view('error.404', [
+            if ($view) {
+                return response()->view($view, [
                     'exception' => $exception,
                     'redirectRoute' => $redirectRoute
-                ], Response::HTTP_NOT_FOUND);
-            } elseif ($exception->getStatusCode() == 500) {
-                // Check if the user came from an "admin" route
-                $redirectRoute = $request->is('admin/*') ? 'admin.dashboard' : 'dashboard';
-
-                return response()->view('error.500', [
-                    'exception' => $exception,
-                    'redirectRoute' => $redirectRoute
-                ], Response::HTTP_NOT_FOUND);
+                ], $statusCode);
             }
         }
 
         return parent::render($request, $exception);
+    }
+
+    /**
+     * Get the appropriate redirect route based on request origin.
+     */
+    private function getRedirectRoute($request): string
+    {
+        return $request->is('admin/*') ? 'admin.dashboard' : 'dashboard';
     }
 }
