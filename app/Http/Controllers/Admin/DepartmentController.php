@@ -855,7 +855,7 @@ class DepartmentController extends Controller
 
         // Fetch the branch and department in a single query to optimize performance
         $branch = AdminBranch::where('slug', $branchSlug)->first();
-        $department = AdminDepartment::withTrashed()->where('slug', $departmentSlug)->first();
+        $department = AdminDepartment::onlyTrashed()->where('slug', $departmentSlug)->first();
 
         if (!$branch || !$department) {
             return response()->json([

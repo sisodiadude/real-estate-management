@@ -93,14 +93,16 @@
             <div class="container-fluid">
                 <div class="form-head page-titles d-flex align-items-center justify-content-between">
                     <div>
-                        <h4 class="mb-1 fw-bold">Department Details</h4>
+                        <h4 class="mb-1 fw-bold">Team Details</h4>
                         <nav aria-label="breadcrumb">
                             <ol class="breadcrumb">
                                 <li class="breadcrumb-item"><a href="{{ route('admin.branches.index') }}">Branches</a>
                                 </li>
                                 <li class="breadcrumb-item"><a href="javascript:void(0)">{{ $branch->name }}</a></li>
-                                <li class="breadcrumb-item active"><a
-                                        href="javascript:void(0)">{{ $department->name }}</a></li>
+                                <li class="breadcrumb-item"><a href="javascript:void(0)">{{ $department->name }}</a>
+                                </li>
+                                <li class="breadcrumb-item active"><a href="javascript:void(0)">{{ $team->name }}</a>
+                                </li>
                             </ol>
                         </nav>
                     </div>
@@ -122,14 +124,14 @@
                                         'suspended' => 'badge-warning text-dark',
                                         'archived' => 'badge-danger text-white',
                                     ];
-                                    $badgeClass = $statusClasses[$department->status] ?? 'badge-light text-dark';
+                                    $badgeClass = $statusClasses[$team->status] ?? 'badge-light text-dark';
                                 @endphp
 
                                 <div class="card shadow-sm rounded-lg border-0">
                                     <!-- Branch Header -->
                                     <div class="text-center p-4 overlay-box position-relative">
-                                        <h3 class="mt-3 mb-1 text-white">{{ $department->name }}</h3>
-                                        <p class="text-white mb-0">{{ $department->department_unique_id }}</p>
+                                        <h3 class="mt-3 mb-1 text-white">{{ $team->name }}</h3>
+                                        <p class="text-white mb-0">{{ $team->team_unique_id }}</p>
                                     </div>
 
                                     <!-- Branch Details -->
@@ -138,9 +140,9 @@
                                             class="list-group-item d-flex justify-content-between flex-wrap align-items-center">
                                             <span class="fw-medium">Email</span>
                                             <strong class="text-dark w-75">
-                                                @if (!empty($department->email))
-                                                    <a href="mailto:{{ $department->email }}"
-                                                        class="text-dark text-decoration-none">{{ $department->email }}</a>
+                                                @if (!empty($team->email))
+                                                    <a href="mailto:{{ $team->email }}"
+                                                        class="text-dark text-decoration-none">{{ $team->email }}</a>
                                                 @else
                                                     N/A
                                                 @endif
@@ -151,21 +153,21 @@
                                             class="list-group-item d-flex justify-content-between flex-wrap align-items-center">
                                             <span class="fw-medium">Mobile</span>
                                             <strong class="text-dark w-75">
-                                                @if (!empty($department->mobile))
-                                                    <a href="tel:{{ $department->mobile }}"
-                                                        class="text-dark text-decoration-none">{{ $department->mobile }}</a>
+                                                @if (!empty($team->mobile))
+                                                    <a href="tel:{{ $team->mobile }}"
+                                                        class="text-dark text-decoration-none">{{ $team->mobile }}</a>
                                                 @else
                                                     N/A
                                                 @endif
                                             </strong>
                                         </li>
 
-                                        @if (!empty($department->status))
+                                        @if (!empty($team->status))
                                             <li
                                                 class="list-group-item d-flex justify-content-between flex-wrap align-items-center">
                                                 <span class="fw-medium">Status</span>
                                                 <span class="badge {{ $badgeClass }} px-3 py-2">
-                                                    {{ ucfirst($department->status) }}
+                                                    {{ ucfirst($team->status) }}
                                                 </span>
                                             </li>
                                         @endif
@@ -174,7 +176,7 @@
                                             class="list-group-item d-flex justify-content-between flex-wrap align-items-center">
                                             <span class="fw-medium">Created At</span>
                                             <strong class="text-dark w-75">
-                                                @php $createdAt = $department->created_at->setTimezone($timezone); @endphp
+                                                @php $createdAt = $team->created_at->setTimezone($timezone); @endphp
                                                 {{ $createdAt->format('l, F jS, Y \a\t h:i A') }}
                                                 ({{ $createdAt->diffForHumans() }})</strong>
                                         </li>
@@ -210,13 +212,13 @@
                                                     <li class="nav-item">
                                                         <a class="nav-link active" data-bs-toggle="tab"
                                                             href="#teams">
-                                                            <i class="la la-building me-2"></i> Active Teams
+                                                            <i class="la la-building me-2"></i> Active Employees
                                                         </a>
                                                     </li>
                                                     <li class="nav-item">
                                                         <a class="nav-link" data-bs-toggle="tab"
                                                             href="#trashedTeams">
-                                                            <i class="la la-trash me-2"></i> Trashed Teams
+                                                            <i class="la la-trash me-2"></i> Trashed Employees
                                                         </a>
                                                     </li>
                                                 </ul>
@@ -263,8 +265,7 @@
                                                                                         <label for="created_by"
                                                                                             class="form-label">Created
                                                                                             By</label>
-                                                                                        <select
-                                                                                            id="team_created_by"
+                                                                                        <select id="team_created_by"
                                                                                             name="created_by"
                                                                                             class="form-select dropdown-select">
                                                                                             <option value="">
@@ -290,8 +291,7 @@
                                                                                         <label for="team_updated_by"
                                                                                             class="form-label">Last
                                                                                             Updated By</label>
-                                                                                        <select
-                                                                                            id="team_updated_by"
+                                                                                        <select id="team_updated_by"
                                                                                             name="updated_by"
                                                                                             class="form-select dropdown-select">
                                                                                             <option value="">
@@ -354,8 +354,7 @@
                                                                                 <!-- Search Button -->
                                                                                 <div class="row">
                                                                                     <div class="col-lg-4 col-md-6">
-                                                                                        <button
-                                                                                            id="filterTeamTable"
+                                                                                        <button id="filterTeamTable"
                                                                                             class="btn btn-primary w-100"
                                                                                             title="Click here to Search"
                                                                                             type="button">
@@ -1223,10 +1222,9 @@
                                         </li>
                                         <li>
                                             <a href="javascript:void(0);"><svg xmlns="http://www.w3.org/2000/svg"
-                                                    width="20" height="20" viewBox="0 0 24 24"
-                                                    fill="none" stroke="currentColor" stroke-width="2"
-                                                    stroke-linecap="round" stroke-linejoin="round"
-                                                    class="feather feather-folder">
+                                                    width="20" height="20" viewBox="0 0 24 24" fill="none"
+                                                    stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                                    stroke-linejoin="round" class="feather feather-folder">
                                                     <path
                                                         d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z" />
                                                 </svg> Others <span><i
@@ -1234,10 +1232,9 @@
                                         </li>
                                         <li>
                                             <a href="javascript:void(0);"><svg xmlns="http://www.w3.org/2000/svg"
-                                                    width="20" height="20" viewBox="0 0 24 24"
-                                                    fill="none" stroke="currentColor" stroke-width="2"
-                                                    stroke-linecap="round" stroke-linejoin="round"
-                                                    class="feather feather-folder">
+                                                    width="20" height="20" viewBox="0 0 24 24" fill="none"
+                                                    stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                                    stroke-linejoin="round" class="feather feather-folder">
                                                     <path
                                                         d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z" />
                                                 </svg> My Drive <span><i
@@ -1245,10 +1242,9 @@
                                         </li>
                                         <li>
                                             <a href="javascript:void(0);"><svg xmlns="http://www.w3.org/2000/svg"
-                                                    width="20" height="20" viewBox="0 0 24 24"
-                                                    fill="none" stroke="currentColor" stroke-width="2"
-                                                    stroke-linecap="round" stroke-linejoin="round"
-                                                    class="feather feather-folder">
+                                                    width="20" height="20" viewBox="0 0 24 24" fill="none"
+                                                    stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                                    stroke-linejoin="round" class="feather feather-folder">
                                                     <path
                                                         d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z" />
                                                 </svg> Client files <span><i

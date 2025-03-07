@@ -1194,7 +1194,7 @@ class BranchController extends Controller
         $activityLogModel = strtolower($request->userType) === 'admin' ? AdminActivityLog::class : null;
 
         // Find the soft-deleted branch by slug
-        $branch = AdminBranch::withTrashed()->where('slug', $branchSlug)->first();
+        $branch = AdminBranch::onlyTrashed()->where('slug', $branchSlug)->first();
 
         if (!$branch) {
             return response()->json([

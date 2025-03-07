@@ -132,11 +132,11 @@ Route::prefix('admin')->name('admin.')->group(function () {
             Route::get('create', [AdminTeamController::class, 'create'])->name('create'); // Create department form
             Route::post('store', [AdminTeamController::class, 'store'])->name('store'); // Store department
             Route::get('/', [AdminTeamController::class, 'index'])->name('index'); // List all departments
-            Route::get('data', [AdminTeamController::class, 'getDepartments'])->name('getDepartments');
+            Route::get('data', [AdminTeamController::class, 'getTeams'])->name('getTeams');
 
             // Soft Deleted Departments (Moved ABOVE `show` to avoid conflicts)
             Route::get('trash', [AdminTeamController::class, 'trash'])->name('trash'); // View soft-deleted departments
-            Route::get('trash/data', [AdminTeamController::class, 'getTrashedDepartments'])->name('trash.data'); // AJAX DataTables for soft-deleted departments
+            Route::get('trash/data', [AdminTeamController::class, 'getTrashedTeams'])->name('trash.data'); // AJAX DataTables for soft-deleted departments
 
             // Department Details
             Route::get('{teamSlug}/edit', [AdminTeamController::class, 'edit'])->name('edit'); // Edit department form
