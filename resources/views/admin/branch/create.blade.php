@@ -802,58 +802,60 @@
 
                 // Validate Tax Inputs
                 document.querySelectorAll(".tax-entry").forEach(entry => {
-                    const titleInput = entry.querySelector(".tax-title");
-                    const percentageInput = entry.querySelector(".tax-percentage");
+                    const taxTitle = entry.querySelector(".tax-title");
+                    const taxPercentage = entry.querySelector(".tax-percentage");
 
-                    const title = titleInput.value.trim();
-                    const percentage = percentageInput.value.trim();
+                    const type = taxTitle.value.trim();
+                    const amount = taxPercentage.value.trim();
 
                     // Clear previous errors
-                    titleInput.classList.remove("is-invalid");
-                    percentageInput.classList.remove("is-invalid");
+                    taxTitle.classList.remove("is-invalid");
+                    taxPercentage.classList.remove("is-invalid");
 
-                    let titleFeedback = titleInput.nextElementSibling;
-                    let percentageFeedback = percentageInput.nextElementSibling;
+                    // Find invalid-feedback within the same parent div
+                    let taxFeedback = taxTitle.parentElement.querySelector(
+                        ".invalid-feedback");
+                    let amountFeedback = taxPercentage.parentElement.querySelector(
+                        ".invalid-feedback");
 
-                    if (!titleFeedback || !titleFeedback.classList.contains("invalid-feedback")) {
-                        titleFeedback = document.createElement("div");
-                        titleFeedback.className = "invalid-feedback";
-                        titleInput.after(titleFeedback);
+                    // Ensure the error messages exist
+                    if (!taxFeedback) {
+                        taxFeedback = document.createElement("div");
+                        taxFeedback.className = "invalid-feedback";
+                        taxTitle.parentElement.appendChild(taxFeedback);
                     }
 
-                    if (!percentageFeedback || !percentageFeedback.classList.contains(
-                            "invalid-feedback")) {
-                        percentageFeedback = document.createElement("div");
-                        percentageFeedback.className = "invalid-feedback";
-                        percentageInput.after(percentageFeedback);
+                    if (!amountFeedback) {
+                        amountFeedback = document.createElement("div");
+                        amountFeedback.className = "invalid-feedback";
+                        taxPercentage.parentElement.appendChild(amountFeedback);
                     }
 
                     // Validation logic
-                    if ((title && !percentage) || (!title && percentage)) {
+                    if ((type && !amount) || (!type && amount)) {
                         isTaxValid = false;
-                        if (!title) {
-                            titleInput.classList.add("is-invalid");
-                            titleFeedback.textContent =
+                        if (!type) {
+                            taxTitle.classList.add("is-invalid");
+                            taxFeedback.textContent =
                                 "Tax Title is required if Percentage is filled.";
                         }
-                        if (!percentage) {
-                            percentageInput.classList.add("is-invalid");
-                            percentageFeedback.textContent =
+                        if (!amount) {
+                            taxPercentage.classList.add("is-invalid");
+                            amountFeedback.textContent =
                                 "Percentage is required if Tax Title is filled.";
                         }
-                    } else if (title && percentage) {
-                        const percentagePattern =
-                            /^(0|[1-9]\d*)(\.\d{1,2})?$/; // Allows numbers with up to 2 decimal places
+                    } else if (type && amount) {
+                        const percentagePattern = /^(0|[1-9]\d*)(\.\d{1,2})?$/;
 
-                        if (!percentagePattern.test(percentage)) {
+                        if (!percentagePattern.test(amount)) {
                             isTaxValid = false;
-                            percentageInput.classList.add("is-invalid");
-                            percentageFeedback.textContent =
+                            taxPercentage.classList.add("is-invalid");
+                            amountFeedback.textContent =
                                 "Percentage must be a valid number with up to two decimal places (e.g., 1, 5.25, 10.99, 123.00).";
                         } else {
                             taxData.push({
-                                title,
-                                percentage
+                                type,
+                                amount
                             });
                         }
                     }
@@ -870,22 +872,23 @@
                     platformInput.classList.remove("is-invalid");
                     urlInput.classList.remove("is-invalid");
 
-                    // Ensure platformFeedback is placed correctly
-                    let platformFeedback = platformInput.parentNode.querySelector(
-                        ".platform-feedback");
-                    if (!platformFeedback) {
-                        platformFeedback = document.createElement("div");
-                        platformFeedback.className = "invalid-feedback platform-feedback";
-                        platformInput.parentNode.appendChild(
-                            platformFeedback); // Append inside parent container
+                    // Find invalid-feedback within the same parent div
+                    let socialFeedback = platformInput.parentElement.querySelector(
+                        ".invalid-feedback");
+                    let urlFeedback = urlInput.parentElement.querySelector(
+                        ".invalid-feedback");
+
+                    // Ensure the error messages exist
+                    if (!socialFeedback) {
+                        socialFeedback = document.createElement("div");
+                        socialFeedback.className = "invalid-feedback";
+                        platformInput.parentElement.appendChild(socialFeedback);
                     }
 
-                    // Ensure urlFeedback is placed correctly
-                    let urlFeedback = urlInput.nextElementSibling;
-                    if (!urlFeedback || !urlFeedback.classList.contains("invalid-feedback")) {
+                    if (!urlFeedback) {
                         urlFeedback = document.createElement("div");
                         urlFeedback.className = "invalid-feedback";
-                        urlInput.after(urlFeedback);
+                        urlInput.parentElement.appendChild(urlFeedback);
                     }
 
                     // Validation logic
@@ -893,7 +896,8 @@
                         isSocialValid = false;
                         if (!platform) {
                             platformInput.classList.add("is-invalid");
-                            platformFeedback.textContent = "Platform is required if URL is filled.";
+                            socialFeedback.textContent =
+                                "Platform is required if URL is filled.";
                         }
                         if (!url) {
                             urlInput.classList.add("is-invalid");
@@ -905,6 +909,7 @@
                             platform,
                             url
                         });
+
                     }
                 });
 

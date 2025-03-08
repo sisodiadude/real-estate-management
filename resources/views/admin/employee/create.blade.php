@@ -33,16 +33,17 @@
 
     <!-- Favicon icon -->
     <link rel="icon" type="image/png" sizes="16x16" href="{{ asset('assets/images/favicon.png') }}">
-    <link href="{{ asset('assets/vendor/clockpicker/css/bootstrap-clockpicker.min.css') }}" rel="stylesheet">
-    <!-- Custom Stylesheet -->
-    <link href="{{ asset('assets/vendor/bootstrap-select/dist/css/bootstrap-select.min.css') }}" rel="stylesheet">
-    <link href="{{ asset('assets/vendor/sweetalert2/dist/sweetalert2.min.css') }}" rel="stylesheet">
-    <link href="{{ asset('assets/vendor/bootstrap-datepicker-master/css/bootstrap-datepicker.min.css') }}"
-        rel="stylesheet">
+    <!-- Vendor Styles -->
     <link rel="stylesheet" href="{{ asset('assets/vendor/select2/css/select2.min.css') }}">
-    <link href="{{ asset('assets/vendor/dropzone/dist/dropzone.css') }}" rel="stylesheet">
-    <link href="{{ asset('assets/css/style.css') }}" rel="stylesheet">
-    <link href="{{ asset('assets/css/sisodia-dropzone.css') }}" rel="stylesheet">
+    <link rel="stylesheet" href="{{ asset('assets/vendor/sweetalert2/dist/sweetalert2.min.css') }}">
+
+    <!-- Pickadate Styles -->
+    <link rel="stylesheet" href="{{ asset('assets/vendor/pickadate/themes/default.css') }}">
+    <link rel="stylesheet" href="{{ asset('assets/vendor/pickadate/themes/default.date.css') }}">
+
+    <!-- Custom Styles -->
+    <link rel="stylesheet" href="{{ asset('assets/css/sisodia-dropzone.css') }}">
+    <link rel="stylesheet" href="{{ asset('assets/css/style.css') }}">
 </head>
 
 <body>
@@ -153,6 +154,14 @@
                                             <div class="invalid-feedback">Valid mobile number is required.</div>
                                         </div>
                                         <div class="col-md-4">
+                                            <label for="alternate_mobile" class="form-label fw-bold">Alternate
+                                                Mobile</label>
+                                            <input type="text" id="alternate_mobile" name="alternate_mobile"
+                                                class="form-control" placeholder="Enter alternate mobile number">
+                                            <div class="invalid-feedback">Valid alternate mobile number is required.
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
                                             <label for="dob" class="form-label fw-bold">Date of Birth <span
                                                     class="text-danger">*</span></label>
                                             <input type="date" id="dob" name="dob" class="form-control"
@@ -172,9 +181,17 @@
                                             </select>
                                         </div>
                                         <div class="col-md-4">
-                                            <label for="nationality" class="form-label fw-bold">Nationality</label>
-                                            <input type="text" id="nationality" name="nationality"
-                                                class="form-control" placeholder="Enter nationality">
+                                            <label for="nationality" class="form-label fw-bold">Nationality <span
+                                                    class="text-danger">*</span></label>
+                                            <select id="nationality" name="nationality_id"
+                                                class="form-select dropdown-select" required>
+                                                <option value="">Select Nationality</option>
+                                                @foreach ($countries as $country)
+                                                    <option value="{{ $country->id }}">{{ $country->nationality }}
+                                                    </option>
+                                                @endforeach
+                                            </select>
+                                            <div class="invalid-feedback">Country is required.</div>
                                         </div>
                                         <div class="col-md-4">
                                             <label for="blood_group" class="form-label fw-bold">Blood Group</label>
@@ -271,10 +288,12 @@
 
                                         <!-- Checkbox for Same Address -->
                                         <div class="col-12 mt-3">
-                                            <div class="form-check">
-                                                <input class="form-check-input" type="checkbox" id="same_address"
-                                                    onclick="copyAddress()">
-                                                <label class="form-check-label fw-bold" for="same_address">Same as
+                                            <div class="form-check form-switch mb-3">
+                                                <input class="form-check-input" type="checkbox"
+                                                    id="same_as_current_address" name="same_as_current_address"
+                                                    value="1">
+                                                <label class="form-check-label fw-bold"
+                                                    for="same_as_current_address">Same as
                                                     Current Address</label>
                                             </div>
                                         </div>
@@ -353,8 +372,7 @@
                                         <div class="col-md-4">
                                             <label for="joining_date" class="form-label fw-bold">Joining Date <span
                                                     class="text-danger">*</span></label>
-                                            <input type="date" id="joining_date" name="joining_date"
-                                                class="form-control" required max="{{ date('Y-m-d') }}">
+                                            <input name="joining_date" class="form-control pickdate-picker">
                                             <div class="invalid-feedback">Joining date is required.</div>
                                         </div>
                                         <div class="col-md-4">
@@ -366,12 +384,12 @@
                                         </div>
                                         <div class="col-md-4">
                                             <label for="employment_type" class="form-label fw-bold">Employment
-                                                Type</label>
+                                                Type <span class="text-danger">*</span></label>
                                             <select id="employment_type" name="employment_type"
-                                                class="form-select dropdown-select">
+                                                class="form-select dropdown-select" required>
                                                 <option value="">Select</option>
                                                 <option value="full_time">Full-Time</option>
-                                                <option value="part_time">Part-Time</option>
+                                                <option value="part_time" selected>Part-Time</option>
                                                 <option value="contract">Contract</option>
                                                 <option value="internship">Internship</option>
                                             </select>
@@ -382,9 +400,10 @@
                                             <h5 class="text-primary fw-bold mb-3">Salary & Banking</h5>
                                         </div>
                                         <div class="col-md-4">
-                                            <label for="salary" class="form-label fw-bold">Salary</label>
+                                            <label for="salary" class="form-label fw-bold">Salary <span
+                                                    class="text-danger">*</span></label>
                                             <input type="number" id="salary" name="salary" class="form-control"
-                                                min="0" step="0.01" placeholder="Enter salary">
+                                                min="0" step="0.01" placeholder="Enter salary" required>
                                         </div>
                                         <div class="col-md-4">
                                             <label for="bank_account" class="form-label fw-bold">Bank Account
@@ -484,8 +503,12 @@
                                             </div>
                                         </div>
                                         <div class="col-md-4">
-                                            <label for="ifsc_swift_code" class="form-label fw-bold">IFSC/SWIFT
-                                                Code</label>
+                                            <label for="ifsc_swift_code" class="form-label fw-bold">IFSC/SWIFT Code
+                                                <span data-toggle="tooltip" data-placement="right"
+                                                    title="Enter IFSC for India or SWIFT for international banks">
+                                                    <i class="las la-info-circle"></i>
+                                                </span>
+                                            </label>
                                             <input type="text" id="ifsc_swift_code" name="ifsc_swift_code"
                                                 class="form-control" placeholder="Enter IFSC or SWIFT code">
                                         </div>
@@ -493,6 +516,22 @@
                                             <label for="pan_tax_id" class="form-label fw-bold">PAN or Tax ID</label>
                                             <input type="text" id="pan_tax_id" name="pan_tax_id"
                                                 class="form-control" placeholder="Enter PAN or Tax ID">
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label for="salary_frequency" class="form-label fw-bold">Salary Payment
+                                                Frequency <span class="text-danger">*</span></label>
+                                            <select name="salary_frequency" id="salary_frequency"
+                                                class="form-select dropdown-select"
+                                                aria-label="Select Salary Frequency" required>
+                                                <option value="" selected>Select Salary Frequency</option>
+                                                <option value="weekly">Weekly</option>
+                                                <option value="biweekly">Bi-Weekly (Every 2 Weeks)</option>
+                                                <option value="semimonthly">Semi-Monthly (1st & 15th)</option>
+                                                <option value="monthly" selected>Monthly</option>
+                                                <option value="quarterly">Quarterly</option>
+                                                <option value="semiannually">Semi-Annually (Every 6 Months)</option>
+                                                <option value="annually">Annually (Yearly)</option>
+                                            </select>
                                         </div>
 
                                         <!-- Section: Emergency Contact -->
@@ -527,30 +566,32 @@
                                         </div>
 
                                         <div class="col-md-6">
-                                            <label for="resume" class="form-label fw-bold">Resume/CV</label>
+                                            <label for="resume" class="form-label fw-bold">Resume/CV <span
+                                                    class="text-danger">*</span></label>
                                             <input type="file" id="resume" name="resume" class="form-control"
-                                                accept=".pdf,image/*">
+                                                accept=".pdf,image/*" required>
                                         </div>
 
                                         <div class="col-md-6">
                                             <label for="profile_picture" class="form-label fw-bold">Profile
-                                                Picture</label>
+                                                Picture <span class="text-danger">*</span></label>
                                             <input type="file" id="profile_picture" name="profile_picture"
-                                                class="form-control" accept="image/*">
+                                                class="form-control" accept="image/*" required>
                                         </div>
 
                                         <div class="col-md-6">
-                                            <label for="govt_id" class="form-label fw-bold">Government ID</label>
+                                            <label for="govt_id" class="form-label fw-bold">Government ID <span
+                                                    class="text-danger">*</span></label>
                                             <input type="file" id="govt_id" name="govt_id[]"
-                                                class="form-control" accept=".pdf,image/*" multiple>
+                                                class="form-control" accept=".pdf,image/*" multiple required>
                                         </div>
 
                                         <div class="col-md-6">
                                             <label for="education_certificates" class="form-label fw-bold">Education
-                                                Certificates</label>
+                                                Certificates <span class="text-danger">*</span></label>
                                             <input type="file" id="education_certificates"
                                                 name="education_certificates[]" class="form-control"
-                                                accept=".pdf,image/*" multiple>
+                                                accept=".pdf,image/*" multiple required>
                                         </div>
 
                                         <!-- Submit Buttons -->
@@ -586,77 +627,153 @@
     <!-- Main Wrapper End -->
 
     <!-- Footer Scripts Section Start -->
-    <!-- Required vendors -->
+    <!-- Required Vendors -->
     <script src="{{ asset('assets/vendor/global/global.min.js') }}"></script>
-    <script src="{{ asset('assets/vendor/bootstrap-select/dist/js/bootstrap-select.min.js') }}"></script>
-    <script src="{{ asset('assets/vendor/clockpicker/js/bootstrap-clockpicker.min.js') }}"></script>
-    <script src="{{ asset('assets/js/plugins-init/clock-picker-init.js') }}"></script>
-    <script src="{{ asset('assets/vendor/sweetalert2/dist/sweetalert2.min.js') }}"></script>
-    <script src="{{ asset('assets/vendor/bootstrap-datepicker-master/js/bootstrap-datepicker.min.js') }}"></script>
+
+    <!-- Plugins -->
     <script src="{{ asset('assets/vendor/select2/js/select2.full.min.js') }}"></script>
-    <script src="{{ asset('assets/vendor/dropzone/dist/dropzone.js') }}"></script>
+    <script src="{{ asset('assets/vendor/sweetalert2/dist/sweetalert2.min.js') }}"></script>
+    <script src="{{ asset('assets/vendor/pickadate/picker.js') }}"></script>
+    <script src="{{ asset('assets/vendor/pickadate/picker.date.js') }}"></script>
+    <script src="{{ asset('assets/vendor/pickadate/picker.time.js') }}"></script>
+
+    <!-- Plugin Initializations -->
+    <script src="{{ asset('assets/js/plugins-init/pickadate-init.js') }}"></script>
+
+    <!-- Custom Scripts -->
     <script src="{{ asset('assets/js/custom.min.js') }}"></script>
     <script src="{{ asset('assets/js/deznav-init.js') }}"></script>
-    <script src="{{ asset('assets/js/sisodia-dropzone.js') }}"></script>
     <script src="{{ asset('assets/js/custom-2.js') }}"></script>
-
+    <script src="{{ asset('assets/js/sisodia-dropzone.js') }}"></script>
     <script>
-        $(document).ready(function() {
-            function refreshSelect2(selector, options = {}) {
-                $(selector).select2({
-                    placeholder: options.placeholder || "Select an option",
-                    allowClear: options.allowClear !== undefined ? options.allowClear : true
-                });
-            }
+        function refreshSelect2(selector, options = {}) {
+            $(selector).select2({
+                placeholder: options.placeholder || "Select an option",
+                allowClear: options.allowClear !== undefined ? options.allowClear : true
+            });
+        }
 
-            function populateDropdown(selector, data, placeholder) {
-                let dropdown = $(selector);
-                dropdown.empty().append('<option value="">' + placeholder + '</option>');
-                $.each(data, function(key, value) {
-                    dropdown.append('<option value="' + value.id + '">' + value.name + '</option>');
+        function populateDropdown(selector, data, placeholder) {
+            let dropdown = $(selector);
+            dropdown.empty().append('<option value="">' + placeholder + '</option>');
+            $.each(data, function(key, value) {
+                dropdown.append('<option value="' + value.id + '">' + value.name + '</option>');
+            });
+            refreshSelect2(selector, {
+                placeholder: placeholder,
+                allowClear: true
+            });
+        }
+
+        function handleDropdownChange(triggerSelector, targetSelector, routeDataAttr, defaultPlaceholder,
+            refreshSelectors = {}) {
+            $(document).on('change', triggerSelector, function() {
+                let selectedId = $(this).val();
+                let routeBase = $(this).data(
+                    routeDataAttr); // Retrieve the route from the data attribute
+
+                // Display a loading placeholder
+                $(targetSelector).html('<option value="">Loading...</option>');
+
+                if (selectedId && routeBase) {
+                    $.ajax({
+                        url: `${routeBase}/${selectedId}`,
+                        type: "GET",
+                        success: function(data) {
+                            populateDropdown(targetSelector, data, defaultPlaceholder);
+                        },
+                        error: function() {
+                            populateDropdown(targetSelector, [], defaultPlaceholder);
+                        }
+                    });
+                } else {
+                    populateDropdown(targetSelector, [], defaultPlaceholder);
+                }
+
+                // Reset dependent dropdowns
+                $.each(refreshSelectors, function(selector, placeholder) {
+                    populateDropdown(selector, [], placeholder);
                 });
-                refreshSelect2(selector, {
-                    placeholder: placeholder,
-                    allowClear: true
-                });
-            }
+            });
+        }
+
+        $(document).ready(function() {
+            $(function() {
+                $('[data-toggle="tooltip"]').tooltip()
+            })
 
             $('select.dropdown-select').select2();
 
             $('input[type="file"]').sisodiaDropZone();
-
-            function handleDropdownChange(triggerSelector, targetSelector, routeDataAttr, placeholder) {
-                $(triggerSelector).on('change', function() {
-                    let selectedId = $(this).val();
-                    let routeBase = $(this).data(routeDataAttr); // Get the route from the data attribute
-
-                    $(targetSelector).html(`<option value="">Loading...</option>`);
-
-                    if (selectedId && routeBase) {
-                        $.ajax({
-                            url: `${routeBase}/${selectedId}`,
-                            type: "GET",
-                            success: function(data) {
-                                populateDropdown(targetSelector, data, placeholder);
-                            },
-                            error: function() {
-                                populateDropdown(targetSelector, [], placeholder);
-                            }
-                        });
-                    } else {
-                        populateDropdown(targetSelector, [], placeholder);
-                    }
-                });
-            }
+            // $('#resume').sisodiaDropZone();
 
             // Bind event handlers
-            handleDropdownChange('#current_country, #current_country', '#current_state', 'state-route',
-                'Select a state');
-            handleDropdownChange('#current_state, #current_state', '#current_city', 'city-route', 'Select a city');
-            handleDropdownChange('#permanent_country, #permanent_country', '#permanent_state', 'state-route',
-                'Select a state');
-            handleDropdownChange('#permanent_state, #permanent_state', '#permanent_city', 'city-route',
-                'Select a city');
+            handleDropdownChange('#current_country', '#current_state', 'state-route', 'Select a state', {
+                "#current_state": "Select a state",
+                "#current_city": "Select a city"
+            });
+
+            handleDropdownChange('#current_state', '#current_city', 'city-route', 'Select a city', {
+                "#current_city": "Select a city"
+            });
+
+            handleDropdownChange('#permanent_country', '#permanent_state', 'state-route', 'Select a state', {
+                "#permanent_state": "Select a state",
+                "#permanent_city": "Select a city"
+            });
+
+            handleDropdownChange('#permanent_state', '#permanent_city', 'city-route', 'Select a city', {
+                "#permanent_city": "Select a city"
+            });
+
+        });
+
+        document.getElementById("same_as_current_address").addEventListener("change", function() {
+            const getAddressValue = (id) => document.getElementById(id).value;
+            const setFieldValue = (id, value) => document.getElementById(id).value = value;
+
+            const currentAddress = {
+                line1: getAddressValue("current_address_line1"),
+                line2: getAddressValue("current_address_line2"),
+                postalCode: getAddressValue("current_postal_code"),
+                country: getAddressValue("current_country"),
+                state: getAddressValue("current_state"),
+                city: getAddressValue("current_city")
+            };
+
+            const permanentFields = {
+                line1: "permanent_address_line1",
+                line2: "permanent_address_line2",
+                postalCode: "permanent_postal_code",
+                country: "permanent_country",
+                state: "permanent_state",
+                city: "permanent_city"
+            };
+
+            const updateDropdown = (selector, value, callback = null) => {
+                $(selector).val(value).trigger('change');
+                if (callback) setTimeout(callback, 1000);
+            };
+
+            if (this.checked) {
+                setFieldValue(permanentFields.line1, currentAddress.line1);
+                setFieldValue(permanentFields.line2, currentAddress.line2);
+                setFieldValue(permanentFields.postalCode, currentAddress.postalCode);
+
+                updateDropdown(`#${permanentFields.country}`, currentAddress.country, () => {
+                    updateDropdown(`#${permanentFields.state}`, currentAddress.state, () => {
+                        updateDropdown(`#${permanentFields.city}`, currentAddress.city);
+                    });
+                });
+            } else {
+                Object.values(permanentFields).forEach(field => setFieldValue(field, ""));
+
+                updateDropdown(`#${permanentFields.country}`, "", () => {
+                    updateDropdown(`#${permanentFields.state}`, "", () => {
+                        updateDropdown(`#${permanentFields.city}`, "");
+                    });
+                });
+            }
         });
 
         document.addEventListener("DOMContentLoaded", function() {
@@ -798,21 +915,23 @@
                     allowanceType.classList.remove("is-invalid");
                     allowanceAmount.classList.remove("is-invalid");
 
-                    let allowanceFeedback = allowanceType.nextElementSibling;
-                    let amountFeedback = allowanceAmount.nextElementSibling;
+                    // Find invalid-feedback within the same parent div
+                    let allowanceFeedback = allowanceType.parentElement.querySelector(
+                        ".invalid-feedback");
+                    let amountFeedback = allowanceAmount.parentElement.querySelector(
+                        ".invalid-feedback");
 
-                    if (!allowanceFeedback || !allowanceFeedback.classList.contains(
-                            "invalid-feedback")) {
+                    // Ensure the error messages exist
+                    if (!allowanceFeedback) {
                         allowanceFeedback = document.createElement("div");
                         allowanceFeedback.className = "invalid-feedback";
-                        allowanceType.after(allowanceFeedback);
+                        allowanceType.parentElement.appendChild(allowanceFeedback);
                     }
 
-                    if (!amountFeedback || !amountFeedback.classList.contains(
-                            "invalid-feedback")) {
+                    if (!amountFeedback) {
                         amountFeedback = document.createElement("div");
                         amountFeedback.className = "invalid-feedback";
-                        allowanceAmount.after(amountFeedback);
+                        allowanceAmount.parentElement.appendChild(amountFeedback);
                     }
 
                     // Validation logic
@@ -856,26 +975,28 @@
                     deductionType.classList.remove("is-invalid");
                     deductionAmount.classList.remove("is-invalid");
 
-                    let deductionFeedback = deductionType.nextElementSibling;
-                    let amountFeedback = deductionAmount.nextElementSibling;
+                    // Find invalid-feedback within the same parent div
+                    let deductionFeedback = deductionType.parentElement.querySelector(
+                        ".invalid-feedback");
+                    let amountFeedback = deductionAmount.parentElement.querySelector(
+                        ".invalid-feedback");
 
-                    if (!deductionFeedback || !deductionFeedback.classList.contains(
-                            "invalid-feedback")) {
+                    // Ensure the error messages exist
+                    if (!deductionFeedback) {
                         deductionFeedback = document.createElement("div");
                         deductionFeedback.className = "invalid-feedback";
-                        deductionType.after(deductionFeedback);
+                        deductionType.parentElement.appendChild(deductionFeedback);
                     }
 
-                    if (!amountFeedback || !amountFeedback.classList.contains(
-                            "invalid-feedback")) {
+                    if (!amountFeedback) {
                         amountFeedback = document.createElement("div");
                         amountFeedback.className = "invalid-feedback";
-                        deductionAmount.after(amountFeedback);
+                        deductionAmount.parentElement.appendChild(amountFeedback);
                     }
 
                     // Validation logic
                     if ((type && !amount) || (!type && amount)) {
-                        isDeductionValid = false;
+                        isAeductionValid = false;
                         if (!type) {
                             deductionType.classList.add("is-invalid");
                             deductionFeedback.textContent =
@@ -890,7 +1011,7 @@
                         const percentagePattern = /^(0|[1-9]\d*)(\.\d{2})?$/;
 
                         if (!percentagePattern.test(amount)) {
-                            isDeductionValid = false;
+                            isAeductionValid = false;
                             deductionAmount.classList.add("is-invalid");
                             amountFeedback.textContent =
                                 "Amount must be a valid number with up to two decimal places (e.g., 1, 5.25, 10.99, 123.00).";
@@ -952,6 +1073,12 @@
                         formData.append("deductions", JSON.stringify(deductionData));
                         formData.append("latitude", latitude);
                         formData.append("longitude", longitude);
+
+                        // Log all form data
+                        console.log("Form Data:");
+                        for (const [key, value] of formData.entries()) {
+                            console.log(`${key}:`, value);
+                        }
 
                         fetch("{{ route('admin.branches.departments.teams.employees.store', ['branchSlug' => $branch->slug, 'departmentSlug' => $department->slug, 'teamSlug' => $team->slug]) }}", {
                                 method: "POST",
