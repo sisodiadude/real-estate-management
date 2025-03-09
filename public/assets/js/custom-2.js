@@ -1,28 +1,49 @@
 function getCurrentLocation(successCallback, errorCallback) {
     if (!navigator.geolocation) {
-        errorCallback("❌ Geolocation is not supported by your browser. Please update or use a different browser.");
+        errorCallback("❌ Location services are not supported on your browser. Please update or try a different browser.");
         return;
     }
 
     navigator.geolocation.getCurrentPosition(
         (position) => {
-            const { latitude, longitude } = position.coords;
+            const { latitude, longitude, accuracy } = position.coords;
+            const userAgent = navigator.userAgent.toLowerCase();
+
+            let issueMessage = "";
+
+            if (accuracy > 5000) {
+                issueMessage = "⚠️ Location is based on your internet. Enable GPS for accuracy.";
+            } else if (accuracy > 1000) {
+                issueMessage = "📍 Location may be inaccurate. Move to an open area.";
+            } else if (accuracy > 300) {
+                if (userAgent.includes("windows") || userAgent.includes("mac")) {
+                    issueMessage = "⚠️ Desktop location is less accurate. Use a mobile device.";
+                } else {
+                    issueMessage = "⚠️ Weak GPS signal. Enable 'High Accuracy Mode'.";
+                }
+            }
+
+            if (issueMessage) {
+                errorCallback(issueMessage);
+                return;
+            }
+
             successCallback({ latitude, longitude });
         },
         (error) => {
-            let errorMessage = "⚠️ An unexpected error occurred while retrieving location data.";
+            let errorMessage = "⚠️ Unable to get location. Please try again.";
 
             switch (error.code) {
                 case error.PERMISSION_DENIED:
-                    errorMessage = "❌ Location access has been denied. Please enable location services in your browser settings and try again.";
+                    errorMessage = "❌ Location access is blocked. Enable location in your browser settings.";
                     break;
 
                 case error.POSITION_UNAVAILABLE:
-                    errorMessage = "⚠️ Unable to determine location due to network or GPS issues. Please ensure you have a stable internet connection and try again.";
+                    errorMessage = "⚠️ Location not available. Check your internet or GPS.";
                     break;
 
                 case error.TIMEOUT:
-                    errorMessage = "⏳ The request to retrieve location information timed out. Retrying automatically...";
+                    errorMessage = "⏳ Location request timed out. Retrying...";
                     // Retry once after 5 seconds
                     setTimeout(() => getCurrentLocation(successCallback, errorCallback), 5000);
                     return;
@@ -32,19 +53,19 @@ function getCurrentLocation(successCallback, errorCallback) {
                     break;
 
                 case 3: // Custom handling for specific device/browser issues
-                    errorMessage = "📍 Your device could not fetch location data. Ensure that GPS and Wi-Fi are enabled.";
+                    errorMessage = "📍 Couldn’t get your location. Turn on GPS and try again.";
                     break;
 
-                case 4: // Handling for restricted location access (corporate networks, VPNs)
-                    errorMessage = "🔒 Location services are restricted by your network or VPN. Try disabling VPN and refreshing the page.";
+                case 4:
+                    errorMessage = "🔒 Location access is restricted. Disable VPN and try again.";
                     break;
 
-                case 5: // Location blocked by system settings
-                    errorMessage = "🚫 Your device settings are preventing location access. Enable location permissions for this site in your system settings.";
+                case 5:
+                    errorMessage = "🚫 Your device is blocking location. Allow access in settings.";
                     break;
 
-                case 6: // Location services disabled in browser
-                    errorMessage = "⚙️ Your browser’s location services are disabled. Please allow location access in your browser settings.";
+                case 6:
+                    errorMessage = "⚙️ Location is disabled in your browser. Please enable it.";
                     break;
             }
 
