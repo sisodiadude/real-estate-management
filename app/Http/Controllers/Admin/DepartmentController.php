@@ -132,7 +132,7 @@ class DepartmentController extends Controller
                 'status' => 'required|in:active,inactive,suspended,archived',
                 'description' => 'nullable|string|max:500',
 
-                // Use Branch SMTP Credentials (Required Boolean)
+                // Use Branch Operating Hours (Required Boolean)
                 'use_branch_operating_hours' => 'required|boolean',
             ];
 

@@ -127,11 +127,18 @@
                                             <h5 class="text-primary fw-bold mb-3">Personal Information</h5>
                                         </div>
                                         <div class="col-md-4">
-                                            <label for="name" class="form-label fw-bold">Name <span
+                                            <label for="first_name" class="form-label fw-bold">First Name <span
                                                     class="text-danger">*</span></label>
-                                            <input type="text" id="name" name="name" class="form-control"
-                                                placeholder="Enter full name" required>
-                                            <div class="invalid-feedback">Name is required.</div>
+                                            <input type="text" id="first_name" name="first_name" class="form-control"
+                                                placeholder="Enter first name" required>
+                                            <div class="invalid-feedback">First name is required.</div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label for="last_name" class="form-label fw-bold">Last Name <span
+                                                    class="text-danger">*</span></label>
+                                            <input type="text" id="last_name" name="last_name"
+                                                class="form-control" placeholder="Enter last name" required>
+                                            <div class="invalid-feedback">Last name is required.</div>
                                         </div>
                                         <div class="col-md-4">
                                             <label for="email" class="form-label fw-bold">Email <span
@@ -162,10 +169,10 @@
                                             </div>
                                         </div>
                                         <div class="col-md-4">
-                                            <label for="dob" class="form-label fw-bold">Date of Birth <span
+                                            <label for="date_of_birth" class="form-label fw-bold">Date of Birth <span
                                                     class="text-danger">*</span></label>
-                                            <input type="date" id="dob" name="dob" class="form-control"
-                                                required max="{{ date('Y-m-d') }}">
+                                            <input type="date" id="date_of_birth" name="date_of_birth"
+                                                class="form-control" required max="{{ date('Y-m-d') }}">
                                             <div class="invalid-feedback">Date of birth is required.</div>
                                         </div>
                                         <div class="col-md-4">
@@ -209,21 +216,17 @@
                                             </select>
                                         </div>
                                         <div class="col-md-4">
-                                            <label for="status" class="form-label fw-bold">Status <span
+                                            <label for="account_status" class="form-label fw-bold">Status <span
                                                     class="text-danger">*</span></label>
-                                            <select id="status" name="status" class="form-select dropdown-select"
-                                                required>
-                                                <option value="">Select Status</option>
+                                            <select id="account_status" name="account_status"
+                                                class="form-select dropdown-select" required>
+                                                <option value="">Select status</option>
                                                 <option value="active" selected>Active</option>
                                                 <option value="inactive">Inactive</option>
                                                 <option value="suspended">Suspended</option>
                                                 <option value="archived">Archived</option>
                                             </select>
                                             <div class="invalid-feedback">Status is required.</div>
-                                        </div>
-                                        <div class="col-12">
-                                            <label for="description" class="form-label fw-bold">Description</label>
-                                            <textarea id="description" name="description" class="form-control" rows="3" placeholder="Enter description"></textarea>
                                         </div>
 
                                         <!-- Section: Current Address -->
@@ -407,14 +410,15 @@
                                         </div>
                                         <div class="col-md-4">
                                             <label for="bank_account" class="form-label fw-bold">Bank Account
-                                                Number</label>
+                                                Number <span class="text-danger">*</span></label>
                                             <input type="text" id="bank_account" name="bank_account"
-                                                class="form-control" placeholder="Enter account number">
+                                                class="form-control" placeholder="Enter account number" required>
                                         </div>
                                         <div class="col-md-4">
-                                            <label for="bank_name" class="form-label fw-bold">Bank Name</label>
+                                            <label for="bank_name" class="form-label fw-bold">Bank Name <span
+                                                    class="text-danger">*</span></label>
                                             <input type="text" id="bank_name" name="bank_name"
-                                                class="form-control" placeholder="Enter bank name">
+                                                class="form-control" placeholder="Enter bank name" required>
                                         </div>
                                         <div class="col-12">
                                             <label class="form-label fw-bold">Allowances</label>
@@ -504,18 +508,20 @@
                                         </div>
                                         <div class="col-md-4">
                                             <label for="ifsc_swift_code" class="form-label fw-bold">IFSC/SWIFT Code
+                                                <span class="text-danger">*</span>
                                                 <span data-toggle="tooltip" data-placement="right"
                                                     title="Enter IFSC for India or SWIFT for international banks">
                                                     <i class="las la-info-circle"></i>
                                                 </span>
                                             </label>
                                             <input type="text" id="ifsc_swift_code" name="ifsc_swift_code"
-                                                class="form-control" placeholder="Enter IFSC or SWIFT code">
+                                                class="form-control" placeholder="Enter IFSC or SWIFT code" required>
                                         </div>
                                         <div class="col-md-4">
-                                            <label for="pan_tax_id" class="form-label fw-bold">PAN or Tax ID</label>
+                                            <label for="pan_tax_id" class="form-label fw-bold">PAN or Tax ID <span
+                                                    class="text-danger">*</span></label>
                                             <input type="text" id="pan_tax_id" name="pan_tax_id"
-                                                class="form-control" placeholder="Enter PAN or Tax ID">
+                                                class="form-control" placeholder="Enter PAN or Tax ID" required>
                                         </div>
                                         <div class="col-md-4">
                                             <label for="salary_frequency" class="form-label fw-bold">Salary Payment
@@ -582,15 +588,15 @@
                                         <div class="col-md-6">
                                             <label for="govt_id" class="form-label fw-bold">Government ID <span
                                                     class="text-danger">*</span></label>
-                                            <input type="file" id="govt_id" name="govt_id[]"
-                                                class="form-control" accept=".pdf,image/*" multiple required>
+                                            <input type="file" id="govt_id" name="govt_id" class="form-control"
+                                                accept=".pdf,image/*" multiple required>
                                         </div>
 
                                         <div class="col-md-6">
                                             <label for="education_certificates" class="form-label fw-bold">Education
                                                 Certificates <span class="text-danger">*</span></label>
                                             <input type="file" id="education_certificates"
-                                                name="education_certificates[]" class="form-control"
+                                                name="education_certificates" class="form-control"
                                                 accept=".pdf,image/*" multiple required>
                                         </div>
 

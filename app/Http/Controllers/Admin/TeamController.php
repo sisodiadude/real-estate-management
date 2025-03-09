@@ -214,7 +214,7 @@ class TeamController extends Controller
             return response()->json([
                 'status' => true,
                 'message' => 'Team created successfully. Redirecting to the list.',
-                'redirect_url' => route('admin.departments.show', ['branchSlug' => $branch->slug, 'departmentSlug' => $department->slug]) // Replace 'team.list' with your actual route name
+                'redirect_url' => route('admin.branches.departments.show', ['branchSlug' => $branch->slug, 'departmentSlug' => $department->slug]) // Replace 'team.list' with your actual route name
             ], 201);
         } catch (\Exception $e) {
             // Rollback in case of error
