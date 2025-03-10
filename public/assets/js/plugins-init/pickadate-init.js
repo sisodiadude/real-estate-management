@@ -1,9 +1,12 @@
 (function ($) {
     "use strict"
-
-    //date picker classic default
-    $('.pickdate-picker').pickadate({
-        format: 'yyyy-mm-dd', // Set the desired format
+    $('.pickdate-picker').each(function () {
+        var $this = $(this);
+        $this.pickadate({
+            format: 'yyyy-mm-dd',
+            formatSubmit: 'yyyy-mm-dd',  // Ensure correct format for submission
+            hiddenName: true
+        });
     });
 
 })(jQuery);

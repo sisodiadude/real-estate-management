@@ -13,7 +13,8 @@ use App\Models\AdminTeam;
 use App\Models\AdminBranch;
 use App\Models\AdminDepartment;
 use App\Models\AdminEmployee;
-
+use App\Models\City;
+use App\Models\State;
 // Laravel Facades
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -468,12 +469,6 @@ class EmployeeController extends Controller
             // Extract validated data
             $validatedData = collect($validator->validated())->toArray();
 
-            // Store binary fields separately
-            $resume = $validatedData['resume'] ?? null;
-            $profilePicture = $validatedData['profile_picture'] ?? null;
-            $govtIds = $validatedData['govt_id'] ?? [];
-            $educationCertificates = $validatedData['education_certificates'] ?? [];
-
             // Remove binary fields from the data to be saved
             $employeeData = collect($validatedData)->except([
                 'resume',
@@ -485,6 +480,23 @@ class EmployeeController extends Controller
             $employeeData['branch_id'] = $branch->id;
             $employeeData['department_id'] = $department->id;
             $employeeData['team_id'] = $team->id;
+
+            if ($validatedData['same_as_current_address']) {
+                $employeeData['permanent_address_line1'] = $validatedData['current_address_line1'];
+                $employeeData['permanent_address_line2'] = $validatedData['current_address_line2'];
+                $employeeData['permanent_country_id'] = $validatedData['current_country_id'];
+                $employeeData['permanent_state_id'] = $validatedData['current_state_id'];
+                $employeeData['permanent_city_id'] = $validatedData['current_city_id'];
+                $employeeData['permanent_postal_code'] = $validatedData['current_postal_code'];
+            } else {
+                $employeeData['permanent_address_line1'] = $validatedData['permanent_address_line1'];
+                $employeeData['permanent_address_line2'] = $validatedData['permanent_address_line2'];
+                $employeeData['permanent_country_id'] = $validatedData['permanent_country_id'];
+                $employeeData['permanent_state_id'] = $validatedData['permanent_state_id'];
+                $employeeData['permanent_city_id'] = $validatedData['permanent_city_id'];
+                $employeeData['permanent_postal_code'] = $validatedData['permanent_postal_code'];
+            }
+
             // prArr($employeeData, 1);
             // Begin transaction
             DB::beginTransaction();
@@ -552,9 +564,17 @@ class EmployeeController extends Controller
                 }
             }
 
-            prArr($filePaths, 1);
-            echo "All Done";
-            die;
+            // Prepare data to update the employee with file paths
+            $updateData = [
+                'resume' => $filePaths['resume'] ?? null, // Single file path
+                'profile_picture' => $filePaths['profile_picture'] ?? null, // Single file path
+                'govt_id' => json_encode($filePaths['govt_id'] ?? []), // JSON-encoded array for multiple files
+                'education_certificates' => json_encode($filePaths['education_certificates'] ?? []) // JSON-encoded array for multiple files
+            ];
+
+            // Update the employee record with file paths
+            $employee->update($updateData);
+
             // Return success response
             return response()->json([
                 'status' => true,
@@ -593,6 +613,173 @@ class EmployeeController extends Controller
                 'message' => 'An error occurred while creating the team.',
                 'error' => $e->getMessage()
             ], 500);
+        }
+    }
+
+    public function getEmployees(string $branchSlug, string $departmentSlug, Request $request, string $teamSlug)
+    {
+        if (!$request->ajax()) {
+            return response()->json(['status' => false, 'error' => 'Invalid request.'], 400);
+        }
+
+        if (!$request->user->canPerform('Admin Employee', 'view_all')) {
+            return response()->json(['status' => false, 'error' => 'You do not have permission to view Employees.'], 403);
+        }
+
+        // Fetch the branch and department in a single query to optimize performance
+        $branch = AdminBranch::where('slug', $branchSlug)->first();
+        $department = AdminDepartment::where('slug', $departmentSlug)->first();
+        $team = AdminTeam::where('slug', $teamSlug)->first();
+
+        // Determine which resource is missing
+        $missing = [];
+        if (!$branch) $missing[] = "Branch (Slug: $branchSlug)";
+        if (!$department) $missing[] = "Department (Slug: $departmentSlug)";
+        if (!$team) $missing[] = "Team (Slug: $teamSlug)";
+
+        // If any resource is missing, return a detailed 404 error
+        if (!empty($missing)) {
+            return abort(404, 'Resource Not Found: ' . implode(', ', $missing) . ' does not exist.');
+        }
+
+        $start = (int) $request->input('start', 0);
+        $length = (int) $request->input('length', 10);
+        $orderColumnIndex = (int) $request->input('order.0.column', 0);
+        $orderDirection = strtolower($request->input('order.0.dir', 'desc'));
+        $searchValue = $request->input('search.value', '');
+        $status = $request->input('status', '');
+        $created_by = (int) $request->input('created_by', 0);
+        $created_by_role = $request->input('created_by_role', '');
+        $updated_by = (int) $request->input('updated_by', 0);
+        $updated_by_role = $request->input('updated_by_role', '');
+
+        $columns = ['employee_unique_id', 'name', 'mobile', 'email', 'status', 'created_at', 'updated_at'];
+        $orderColumn = $columns[$orderColumnIndex] ?? 'created_at';
+        $orderDirection = in_array($orderDirection, ['asc', 'desc']) ? $orderDirection : 'desc';
+
+        $query = AdminEmployee::byTeamID($team->id)->byDepartmentID($department->id)->byBranchID($branch->id);
+
+        // Apply filters
+        if ($request->filled('status')) {
+            $query->byStatus($status);
+        }
+
+        if (!empty($searchValue)) {
+            $query->where(function ($q) use ($searchValue) {
+                $q->where('team_unique_id', 'like', "%{$searchValue}%")
+                    ->orWhere('name', 'like', "%{$searchValue}%")
+                    ->orWhere('mobile', 'like', "%{$searchValue}%")
+                    ->orWhere('email', 'like', "%{$searchValue}%");
+            });
+        }
+
+        // Apply created by filter
+        if ($created_by > 0 && $request->filled('created_by_role')) {
+            $query->where('created_by_id', $created_by)
+                ->where('created_by_type', $created_by_role === 'admins' ? 'App\Models\Admin' : 'App\Models\AdminEmployee');
+        }
+
+        // Apply updated by filter
+        if ($updated_by > 0 && $request->filled('updated_by_role')) {
+            $query->where('last_updated_by_id', $updated_by)
+                ->where('last_updated_by_type', $updated_by_role === 'admins' ? 'App\Models\Admin' : 'App\Models\AdminEmployee');
+        }
+
+        if ($request->filled('fromDate')) {
+            $toDate = $request->input('toDate', now()->toDateString());
+            $query->whereBetween('date_of_joining', [$request->input('fromDate'), $toDate]);
+        }
+
+        $totalRecords = AdminEmployee::byTeamID($team->id)->byDepartmentID($department->id)->byBranchID($branch->id)->count();
+        $filteredRecords = $query->count();
+
+        $data = $query->orderBy($orderColumn, $orderDirection)
+            ->offset($start)
+            ->limit($length)
+            ->get()
+            ->map(function ($row) use ($request, $branch, $department, $team) {
+                $getFullName = fn($first, $last) => trim("{$first} {$last}") ?: 'N/A';
+
+                return [
+                    'employee_unique_id' => $row->employee_unique_id,
+                    'name' => $row->full_name,
+                    'mobile' => $row->mobile,
+                    'email' => $row->email,
+                    'status' => $row->account_status,
+                    'creator' => $getFullName(optional($row->creator_details)->first_name, optional($row->creator_details)->last_name),
+                    'updator' => $getFullName(optional($row->updator_details)->first_name, optional($row->updator_details)->last_name),
+                    'created_at' => $row->created_at->setTimezone($request->user->country->timezones[0]['zoneName'] ?? 'UTC')->format('Y-m-d H:i:s'),
+                    'updated_at' => $row->updated_at->setTimezone($request->user->country->timezones[0]['zoneName'] ?? 'UTC')->format('Y-m-d H:i:s'),
+                    'actions' => [
+                        'view' => $request->user->canPerform('Admin Employee', 'view') ? route('admin.branches.departments.teams.employees.show', ['branchSlug' => $branch->slug, 'departmentSlug' => $department->slug, 'teamSlug' => $team->slug, 'employeeUsername' => $row->username]) : null,
+                        'edit' => $request->user->canPerform('Admin Employee', 'edit') ? route('admin.branches.departments.teams.employees.edit', ['branchSlug' => $branch->slug, 'departmentSlug' => $department->slug, 'teamSlug' => $team->slug, 'employeeUsername' => $row->username]) : null,
+                        'delete' => $request->user->canPerform('Admin Employee', 'soft_delete') ? route('admin.branches.departments.teams.employees.delete', ['branchSlug' => $branch->slug, 'departmentSlug' => $department->slug, 'teamSlug' => $team->slug, 'employeeUsername' => $row->username]) : null
+                    ]
+                ];
+            });
+
+        return response()->json([
+            "draw" => (int) $request->input('draw', 0),
+            "recordsTotal" => $totalRecords,
+            "recordsFiltered" => $filteredRecords,
+            "data" => $data
+        ]);
+    }
+
+    public function edit(string $branchSlug, string $departmentSlug, string $teamSlug, string $employeeUsername, Request $request)
+    {
+        try {
+            // Check user permissions
+            if (!$request->user->canPerform('Admin Department', 'edit')) {
+                return abort(403, 'Access Denied: You do not have permission to edit departments.');
+            }
+
+            // Fetch the branch and department in a single query to optimize performance
+            $branch = AdminBranch::where('slug', $branchSlug)->first();
+            $department = AdminDepartment::where('slug', $departmentSlug)->first();
+            $team = AdminTeam::where('slug', $teamSlug)->first();
+            $employee = AdminEmployee::where('username', $employeeUsername)->first();
+
+            // Determine which resource is missing
+            $missing = [];
+            if (!$branch) $missing[] = "Branch (Slug: $branchSlug)";
+            if (!$department) $missing[] = "Department (Slug: $departmentSlug)";
+            if (!$team) $missing[] = "Team (Slug: $teamSlug)";
+            if (!$employee) $missing[] = "Team (Slug: $employeeUsername)";
+
+            // If any resource is missing, return a detailed 404 error
+            if (!empty($missing)) {
+                return abort(404, 'Resource Not Found: ' . implode(', ', $missing) . ' does not exist.');
+            }
+
+            // Fetch states if current_country_id  is not null
+            $current_states = $employee->current_country_id  ? State::where('country_id', $employee->current_country_id)->orderBy('name', 'asc')->get() : collect([]);
+            $permanent_states = $employee->permanent_country_id  ? State::where('country_id', $employee->permanent_country_id)->orderBy('name', 'asc')->get() : collect([]);
+
+            // Fetch cities if state_id is not null
+            $current_cities = $employee->current_state_id  ? City::where('state_id', $employee->current_state_id)->orderBy('name', 'asc')->get() : collect([]);
+            $permanent_cities = $employee->permanent_state_id  ? City::where('state_id', $employee->permanent_state_id)->orderBy('name', 'asc')->get() : collect([]);
+
+            return view('admin.employee.edit', [
+                'branch' => $branch,
+                'department' => $department,
+                'team' => $team,
+                'employee' => $employee,
+                'user' => $request->user,
+                'userType' => $request->userType,
+                'hasPermissions' => $request->user->permissions,
+                'countries' => Country::orderBy('name', 'asc')->get(),
+                'current_states' => $current_states,
+                'current_cities' => $current_cities,
+                'permanent_states' => $permanent_states,
+                'permanent_cities' => $permanent_cities,
+            ]);
+        } catch (\Exception $e) {
+            // Log the error for debugging
+            Log::error('Error editing team: ' . $e->getMessage());
+
+            // Return a professional error response
+            return abort(500, $e->getMessage() ?: 'An unexpected error occurred while loading the team details. Please try again.');
         }
     }
 }

@@ -369,7 +369,7 @@
                                                                 </div>
                                                                 <table
                                                                     class="table display mb-4 dataTablesCard overflow-hidden card-table dataTable"
-                                                                    id="teamTable">
+                                                                    id="employeeTable">
                                                                     <thead>
                                                                         <tr>
                                                                             <th>
@@ -388,7 +388,6 @@
                                                                             <th>Mobile</th>
                                                                             <th>Email</th>
                                                                             <th>Status</th>
-                                                                            <th>Leader</th>
                                                                             <th>Created By</th>
                                                                             <th>Created At</th>
                                                                             <th>Updated By</th>
@@ -530,7 +529,7 @@
                                                                 </div>
                                                                 <table
                                                                     class="table display mb-4 dataTablesCard overflow-hidden card-table dataTable"
-                                                                    id="trashedTeamTable">
+                                                                    id="trashedEmployeeTable">
                                                                     <thead>
                                                                         <tr>
                                                                             <th>
@@ -1379,30 +1378,29 @@
 
             var currentTeamAjaxRequest = null;
 
-            var teamDataTable = $('#teamTable').DataTable({
+            var teamDataTable = $('#employeeTable').DataTable({
                 ajax: {
-                    url: "{{ route('admin.branches.departments.teams.getTeams', ['branchSlug' => $branch->slug, 'departmentSlug' => $department->slug]) }}", // Ensure this route is correct
+                    url: "{{ route('admin.branches.departments.teams.employees.data', ['branchSlug' => $branch->slug, 'departmentSlug' => $department->slug, 'teamSlug' => $team->slug]) }}", // Ensure this route is correct
                     type: 'GET',
                     data: function(d) {
-                        d.search.value = $('#team_keyword').val();
-                        d.status = $('#team_status').val();
-                        d.created_by = $('#team_created_by').val();
-                        d.created_by_role = $('#team_created_by option:selected').data('role');
-                        d.updated_by = $('#team_updated_by').val();
-                        d.updated_by_role = $('#team_updated_by option:selected').data('role');
-                        d.leader = $('#team_leader').val();
+                        d.search.value = $('#employee_keyword').val();
+                        d.status = $('#employee_status').val();
+                        d.created_by = $('#employee_created_by').val();
+                        d.created_by_role = $('#employee_created_by option:selected').data('role');
+                        d.updated_by = $('#employee_updated_by').val();
+                        d.updated_by_role = $('#employee_updated_by option:selected').data('role');
                     },
                     dataSrc: 'data', // Simplified to expect json.data
                     beforeSend: function(jqXHR) {
                         if (currentTeamAjaxRequest) {
                             currentTeamAjaxRequest.abort();
                         }
-                        $('#teamTable').addClass('processing');
+                        $('#employeeTable').addClass('processing');
                         currentTeamAjaxRequest = jqXHR;
                     },
                     complete: function(jqXHR) {
                         currentTeamAjaxRequest = null;
-                        $('#teamTable').removeClass('processing');
+                        $('#employeeTable').removeClass('processing');
 
                         if (jqXHR.responseJSON) {
                             $('#totalBranchCount').text(jqXHR.responseJSON
@@ -1418,13 +1416,13 @@
                         className: 'text-center',
                         render: function(data) {
                             return `<div class="form-check custom-checkbox ms-2">
-                                <input type="checkbox" class="form-check-input department-select" id="customCheckBox${data}" required>
+                                <input type="checkbox" class="form-check-input employee-select" id="customCheckBox${data}" required>
                                 <label class="form-check-label" for="customCheckBox${data}"></label>
                             </div>`;
                         }
                     },
                     {
-                        data: "team_unique_id",
+                        data: "employee_unique_id",
                         className: 'text-center text-nowrap'
                     },
                     {
@@ -1459,11 +1457,6 @@
                                 "dark"; // Default if status is unknown
                             return `<span class="badge bg-${badgeClass} text-uppercase">${data}</span>`;
                         }
-                    },
-                    {
-                        data: "leader",
-                        orderable: false,
-                        className: 'text-center text-nowrap'
                     },
                     {
                         data: "creator",
@@ -1557,26 +1550,26 @@
             });
 
             // Checkbox Select All Functionality
-            $('#checkAllTeamTableRows').on('click', function() {
-                $('.team-select').prop('checked', this.checked);
+            $('#checkAllEmployeeTableRows').on('click', function() {
+                $('.employee-select').prop('checked', this.checked);
             });
 
             // Ensure "Select All" checkbox updates correctly when individual checkboxes are clicked
-            $('#teamTable').on('click', '.team-select', function() {
-                if ($('.team-select:checked').length === $('.team-select').length) {
-                    $('#checkAllTeamTableRows').prop('checked', true);
+            $('#employeeTable').on('click', '.employee-select', function() {
+                if ($('.employee-select:checked').length === $('.employee-select').length) {
+                    $('#checkAllEmployeeTableRows').prop('checked', true);
                 } else {
-                    $('#checkAllTeamTableRows').prop('checked', false);
+                    $('#checkAllEmployeeTableRows').prop('checked', false);
                 }
             });
 
             // Reload table when filter button is clicked
-            $('#filterTeamTable').click(function() {
+            $('#filterEmployeeTable').click(function() {
                 teamDataTable.ajax.reload();
             });
 
             // Delete Branch with SweetAlert Confirmation
-            $('#teamTable').on('click', '.delete-team', function(e) {
+            $('#employeeTable').on('click', '.delete-team', function(e) {
                 e.preventDefault();
 
                 let deleteUrl = $(this).data('url'); // Get delete URL from data attribute
@@ -1625,9 +1618,9 @@
                                         });
 
                                         if (response.status) {
-                                            $('#teamTable').DataTable().ajax
+                                            $('#employeeTable').DataTable().ajax
                                                 .reload();
-                                            $('#trashedTeamTable').DataTable()
+                                            $('#trashedEmployeeTable').DataTable()
                                                 .ajax.reload();
                                         }
                                     },
@@ -1658,9 +1651,9 @@
 
             var currentTrashedTeamAjaxRequest = null;
 
-            var trashedDepartmentDataTable = $('#trashedTeamTable').DataTable({
+            var trashedDepartmentDataTable = $('#trashedEmployeeTable').DataTable({
                 ajax: {
-                    url: "{{ route('admin.branches.departments.teams.trash.data', ['branchSlug' => $branch->slug, 'departmentSlug' => $department->slug]) }}", // Ensure this route is correct
+                    url: "{{ route('admin.branches.departments.teams.employees.trash.data', ['branchSlug' => $branch->slug, 'departmentSlug' => $department->slug, 'teamSlug' => $team->slug]) }}", // Ensure this route is correct
                     type: 'GET',
                     data: function(d) {
                         d.search.value = $('#trashed_team_keyword').val();
@@ -1677,12 +1670,12 @@
                         if (currentTrashedTeamAjaxRequest) {
                             currentTrashedTeamAjaxRequest.abort();
                         }
-                        $('#trashedTeamTable').addClass('processing');
+                        $('#trashedEmployeeTable').addClass('processing');
                         currentTrashedTeamAjaxRequest = jqXHR;
                     },
                     complete: function(jqXHR) {
                         currentTrashedTeamAjaxRequest = null;
-                        $('#trashedTeamTable').removeClass('processing');
+                        $('#trashedEmployeeTable').removeClass('processing');
 
                         if (jqXHR.responseJSON) {
                             $('#totalBranchCount').text(jqXHR.responseJSON
@@ -1704,12 +1697,17 @@
                         }
                     },
                     {
-                        data: "team_unique_id",
+                        data: "employee_unique_id",
                         className: 'text-center text-nowrap'
                     },
                     {
                         data: "name",
-                        className: 'text-center text-nowrap'
+                        className: 'text-center text-nowrap',
+                        render: function(data, type, row) {
+                            let firstName = row.first_name ? row.first_name : "Unknown";
+                            let lastName = row.last_name ? row.last_name : "";
+                            return firstName + (lastName ? " " + lastName : "");
+                        }
                     },
                     {
                         data: "mobile",
@@ -1724,11 +1722,6 @@
                         render: function(data) {
                             return data ? `<a href="mailto:${data}">${data}</a>` : '';
                         }
-                    },
-                    {
-                        data: "leader",
-                        orderable: false,
-                        className: 'text-center text-nowrap'
                     },
                     {
                         data: "creator",
@@ -1817,7 +1810,7 @@
                 $('.trashed-team-select').prop('checked', this.checked);
             });
 
-            $('#trashedTeamTable').on('click', '.trashed-team-select', function() {
+            $('#trashedEmployeeTable').on('click', '.trashed-team-select', function() {
                 if ($('.trashed-team-select:checked').length === $('.trashed-team-select')
                     .length) {
                     $('#checkAllTrashedTeamTableRows').prop('checked', true);
@@ -1827,7 +1820,7 @@
             });
 
             // Delete team with SweetAlert Confirmation
-            $('#trashedTeamTable').on('click', '.delete-trashed-team', function(e) {
+            $('#trashedEmployeeTable').on('click', '.delete-trashed-team', function(e) {
                 e.preventDefault();
 
                 let deleteUrl = $(this).data('url'); // Get delete URL from data attribute
@@ -1878,9 +1871,9 @@
                                         });
 
                                         if (response.status) {
-                                            $('#teamTable').DataTable().ajax
+                                            $('#employeeTable').DataTable().ajax
                                                 .reload();
-                                            $('#trashedTeamTable').DataTable()
+                                            $('#trashedEmployeeTable').DataTable()
                                                 .ajax.reload();
                                         }
                                     },
@@ -1912,7 +1905,7 @@
                 });
             });
 
-            $('#trashedTeamTable').on('click', '.restore-trashed-team', function(e) {
+            $('#trashedEmployeeTable').on('click', '.restore-trashed-team', function(e) {
                 e.preventDefault();
 
                 let restoreUrl = $(this).data('url'); // Get restore URL from data attribute
@@ -1963,9 +1956,9 @@
                                         });
 
                                         if (response.status) {
-                                            $('#teamTable').DataTable().ajax
+                                            $('#employeeTable').DataTable().ajax
                                                 .reload();
-                                            $('#trashedTeamTable').DataTable()
+                                            $('#trashedEmployeeTable').DataTable()
                                                 .ajax.reload();
                                         }
                                     },

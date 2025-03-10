@@ -152,6 +152,24 @@ class AdminEmployee extends Model
         return null;
     }
 
+    /**
+     * Generate a unique slug based on the name
+     */
+    public static function generateUniqueUsername($firstName, $lastName)
+    {
+        $name = trim($firstName . ' ' . $lastName);
+        $baseUsername = Str::slug($name);
+        $username = $baseUsername;
+        $count = 1;
+
+        while (self::where('username', $username)->exists()) {
+            $username = "{$baseUsername}-{$count}";
+            $count++;
+        }
+
+        return $username;
+    }
+
     public static function generateUniqueEmployeeID($branch_id, $department_id, $team_id)
     {
         // Fetch Branch Details
@@ -199,6 +217,10 @@ class AdminEmployee extends Model
         parent::boot();
 
         static::creating(function ($employee) {
+            if (empty($employee->username)) {
+                $employee->username = self::generateUniqueUsername($employee->first_name, $employee->last_name);
+            }
+
             // Generate Unique department ID
             if (empty($employee->employee_unique_id)) {
                 $employee->employee_unique_id = self::generateUniqueEmployeeID($employee->branch_id, $employee->department_id, $employee->team_id);
@@ -230,5 +252,115 @@ class AdminEmployee extends Model
             self::setUpdater($employee);
             $employee->saveQuietly();
         });
+    }
+
+
+    /** -------------------------------
+     *  Relationships
+     * ------------------------------- */
+    public function branch()
+    {
+        return $this->belongsTo(AdminBranch::class, 'branch_id');
+    }
+
+    public function leader()
+    {
+        return $this->belongsTo(Admin::class, 'leader_id');
+    }
+
+    /**
+     * Scope to filter departments by status.
+     */
+    public function scopeByAccountStatus($query, $status)
+    {
+        return $query->where('account_status', $status);
+    }
+
+    /**
+     * Scope to filter teams by status.
+     */
+    public function scopeByTeamID($query, $teamID)
+    {
+        return $query->where('team_id', $teamID);
+    }
+
+    /**
+     * Scope to filter departments by status.
+     */
+    public function scopeByBranchID($query, $branchID)
+    {
+        return $query->where('branch_id', $branchID);
+    }
+
+    /**
+     * Scope to filter departments by status.
+     */
+    public function scopeByDepartmentID($query, $departmentID)
+    {
+        return $query->where('department_id', $departmentID);
+    }
+
+    /** -------------------------------
+     *  Audit Trail Relations
+     * ------------------------------- */
+    public function getCreatorDetailsAttribute()
+    {
+        if ($this->created_by_type === Admin::class) {
+            return Admin::find($this->created_by_id);
+        }
+        // elseif ($this->created_by_type === AdminEmployee::class) {
+        //     return AdminEmployee::find($this->created_by_id);
+        // }
+        return null;
+    }
+
+    public function getUpdatorDetailsAttribute()
+    {
+        if ($this->last_updated_by_type === Admin::class) {
+            return Admin::find($this->last_updated_by_id);
+        }
+        // elseif ($this->last_updated_by_type === AdminEmployee::class) {
+        //     return AdminEmployee::find($this->last_updated_by_id);
+        // }
+        return null;
+    }
+
+    /** -------------------------------
+     *  Custom Attributes
+     * ------------------------------- */
+    public function getFullNameAttribute(): string
+    {
+        $firstName = trim($this->first_name ?? '');
+        $lastName = trim($this->last_name ?? '');
+
+        if ($firstName && $lastName) {
+            return "{$firstName} {$lastName}";
+        }
+
+        return $firstName ?: $lastName ?: 'N/A';
+    }
+
+    public function getFullCurrentAddressAttribute(): string
+    {
+        return implode(', ', array_filter([
+            $this->current_address_line1,
+            $this->current_address_line2,
+            optional($this->current_city)->name,
+            optional($this->current_state)->name,
+            optional($this->current_country)->name,
+            $this->current_postal_code
+        ]));
+    }
+
+    public function getFullPermanentAddressAttribute(): string
+    {
+        return implode(', ', array_filter([
+            $this->permanent_address_line1,
+            $this->permanent_address_line2,
+            optional($this->permanent_city)->name,
+            optional($this->permanent_state)->name,
+            optional($this->permanent_country)->name,
+            $this->permanent_postal_code
+        ]));
     }
 }

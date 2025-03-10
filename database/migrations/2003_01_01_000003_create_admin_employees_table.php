@@ -29,14 +29,15 @@ return new class extends Migration
             $table->string('employee_unique_id', 50)->unique()->comment('Unique employee ID');
             $table->string('first_name', 50)->comment('Admin first name');
             $table->string('last_name', 50)->nullable()->comment('Admin last name');
+            $table->string('username')->unique()->comment('unique identifier');
             $table->string('designation', 100)->comment('Job designation');
             $table->date('date_of_birth')->comment('Date of birth');
             $table->enum('gender', ['male', 'female', 'other'])->nullable()->comment('Gender');
             $table->enum('marital_status', ['single', 'married', 'divorced', 'widow'])->nullable()->comment('Marital status');
             $table->string('profile_picture', 255)->nullable()->comment('URL of the profile picture');
             $table->string('resume', 255)->nullable()->comment('URL of the resume or CV document');
-            $table->string('govt_id', 255)->nullable()->comment('URL of the government-issued ID');
-            $table->string('education_certificates', 255)->nullable()->comment('URL of education-related certificates');
+            $table->json('govt_id')->nullable()->comment('JSON-encoded array of government-issued ID URLs');
+            $table->json('education_certificates')->nullable()->comment('JSON-encoded array of education-related certificate URLs');
             $table->foreignId('nationality_id')->nullable()->constrained('countries')->nullOnDelete()->comment('Nationality (Country reference)');
             $table->enum('blood_group', ['A', 'A-', 'A+', 'B', 'B-', 'B+', 'O', 'O-', 'O+', 'AB', 'AB-', 'AB+'])->nullable()->comment('Blood group');
 
