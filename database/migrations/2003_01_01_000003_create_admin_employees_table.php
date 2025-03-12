@@ -33,7 +33,7 @@ return new class extends Migration
             $table->string('designation', 100)->comment('Job designation');
             $table->date('date_of_birth')->comment('Date of birth');
             $table->enum('gender', ['male', 'female', 'other'])->nullable()->comment('Gender');
-            $table->enum('marital_status', ['single', 'married', 'divorced', 'widow'])->nullable()->comment('Marital status');
+            $table->enum('marital_status', ['single', 'married', 'divorced', 'widowed'])->nullable()->comment('Marital status');
             $table->string('profile_picture', 255)->nullable()->comment('URL of the profile picture');
             $table->string('resume', 255)->nullable()->comment('URL of the resume or CV document');
             $table->json('govt_id')->nullable()->comment('JSON-encoded array of government-issued ID URLs');

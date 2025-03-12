@@ -252,7 +252,7 @@
                                                                                         <label for="keyword"
                                                                                             class="form-label">Keyword</label>
                                                                                         <input type="text"
-                                                                                            id="team_keyword"
+                                                                                            id="employee_keyword"
                                                                                             name="keyword"
                                                                                             class="form-control"
                                                                                             placeholder="Enter Your Keyword..."
@@ -265,7 +265,8 @@
                                                                                         <label for="created_by"
                                                                                             class="form-label">Created
                                                                                             By</label>
-                                                                                        <select id="team_created_by"
+                                                                                        <select
+                                                                                            id="employee_created_by"
                                                                                             name="created_by"
                                                                                             class="form-select dropdown-select">
                                                                                             <option value="">
@@ -288,10 +289,12 @@
                                                                                     <!-- Last Updated By -->
                                                                                     <div
                                                                                         class="mb-3 col-lg-3 col-md-6">
-                                                                                        <label for="team_updated_by"
+                                                                                        <label
+                                                                                            for="employee_updated_by"
                                                                                             class="form-label">Last
                                                                                             Updated By</label>
-                                                                                        <select id="team_updated_by"
+                                                                                        <select
+                                                                                            id="employee_updated_by"
                                                                                             name="updated_by"
                                                                                             class="form-select dropdown-select">
                                                                                             <option value="">
@@ -311,30 +314,12 @@
                                                                                         </select>
                                                                                     </div>
 
-                                                                                    <!-- Leader (Static Dropdown) -->
-                                                                                    <div
-                                                                                        class="mb-3 col-lg-3 col-md-6">
-                                                                                        <label for="leader"
-                                                                                            class="form-label">Leader
-                                                                                            Options</label>
-                                                                                        <select id="team_leader"
-                                                                                            name="leader"
-                                                                                            class="form-select dropdown-select">
-                                                                                            <option value="">
-                                                                                                Select Option</option>
-                                                                                            <option value="1">
-                                                                                                Leader 1</option>
-                                                                                            <option value="2">
-                                                                                                Leader 2</option>
-                                                                                        </select>
-                                                                                    </div>
-
                                                                                     <!-- Status Dropdown -->
                                                                                     <div
                                                                                         class="mb-3 col-lg-3 col-md-6">
-                                                                                        <label for="team_status"
+                                                                                        <label for="employee_status"
                                                                                             class="form-label">Status</label>
-                                                                                        <select id="team_status"
+                                                                                        <select id="employee_status"
                                                                                             name="status"
                                                                                             class="form-select dropdown-select">
                                                                                             <option value="">
@@ -354,7 +339,8 @@
                                                                                 <!-- Search Button -->
                                                                                 <div class="row">
                                                                                     <div class="col-lg-4 col-md-6">
-                                                                                        <button id="filterTeamTable"
+                                                                                        <button
+                                                                                            id="filterEmployeeTable"
                                                                                             class="btn btn-primary w-100"
                                                                                             title="Click here to Search"
                                                                                             type="button">
@@ -429,7 +415,7 @@
                                                                                         <label for="keyword"
                                                                                             class="form-label">Keyword</label>
                                                                                         <input type="text"
-                                                                                            id="trashed_team_keyword"
+                                                                                            id="trashed_employee_keyword"
                                                                                             name="keyword"
                                                                                             class="form-control"
                                                                                             placeholder="Enter Your Keyword..."
@@ -443,7 +429,7 @@
                                                                                             class="form-label">Created
                                                                                             By</label>
                                                                                         <select
-                                                                                            id="trashed_team_created_by"
+                                                                                            id="trashed_employee_created_by"
                                                                                             name="created_by"
                                                                                             class="form-select dropdown-select">
                                                                                             <option value="">
@@ -470,7 +456,7 @@
                                                                                             class="form-label">Last
                                                                                             Updated By</label>
                                                                                         <select
-                                                                                            id="trashed_team_updated_by"
+                                                                                            id="trashed_employee_updated_by"
                                                                                             name="updated_by"
                                                                                             class="form-select dropdown-select">
                                                                                             <option value="">
@@ -489,32 +475,13 @@
                                                                                             @endforeach
                                                                                         </select>
                                                                                     </div>
-
-                                                                                    <!-- Leader (Static Dropdown) -->
-                                                                                    <div
-                                                                                        class="mb-3 col-lg-3 col-md-6">
-                                                                                        <label for="leader"
-                                                                                            class="form-label">Leader
-                                                                                            Options</label>
-                                                                                        <select
-                                                                                            id="trashed_team_leader"
-                                                                                            name="leader"
-                                                                                            class="form-select dropdown-select">
-                                                                                            <option value="">
-                                                                                                Select Option</option>
-                                                                                            <option value="1">
-                                                                                                Leader 1</option>
-                                                                                            <option value="2">
-                                                                                                Leader 2</option>
-                                                                                        </select>
-                                                                                    </div>
                                                                                 </div>
 
                                                                                 <!-- Search Button -->
                                                                                 <div class="row">
                                                                                     <div class="col-lg-4 col-md-6">
                                                                                         <button
-                                                                                            id="trashedfilterTeamTable"
+                                                                                            id="trashedfilterEmployeeTable"
                                                                                             class="btn btn-primary w-100"
                                                                                             title="Click here to Search"
                                                                                             type="button">
@@ -537,17 +504,16 @@
                                                                                     class="form-check custom-checkbox ms-2">
                                                                                     <input type="checkbox"
                                                                                         class="form-check-input select-all-departments"
-                                                                                        id="checkAllTrashedTeamTableRows"
+                                                                                        id="checkAllTrashedEmployeeTableRows"
                                                                                         required="">
                                                                                     <label class="form-check-label"
-                                                                                        for="checkAllTrashedTeamTableRows"></label>
+                                                                                        for="checkAllTrashedEmployeeTableRows"></label>
                                                                                 </div>
                                                                             </th>
                                                                             <th>ID</th>
                                                                             <th>Name</th>
                                                                             <th>Mobile</th>
                                                                             <th>Email</th>
-                                                                            <th>Leader</th>
                                                                             <th>Created By</th>
                                                                             <th>Created At</th>
                                                                             <th>Deleted By</th>
@@ -1266,10 +1232,9 @@
                                         </li>
                                         <li>
                                             <a href="javascript:void(0);"><svg xmlns="http://www.w3.org/2000/svg"
-                                                    width="20" height="20" viewBox="0 0 24 24"
-                                                    fill="none" stroke="currentColor" stroke-width="2"
-                                                    stroke-linecap="round" stroke-linejoin="round"
-                                                    class="feather feather-folder">
+                                                    width="20" height="20" viewBox="0 0 24 24" fill="none"
+                                                    stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                                    stroke-linejoin="round" class="feather feather-folder">
                                                     <path
                                                         d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z" />
                                                 </svg> Others <span><i
@@ -1539,7 +1504,7 @@
                         previous: '<i class="fa fa-angle-double-left"></i>',
                         next: '<i class="fa fa-angle-double-right"></i>'
                     },
-                    emptyTable: "<strong>No branches found.</strong>", // Custom empty table message
+                    emptyTable: "<strong>No employees found.</strong>", // Custom empty table message
                     zeroRecords: "<strong>No matching records found.</strong>" // Custom message when search has no matches
                 },
                 fixedHeader: true,
@@ -1651,19 +1616,18 @@
 
             var currentTrashedTeamAjaxRequest = null;
 
-            var trashedDepartmentDataTable = $('#trashedEmployeeTable').DataTable({
+            var trashedEmployeeTable = $('#trashedEmployeeTable').DataTable({
                 ajax: {
                     url: "{{ route('admin.branches.departments.teams.employees.trash.data', ['branchSlug' => $branch->slug, 'departmentSlug' => $department->slug, 'teamSlug' => $team->slug]) }}", // Ensure this route is correct
                     type: 'GET',
                     data: function(d) {
-                        d.search.value = $('#trashed_team_keyword').val();
-                        d.created_by = $('#trashed_team_created_by').val();
-                        d.created_by_role = $('#trashed_team_created_by option:selected').data(
+                        d.search.value = $('#trashed_employee_keyword').val();
+                        d.created_by = $('#trashed_employee_created_by').val();
+                        d.created_by_role = $('#trashed_employee_created_by option:selected').data(
                             'role');
-                        d.updated_by = $('#trashed_team_updated_by').val();
-                        d.updated_by_role = $('#trashed_team_updated_by option:selected').data(
+                        d.updated_by = $('#trashed_employee_updated_by').val();
+                        d.updated_by_role = $('#trashed_employee_updated_by option:selected').data(
                             'role');
-                        d.leader = $('#trashed_team_leader').val();
                     },
                     dataSrc: 'data', // Simplified to expect json.data
                     beforeSend: function(jqXHR) {
@@ -1691,7 +1655,7 @@
                         className: 'text-center',
                         render: function(data) {
                             return `<div class="form-check custom-checkbox ms-2">
-                                <input type="checkbox" class="form-check-input trashed-team-select" id="customCheckBox${data}" required>
+                                <input type="checkbox" class="form-check-input trashed-employee-select" id="customCheckBox${data}" required>
                                 <label class="form-check-label" for="customCheckBox${data}"></label>
                             </div>`;
                         }
@@ -1702,12 +1666,7 @@
                     },
                     {
                         data: "name",
-                        className: 'text-center text-nowrap',
-                        render: function(data, type, row) {
-                            let firstName = row.first_name ? row.first_name : "Unknown";
-                            let lastName = row.last_name ? row.last_name : "";
-                            return firstName + (lastName ? " " + lastName : "");
-                        }
+                        className: 'text-center text-nowrap'
                     },
                     {
                         data: "mobile",
@@ -1795,7 +1754,7 @@
                         previous: '<i class="fa fa-angle-double-left"></i>',
                         next: '<i class="fa fa-angle-double-right"></i>'
                     },
-                    emptyTable: "<strong>No branches found.</strong>", // Custom empty table message
+                    emptyTable: "<strong>No employees found.</strong>", // Custom empty table message
                     zeroRecords: "<strong>No matching records found.</strong>" // Custom message when search has no matches
                 },
                 fixedHeader: true,
@@ -1806,17 +1765,22 @@
             });
 
             // Checkbox Select All Functionality
-            $('#checkAllTrashedTeamTableRows').on('click', function() {
-                $('.trashed-team-select').prop('checked', this.checked);
+            $('#checkAllTrashedEmployeeTableRows').on('click', function() {
+                $('.trashed-employee-select').prop('checked', this.checked);
             });
 
-            $('#trashedEmployeeTable').on('click', '.trashed-team-select', function() {
-                if ($('.trashed-team-select:checked').length === $('.trashed-team-select')
+            $('#trashedEmployeeTable').on('click', '.trashed-employee-select', function() {
+                if ($('.trashed-employee-select:checked').length === $('.trashed-employee-select')
                     .length) {
-                    $('#checkAllTrashedTeamTableRows').prop('checked', true);
+                    $('#checkAllTrashedEmployeeTableRows').prop('checked', true);
                 } else {
-                    $('#checkAllTrashedTeamTableRows').prop('checked', false);
+                    $('#checkAllTrashedEmployeeTableRows').prop('checked', false);
                 }
+            });
+
+            // Reload table when filter button is clicked
+            $('#trashedfilterEmployeeTable').click(function() {
+                trashedEmployeeTable.ajax.reload();
             });
 
             // Delete team with SweetAlert Confirmation

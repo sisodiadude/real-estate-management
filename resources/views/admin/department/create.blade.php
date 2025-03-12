@@ -427,9 +427,9 @@
                         } = location;
 
                         const formData = new FormData(form);
-                        formData.append("use_branch_operating_hours", useBranchOperatingHours);
-                        formData.append("latitude", latitude);
-                        formData.append("longitude", longitude);
+                        formData.set("use_branch_operating_hours", useBranchOperatingHours);
+                        formData.set("latitude", latitude);
+                        formData.set("longitude", longitude);
 
                         const operatingHours = {};
 
@@ -456,7 +456,7 @@
                             });
 
                         // Append operating hours JSON to formData
-                        formData.append("operating_hours", JSON.stringify(operatingHours));
+                        formData.set("operating_hours", JSON.stringify(operatingHours));
 
                         fetch("{{ route('admin.branches.departments.store', ['branchSlug' => $branch->slug]) }}", {
                                 method: "POST",

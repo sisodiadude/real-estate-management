@@ -963,11 +963,11 @@
                         } = location;
 
                         const formData = new FormData(form);
-                        formData.append("use_branch_smtp_credentials", useBranchCredentials);
-                        formData.append("tax_details", JSON.stringify(taxData));
-                        formData.append("social_links", JSON.stringify(socialData));
-                        formData.append("latitude", latitude);
-                        formData.append("longitude", longitude);
+                        formData.set("use_branch_smtp_credentials", useBranchCredentials);
+                        formData.set("tax_details", JSON.stringify(taxData));
+                        formData.set("social_links", JSON.stringify(socialData));
+                        formData.set("latitude", latitude);
+                        formData.set("longitude", longitude);
 
                         const operatingHours = {};
 
@@ -994,7 +994,7 @@
                             });
 
                         // Append operating hours JSON to formData
-                        formData.append("operating_hours", JSON.stringify(operatingHours));
+                        formData.set("operating_hours", JSON.stringify(operatingHours));
 
                         fetch("{{ route('admin.branches.store') }}", {
                                 method: "POST",

@@ -423,34 +423,36 @@
                                         <div class="col-12">
                                             <label class="form-label fw-bold">Allowances</label>
                                             <div id="allowanceContainer">
+                                                @php
+                                                    $allowanceTypes = [
+                                                        'house_rent' => 'House Rent Allowance (HRA)',
+                                                        'dearness' => 'Dearness Allowance (DA)',
+                                                        'travel' => 'Travel Allowance (TA)',
+                                                        'medical' => 'Medical Allowance',
+                                                        'conveyance' => 'Conveyance Allowance',
+                                                        'performance_bonus' => 'Performance Bonus',
+                                                        'overtime' => 'Overtime Allowance',
+                                                        'food' => 'Food Allowance',
+                                                        'education' => 'Education Allowance',
+                                                        'special' => 'Special Allowance',
+                                                        'entertainment' => 'Entertainment Allowance',
+                                                        'communication' => 'Communication Allowance',
+                                                        'internet' => 'Internet Allowance',
+                                                        'shift' => 'Shift Allowance',
+                                                        'leave_travel' => 'Leave Travel Allowance (LTA)',
+                                                        'uniform' => 'Uniform Allowance',
+                                                        'child_education' => 'Child Education Allowance',
+                                                    ];
+                                                @endphp
                                                 <div class="row g-2 mb-2 allowance-entry">
                                                     <div class="col-md-6">
                                                         <select class="form-select dropdown-select allowance-type"
                                                             name="allowances[0][type]">
                                                             <option value="" selected>Select Allowance</option>
-                                                            <option value="house_rent">House Rent Allowance (HRA)
-                                                            </option>
-                                                            <option value="dearness">Dearness Allowance (DA)</option>
-                                                            <option value="travel">Travel Allowance (TA)</option>
-                                                            <option value="medical">Medical Allowance</option>
-                                                            <option value="conveyance">Conveyance Allowance</option>
-                                                            <option value="performance_bonus">Performance Bonus
-                                                            </option>
-                                                            <option value="overtime">Overtime Allowance</option>
-                                                            <option value="food">Food Allowance</option>
-                                                            <option value="education">Education Allowance</option>
-                                                            <option value="special">Special Allowance</option>
-                                                            <option value="entertainment">Entertainment Allowance
-                                                            </option>
-                                                            <option value="communication">Communication Allowance
-                                                            </option>
-                                                            <option value="internet">Internet Allowance</option>
-                                                            <option value="shift">Shift Allowance</option>
-                                                            <option value="leave_travel">Leave Travel Allowance (LTA)
-                                                            </option>
-                                                            <option value="uniform">Uniform Allowance</option>
-                                                            <option value="child_education">Child Education Allowance
-                                                            </option>
+                                                            @foreach ($allowanceTypes as $key => $label)
+                                                                <option value="{{ $key }}">
+                                                                    {{ $label }}</option>
+                                                            @endforeach
                                                         </select>
                                                     </div>
                                                     <div class="col-md-4">
@@ -477,17 +479,25 @@
                                         <div class="col-12">
                                             <label class="form-label fw-bold">Deductions</label>
                                             <div id="deductionContainer">
+                                                @php
+                                                    $deductionTypes = [
+                                                        'tax' => 'Tax Deduction',
+                                                        'insurance' => 'Insurance Deduction',
+                                                        'retirement' => 'Retirement Fund',
+                                                        'loan' => 'Loan Repayment',
+                                                        'other' => 'Other Deductions',
+                                                    ];
+                                                @endphp
                                                 <div class="row g-2 mb-2 deduction-entry">
                                                     <div class="col-md-6">
                                                         <select class="form-select dropdown-select deduction-type"
                                                             name="deductions[0][type]">
                                                             <option value="" selected>Select deduction type
                                                             </option>
-                                                            <option value="tax">Tax Deduction</option>
-                                                            <option value="insurance">Insurance Deduction</option>
-                                                            <option value="retirement">Retirement Fund</option>
-                                                            <option value="loan">Loan Repayment</option>
-                                                            <option value="other">Other Deductions</option>
+                                                            @foreach ($deductionTypes as $key => $label)
+                                                                <option value="{{ $key }}">
+                                                                    {{ $label }}</option>
+                                                            @endforeach
                                                         </select>
                                                     </div>
                                                     <div class="col-md-4">
@@ -571,34 +581,45 @@
                                             <h5 class="text-primary fw-bold mb-3">Document Uploads</h5>
                                         </div>
 
-                                        <div class="col-md-6">
-                                            <label for="resume" class="form-label fw-bold">Resume/CV <span
-                                                    class="text-danger">*</span></label>
-                                            <input type="file" id="resume" name="resume" class="form-control"
-                                                accept=".pdf,image/*" required>
-                                        </div>
+                                        @php
+                                            $fileFields = [
+                                                'resume' => [
+                                                    'label' => 'Resume/CV',
+                                                    'accept' => '.pdf,image/*',
+                                                    'required' => true,
+                                                ],
+                                                'profile_picture' => [
+                                                    'label' => 'Profile Picture',
+                                                    'accept' => 'image/*',
+                                                    'required' => true,
+                                                ],
+                                                'govt_id' => [
+                                                    'label' => 'Government ID',
+                                                    'accept' => '.pdf,image/*',
+                                                    'required' => true,
+                                                    'multiple' => true,
+                                                ],
+                                                'education_certificates' => [
+                                                    'label' => 'Education Certificates',
+                                                    'accept' => '.pdf,image/*',
+                                                    'required' => true,
+                                                    'multiple' => true,
+                                                ],
+                                            ];
+                                        @endphp
 
-                                        <div class="col-md-6">
-                                            <label for="profile_picture" class="form-label fw-bold">Profile
-                                                Picture <span class="text-danger">*</span></label>
-                                            <input type="file" id="profile_picture" name="profile_picture"
-                                                class="form-control" accept="image/*" required>
-                                        </div>
-
-                                        <div class="col-md-6">
-                                            <label for="govt_id" class="form-label fw-bold">Government ID <span
-                                                    class="text-danger">*</span></label>
-                                            <input type="file" id="govt_id" name="govt_id" class="form-control"
-                                                accept=".pdf,image/*" multiple required>
-                                        </div>
-
-                                        <div class="col-md-6">
-                                            <label for="education_certificates" class="form-label fw-bold">Education
-                                                Certificates <span class="text-danger">*</span></label>
-                                            <input type="file" id="education_certificates"
-                                                name="education_certificates" class="form-control"
-                                                accept=".pdf,image/*" multiple required>
-                                        </div>
+                                        @foreach ($fileFields as $name => $field)
+                                            <div class="col-md-6">
+                                                <label for="{{ $name }}" class="form-label fw-bold">
+                                                    {{ $field['label'] }} <span class="text-danger">*</span>
+                                                </label>
+                                                <input type="file" id="{{ $name }}"
+                                                    name="{{ $name }}" class="form-control"
+                                                    accept="{{ $field['accept'] }}"
+                                                    {{ $field['required'] ? 'required' : '' }}
+                                                    {{ isset($field['multiple']) ? 'multiple' : '' }}>
+                                            </div>
+                                        @endforeach
 
                                         <!-- Submit Buttons -->
                                         <div class="col-12 text-end mt-4">
@@ -1062,6 +1083,11 @@
                     return;
                 }
 
+                // Get the 'same_as_current_address' checkbox value
+                const sameAsCurrentAddress = document.getElementById("same_as_current_address")
+                    .checked ? 1 :
+                    0;
+
                 // AJAX Submission
                 toggleSubmitBtn(true);
 
@@ -1075,16 +1101,11 @@
                         } = location;
 
                         const formData = new FormData(form);
-                        formData.append("allowances", JSON.stringify(allowanceData));
-                        formData.append("deductions", JSON.stringify(deductionData));
-                        formData.append("latitude", latitude);
-                        formData.append("longitude", longitude);
-
-                        // Log all form data
-                        console.log("Form Data:");
-                        for (const [key, value] of formData.entries()) {
-                            console.log(`${key}:`, value);
-                        }
+                        formData.set("same_as_current_address", sameAsCurrentAddress);
+                        formData.set("allowances", JSON.stringify(allowanceData));
+                        formData.set("deductions", JSON.stringify(deductionData));
+                        formData.set("latitude", latitude);
+                        formData.set("longitude", longitude);
 
                         fetch("{{ route('admin.branches.departments.teams.employees.store', ['branchSlug' => $branch->slug, 'departmentSlug' => $department->slug, 'teamSlug' => $team->slug]) }}", {
                                 method: "POST",

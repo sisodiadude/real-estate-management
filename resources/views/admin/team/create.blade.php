@@ -286,8 +286,8 @@
                         } = location;
 
                         const formData = new FormData(form);
-                        formData.append("latitude", latitude);
-                        formData.append("longitude", longitude);
+                        formData.set("latitude", latitude);
+                        formData.set("longitude", longitude);
 
 
                         fetch("{{ route('admin.branches.departments.teams.store', ['branchSlug' => $branch->slug, 'departmentSlug' => $department->slug]) }}", {

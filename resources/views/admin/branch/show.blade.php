@@ -1631,7 +1631,7 @@
                         previous: '<i class="fa fa-angle-double-left"></i>',
                         next: '<i class="fa fa-angle-double-right"></i>'
                     },
-                    emptyTable: "<strong>No branches found.</strong>", // Custom empty table message
+                    emptyTable: "<strong>No departments found.</strong>", // Custom empty table message
                     zeroRecords: "<strong>No matching records found.</strong>" // Custom message when search has no matches
                 },
                 fixedHeader: true,
@@ -1887,7 +1887,7 @@
                         previous: '<i class="fa fa-angle-double-left"></i>',
                         next: '<i class="fa fa-angle-double-right"></i>'
                     },
-                    emptyTable: "<strong>No branches found.</strong>", // Custom empty table message
+                    emptyTable: "<strong>No departments found.</strong>", // Custom empty table message
                     zeroRecords: "<strong>No matching records found.</strong>" // Custom message when search has no matches
                 },
                 fixedHeader: true,
