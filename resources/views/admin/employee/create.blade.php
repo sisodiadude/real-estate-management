@@ -41,6 +41,9 @@
     <link rel="stylesheet" href="{{ asset('assets/vendor/pickadate/themes/default.css') }}">
     <link rel="stylesheet" href="{{ asset('assets/vendor/pickadate/themes/default.date.css') }}">
 
+    <link href="{{ asset('assets/vendor/bootstrap-datepicker-master/css/bootstrap-datepicker.min.css') }}"
+        rel="stylesheet">
+
     <!-- Custom Styles -->
     <link rel="stylesheet" href="{{ asset('assets/css/sisodia-dropzone.css') }}">
     <link rel="stylesheet" href="{{ asset('assets/css/style.css') }}">
@@ -179,7 +182,13 @@
                                         enctype="multipart/form-data">
                                         @csrf
                                         <div class="wizard-form-details log-in">
-                                            <div class="wizard-step-1 d-block">
+
+                                            {{--
+                                                /** -------------------------------
+                                                *  STEP 1: PERSONAL INFORMATION
+                                                * ------------------------------- */
+                                            --}}
+                                            <div class="wizard-container d-block" data-step="1">
                                                 <div class="row g-3">
                                                     <div class="col-md-4">
                                                         <label for="first_name" class="form-label fw-bold">First Name
@@ -236,8 +245,8 @@
                                                         <label for="date_of_birth" class="form-label fw-bold">Date of
                                                             Birth
                                                             <span class="text-danger">*</span></label>
-                                                        <input type="date" id="date_of_birth" name="date_of_birth"
-                                                            class="form-control" required max="{{ date('Y-m-d') }}">
+                                                        <input id="date_of_birth" name="date_of_birth"
+                                                            class="form-control bt-datepicker" required>
                                                         <div class="invalid-feedback">Date of birth is required.</div>
                                                     </div>
                                                     <div class="col-md-4">
@@ -297,13 +306,19 @@
                                                         <div class="invalid-feedback">Status is required.</div>
                                                     </div>
                                                 </div>
-                                                <div class="next-btn text-end col-sm-12">
-                                                    <button type="button" class="btn btn-primary next1 btn-sm">Next
-                                                        <i class="fas fa-arrow-right ms-2"></i></button>
+                                                <div class="text-end col-sm-12">
+                                                    <button type="button"
+                                                        class="btn btn-primary next1 btn-sm next-button">Next <i
+                                                            class="fas fa-arrow-right ms-2"></i></button>
                                                 </div>
                                             </div>
 
-                                            <div class="wizard-step-2 d-none">
+                                            {{--
+                                                /** -------------------------------
+                                                *  STEP 2: ADDRESS DETAILS
+                                                * ------------------------------- */
+                                            --}}
+                                            <div class="wizard-container d-none" data-step="2">
                                                 <div class="row g-3">
                                                     <!-- Section: Current Address -->
                                                     <div class="col-12 mt-4">
@@ -453,26 +468,359 @@
                                                         <div class="invalid-feedback">Postal code is required.</div>
                                                     </div>
                                                 </div>
-                                                <div class="next-btn text-end col-sm-12">
-                                                    <button type="button" class="btn btn-primary next1 btn-sm">Next
-                                                        <i class="fas fa-arrow-right ms-2"></i></button>
-                                                </div>
-                                            </div>
-                                            <div class="wizard-step-3 d-none">
-                                                <div class="dropzone-main">
-                                                    <label class="form-label required">Media</label>
-                                                    <form class="dropzone" id="multiFileUpload" action="/upload.php">
-                                                        <div class="dz-message needsclick"><i
-                                                                class="fas fa-cloud-upload-alt"></i>
-                                                            <h6>Drop files here or click to upload.</h6>
-                                                        </div>
-                                                    </form>
-                                                </div>
-                                                <div class="next-btn d-flex">
-                                                    <button type="button" class="btn btn-primary prev2 btn-sm"><i
+                                                <div class="d-flex justify-content-between col-sm-12 mt-3">
+                                                    <button type="button"
+                                                        class="btn btn-primary btn-sm previous-button"><i
                                                             class="fas fa-arrow-left me-2"></i> Previous</button>
                                                     <button type="button"
-                                                        class="btn btn-primary next3 btn-sm">submit</button>
+                                                        class="btn btn-primary btn-sm next-button">Next <i
+                                                            class="fas fa-arrow-right ms-2"></i></button>
+                                                </div>
+
+                                            </div>
+
+
+                                            {{--
+                                                /** -------------------------------
+                                                *  STEP 3: EMPLOYMENT DETAILS
+                                                * ------------------------------- */
+                                            --}}
+                                            <div class="wizard-container d-none" data-step="3">
+                                                <div class="row g-3">
+                                                    <div class="col-md-4">
+                                                        <label for="designation"
+                                                            class="form-label fw-bold">Designation <span
+                                                                class="text-danger">*</span></label>
+                                                        <input type="text" id="designation" name="designation"
+                                                            class="form-control" placeholder="Enter designation"
+                                                            required>
+                                                        <div class="invalid-feedback">Designation is required.</div>
+                                                    </div>
+                                                    <div class="col-md-4">
+                                                        <label for="joining_date" class="form-label fw-bold">Joining
+                                                            Date <span class="text-danger">*</span></label>
+                                                        <input name="joining_date" class="form-control bt-datepicker">
+                                                        <div class="invalid-feedback">Joining date is required.</div>
+                                                    </div>
+                                                    <div class="col-md-4">
+                                                        <label for="probation_period"
+                                                            class="form-label fw-bold">Probation Period
+                                                            (Months)</label>
+                                                        <input type="number" id="probation_period"
+                                                            name="probation_period" class="form-control"
+                                                            min="0" max="24" placeholder="Enter months">
+                                                    </div>
+                                                    <div class="col-md-4">
+                                                        <label for="employment_type"
+                                                            class="form-label fw-bold">Employment
+                                                            Type <span class="text-danger">*</span></label>
+                                                        <select id="employment_type" name="employment_type"
+                                                            class="form-select dropdown-select" required>
+                                                            <option value="">Select</option>
+                                                            <option value="full_time">Full-Time</option>
+                                                            <option value="part_time" selected>Part-Time</option>
+                                                            <option value="contract">Contract</option>
+                                                            <option value="internship">Internship</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                                <div class="d-flex justify-content-between col-sm-12 mt-3">
+                                                    <button type="button"
+                                                        class="btn btn-primary btn-sm previous-button"><i
+                                                            class="fas fa-arrow-left me-2"></i> Previous</button>
+                                                    <button type="button"
+                                                        class="btn btn-primary btn-sm next-button">Next <i
+                                                            class="fas fa-arrow-right ms-2"></i></button>
+                                                </div>
+                                            </div>
+
+
+                                            {{--
+                                                /** -------------------------------
+                                                *  STEP 4: SALARY & BANKING
+                                                * ------------------------------- */
+                                            --}}
+                                            <div class="wizard-container d-none" data-step="4">
+                                                <div class="row g-3">
+                                                    <div class="col-md-4">
+                                                        <label for="salary" class="form-label fw-bold">Salary <span
+                                                                class="text-danger">*</span></label>
+                                                        <input type="number" id="salary" name="salary"
+                                                            class="form-control" min="0" step="0.01"
+                                                            placeholder="Enter salary" required>
+                                                    </div>
+                                                    <div class="col-md-4">
+                                                        <label for="bank_account" class="form-label fw-bold">Bank
+                                                            Account
+                                                            Number <span class="text-danger">*</span></label>
+                                                        <input type="text" id="bank_account" name="bank_account"
+                                                            class="form-control" placeholder="Enter account number"
+                                                            required>
+                                                    </div>
+                                                    <div class="col-md-4">
+                                                        <label for="bank_name" class="form-label fw-bold">Bank Name
+                                                            <span class="text-danger">*</span></label>
+                                                        <input type="text" id="bank_name" name="bank_name"
+                                                            class="form-control" placeholder="Enter bank name"
+                                                            required>
+                                                    </div>
+                                                    <div class="col-12">
+                                                        <label class="form-label fw-bold">Allowances</label>
+                                                        <div id="allowanceContainer">
+                                                            @php
+                                                                $allowanceTypes = [
+                                                                    'house_rent' => 'House Rent Allowance (HRA)',
+                                                                    'dearness' => 'Dearness Allowance (DA)',
+                                                                    'travel' => 'Travel Allowance (TA)',
+                                                                    'medical' => 'Medical Allowance',
+                                                                    'conveyance' => 'Conveyance Allowance',
+                                                                    'performance_bonus' => 'Performance Bonus',
+                                                                    'overtime' => 'Overtime Allowance',
+                                                                    'food' => 'Food Allowance',
+                                                                    'education' => 'Education Allowance',
+                                                                    'special' => 'Special Allowance',
+                                                                    'entertainment' => 'Entertainment Allowance',
+                                                                    'communication' => 'Communication Allowance',
+                                                                    'internet' => 'Internet Allowance',
+                                                                    'shift' => 'Shift Allowance',
+                                                                    'leave_travel' => 'Leave Travel Allowance (LTA)',
+                                                                    'uniform' => 'Uniform Allowance',
+                                                                    'child_education' => 'Child Education Allowance',
+                                                                ];
+                                                            @endphp
+                                                            <div class="row g-2 mb-2 allowance-entry">
+                                                                <div class="col-md-6">
+                                                                    <select
+                                                                        class="form-select dropdown-select allowance-type"
+                                                                        name="allowances[0][type]">
+                                                                        <option value="" selected>Select
+                                                                            Allowance</option>
+                                                                        @foreach ($allowanceTypes as $key => $label)
+                                                                            <option value="{{ $key }}">
+                                                                                {{ $label }}</option>
+                                                                        @endforeach
+                                                                    </select>
+                                                                </div>
+                                                                <div class="col-md-4">
+                                                                    <input type="number"
+                                                                        class="form-control allowance-amount"
+                                                                        name="allowances[0][amount]"
+                                                                        placeholder="Enter amount" step="0.01"
+                                                                        min="0">
+                                                                </div>
+                                                                <div class="col-md-2 text-center">
+                                                                    <button type="button" id="addAllowanceBtn"
+                                                                        class="btn p-2 rounded-circle">
+                                                                        <img src="{{ asset('assets/images/iconly/action/plus.png') }}"
+                                                                            alt="Add" class="img-fluid"
+                                                                            style="max-width: 20px;">
+                                                                    </button>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <small class="form-text text-muted">
+                                                            Allowances are subject to company policy.
+                                                            <a href="{{ asset('assets/docs/policies/company-allowance-policy.pdf') }}"
+                                                                target="_blank">View terms</a>.
+                                                        </small>
+                                                    </div>
+                                                    <div class="col-12">
+                                                        <label class="form-label fw-bold">Deductions</label>
+                                                        <div id="deductionContainer">
+                                                            @php
+                                                                $deductionTypes = [
+                                                                    'tax' => 'Tax Deduction',
+                                                                    'insurance' => 'Insurance Deduction',
+                                                                    'retirement' => 'Retirement Fund',
+                                                                    'loan' => 'Loan Repayment',
+                                                                    'other' => 'Other Deductions',
+                                                                ];
+                                                            @endphp
+                                                            <div class="row g-2 mb-2 deduction-entry">
+                                                                <div class="col-md-6">
+                                                                    <select
+                                                                        class="form-select dropdown-select deduction-type"
+                                                                        name="deductions[0][type]">
+                                                                        <option value="" selected>Select
+                                                                            deduction type
+                                                                        </option>
+                                                                        @foreach ($deductionTypes as $key => $label)
+                                                                            <option value="{{ $key }}">
+                                                                                {{ $label }}</option>
+                                                                        @endforeach
+                                                                    </select>
+                                                                </div>
+                                                                <div class="col-md-4">
+                                                                    <input type="number"
+                                                                        class="form-control deduction-amount"
+                                                                        name="deductions[0][amount]"
+                                                                        placeholder="Enter amount" step="0.01"
+                                                                        min="0">
+                                                                </div>
+                                                                <div class="col-md-2 text-center">
+                                                                    <button type="button" id="addDeductionBtn"
+                                                                        class="btn p-2 rounded-circle">
+                                                                        <img src="{{ asset('assets/images/iconly/action/plus.png') }}"
+                                                                            alt="Add" class="img-fluid"
+                                                                            style="max-width: 20px;">
+                                                                    </button>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-4">
+                                                        <label for="ifsc_swift_code"
+                                                            class="form-label fw-bold">IFSC/SWIFT Code
+                                                            <span class="text-danger">*</span>
+                                                            <span data-toggle="tooltip" data-placement="right"
+                                                                title="Enter IFSC for India or SWIFT for international banks">
+                                                                <i class="las la-info-circle"></i>
+                                                            </span>
+                                                        </label>
+                                                        <input type="text" id="ifsc_swift_code"
+                                                            name="ifsc_swift_code" class="form-control"
+                                                            placeholder="Enter IFSC or SWIFT code" required>
+                                                    </div>
+                                                    <div class="col-md-4">
+                                                        <label for="pan_tax_id" class="form-label fw-bold">PAN or Tax
+                                                            ID <span class="text-danger">*</span></label>
+                                                        <input type="text" id="pan_tax_id" name="pan_tax_id"
+                                                            class="form-control" placeholder="Enter PAN or Tax ID"
+                                                            required>
+                                                    </div>
+                                                    <div class="col-md-4">
+                                                        <label for="salary_frequency"
+                                                            class="form-label fw-bold">Salary Payment
+                                                            Frequency <span class="text-danger">*</span></label>
+                                                        <select name="salary_frequency" id="salary_frequency"
+                                                            class="form-select dropdown-select"
+                                                            aria-label="Select Salary Frequency" required>
+                                                            <option value="" selected>Select Salary Frequency
+                                                            </option>
+                                                            <option value="weekly">Weekly</option>
+                                                            <option value="biweekly">Bi-Weekly (Every 2 Weeks)</option>
+                                                            <option value="semimonthly">Semi-Monthly (1st & 15th)
+                                                            </option>
+                                                            <option value="monthly" selected>Monthly</option>
+                                                            <option value="quarterly">Quarterly</option>
+                                                            <option value="semiannually">Semi-Annually (Every 6 Months)
+                                                            </option>
+                                                            <option value="annually">Annually (Yearly)</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                                <div class="d-flex justify-content-between col-sm-12 mt-3">
+                                                    <button type="button"
+                                                        class="btn btn-primary btn-sm previous-button"><i
+                                                            class="fas fa-arrow-left me-2"></i> Previous</button>
+                                                    <button type="button"
+                                                        class="btn btn-primary btn-sm next-button">Next <i
+                                                            class="fas fa-arrow-right ms-2"></i></button>
+                                                </div>
+                                            </div>
+
+                                            {{--
+                                                /** -------------------------------
+                                                *  STEP 5: EMERGENCY CONTACT
+                                                * ------------------------------- */
+                                            --}}
+                                            <div class="wizard-container d-none" data-step="5">
+                                                <div class="row g-3">
+                                                    <div class="col-md-4">
+                                                        <label for="emergency_contact_name"
+                                                            class="form-label fw-bold">Name</label>
+                                                        <input type="text" id="emergency_contact_name"
+                                                            name="emergency_contact_name" class="form-control"
+                                                            placeholder="Enter name">
+                                                    </div>
+                                                    <div class="col-md-4">
+                                                        <label for="emergency_contact_relation"
+                                                            class="form-label fw-bold">Relationship</label>
+                                                        <input type="text" id="emergency_contact_relation"
+                                                            name="emergency_contact_relation" class="form-control"
+                                                            placeholder="Enter relationship">
+                                                    </div>
+                                                    <div class="col-md-4">
+                                                        <label for="emergency_contact_number"
+                                                            class="form-label fw-bold">Contact
+                                                            Number</label>
+                                                        <input type="text" id="emergency_contact_number"
+                                                            name="emergency_contact_number" class="form-control"
+                                                            placeholder="Enter contact number">
+                                                    </div>
+
+                                                </div>
+                                                <div class="d-flex justify-content-between col-sm-12 mt-3">
+                                                    <button type="button"
+                                                        class="btn btn-primary btn-sm previous-button"><i
+                                                            class="fas fa-arrow-left me-2"></i> Previous</button>
+                                                    <button type="button"
+                                                        class="btn btn-primary btn-sm next-button">Next <i
+                                                            class="fas fa-arrow-right ms-2"></i></button>
+                                                </div>
+                                            </div>
+
+                                            {{--
+                                                /** -------------------------------
+                                                *  STEP 6: DOCUMENT UPLOADS
+                                                * ------------------------------- */
+                                            --}}
+                                            <div class="wizard-container d-none" data-step="6">
+                                                <div class="row g-3">
+                                                    @php
+                                                        $fileFields = [
+                                                            'resume' => [
+                                                                'label' => 'Resume/CV',
+                                                                'accept' => '.pdf,image/*',
+                                                                'required' => true,
+                                                            ],
+                                                            'profile_picture' => [
+                                                                'label' => 'Profile Picture',
+                                                                'accept' => 'image/*',
+                                                                'required' => true,
+                                                            ],
+                                                            'govt_id' => [
+                                                                'label' => 'Government ID',
+                                                                'accept' => '.pdf,image/*',
+                                                                'required' => true,
+                                                                'multiple' => true,
+                                                            ],
+                                                            'education_certificates' => [
+                                                                'label' => 'Education Certificates',
+                                                                'accept' => '.pdf,image/*',
+                                                                'required' => true,
+                                                                'multiple' => true,
+                                                            ],
+                                                        ];
+                                                    @endphp
+
+                                                    @foreach ($fileFields as $name => $field)
+                                                        <div class="col-md-6">
+                                                            <label for="{{ $name }}"
+                                                                class="form-label fw-bold">
+                                                                {{ $field['label'] }} <span
+                                                                    class="text-danger">*</span>
+                                                            </label>
+                                                            <input type="file" id="{{ $name }}"
+                                                                name="{{ $name }}" class="form-control"
+                                                                accept="{{ $field['accept'] }}"
+                                                                {{ $field['required'] ? 'required' : '' }}
+                                                                {{ isset($field['multiple']) ? 'multiple' : '' }}>
+                                                        </div>
+                                                    @endforeach
+                                                </div>
+                                                <div class="d-flex justify-content-between col-sm-12 mt-3">
+                                                    <button type="button"
+                                                        class="btn btn-primary btn-sm previous-button"><i
+                                                            class="fas fa-arrow-left me-2"></i> Previous</button>
+
+                                                    <button type="submit"
+                                                        class="btn btn-primary btn-sm submit-button">
+                                                        <span
+                                                            class="spinner-border spinner-submit spinner-border-sm me-2 d-none1"
+                                                            role="status" aria-hidden="true"></span>
+                                                        <span id="submit-btn-txt">Submit</span>
+                                                    </button>
                                                 </div>
                                             </div>
                                         </div>
@@ -500,24 +848,28 @@
     <!-- Footer Scripts Section Start -->
     <!-- Required Vendors -->
     <script src="{{ asset('assets/vendor/global/global.min.js') }}"></script>
-    <script src="{{ asset('assets/js/user-wizard.js') }}"></script>
+    <script src="{{ asset('assets/vendor/bootstrap-datepicker-master/js/bootstrap-datepicker.min.js') }}"></script>
 
     <!-- Plugins -->
     <script src="{{ asset('assets/vendor/select2/js/select2.full.min.js') }}"></script>
     <script src="{{ asset('assets/vendor/sweetalert2/dist/sweetalert2.min.js') }}"></script>
-    <script src="{{ asset('assets/vendor/pickadate/picker.js') }}"></script>
-    <script src="{{ asset('assets/vendor/pickadate/picker.date.js') }}"></script>
-    <script src="{{ asset('assets/vendor/pickadate/picker.time.js') }}"></script>
-
-    <!-- Plugin Initializations -->
-    <script src="{{ asset('assets/js/plugins-init/pickadate-init.js') }}"></script>
 
     <!-- Custom Scripts -->
     <script src="{{ asset('assets/js/custom.min.js') }}"></script>
     <script src="{{ asset('assets/js/deznav-init.js') }}"></script>
     <script src="{{ asset('assets/js/custom-2.js') }}"></script>
     <script src="{{ asset('assets/js/sisodia-dropzone.js') }}"></script>
+    <script src="{{ asset('assets/js/user-wizard.js') }}"></script>
     <script>
+        function getStepNumberByInputName(inputName) {
+            for (const [step, inputs] of Object.entries(formInputs)) {
+                if (inputs.some(input => input.name === inputName)) {
+                    return parseInt(step.replace('step', ''), 10);
+                }
+            }
+            return null; // Return null if input name not found
+        }
+
         function refreshSelect2(selector, options = {}) {
             $(selector).select2({
                 placeholder: options.placeholder || "Select an option",
@@ -574,7 +926,9 @@
                 $('[data-toggle="tooltip"]').tooltip()
             })
 
-            $('select.dropdown-select').select2();
+            $('select.dropdown-select').select2({
+                width: '100%' // Ensures full-width dropdown
+            });
 
             $('input[type="file"]').sisodiaDropZone();
             // $('#resume').sisodiaDropZone();
@@ -903,6 +1257,15 @@
                     const firstInvalidInput = form.querySelector(":invalid");
 
                     if (firstInvalidInput) {
+
+                        // Find the closest parent with class "wizard-container"
+                        const wizardContainer = firstInvalidInput.closest(".wizard-container");
+
+                        if (wizardContainer) {
+                            navigateStep(6, wizardContainer.getAttribute("data-step"));
+                            console.log("Wizard Step:", wizardContainer.getAttribute("data-step"));
+                        }
+
                         firstInvalidInput.scrollIntoView({
                             behavior: "smooth",
                             block: "center"
@@ -918,6 +1281,14 @@
                     const firstInvalidField = document.querySelector(".is-invalid");
 
                     if (firstInvalidField) {
+                        // Find the closest parent with class "wizard-container"
+                        const wizardContainer = firstInvalidField.closest(".wizard-container");
+
+                        if (wizardContainer) {
+                            navigateStep(6, wizardContainer.getAttribute("data-step"));
+                            console.log("Wizard Step:", wizardContainer.getAttribute("data-step"));
+                        }
+
                         firstInvalidField.scrollIntoView({
                             behavior: "smooth",
                             block: "center"
@@ -1007,6 +1378,17 @@
                                         });
 
                                         if (firstInput) {
+                                            // Find the closest parent with class "wizard-container"
+                                            const wizardContainer = firstInput.closest(
+                                                ".wizard-container");
+
+                                            if (wizardContainer) {
+                                                navigateStep(6, wizardContainer.getAttribute(
+                                                    "data-step"));
+                                                console.log("Wizard Step:", wizardContainer
+                                                    .getAttribute("data-step"));
+                                            }
+
                                             firstInput.scrollIntoView({
                                                 behavior: "smooth",
                                                 block: "center"

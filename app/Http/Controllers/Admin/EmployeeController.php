@@ -163,7 +163,7 @@ class EmployeeController extends Controller
                 'first_name' => 'required|string|max:50',
                 'last_name' => 'required|string|max:50',
                 'email' => 'required|email|max:255|unique:admin_employees,email',
-                'alternative_email' => 'required|email|max:255',
+                'alternative_email' => 'nullable|email|max:255',
                 'mobile' => [
                     'required',
                     'string',
@@ -172,7 +172,7 @@ class EmployeeController extends Controller
                     'regex:/^\+?[0-9\s-]{10,20}$/'
                 ],
                 'alternate_mobile' => [
-                    'required',
+                    'nullable',
                     'string',
                     'max:20',
                     'regex:/^\+?[0-9\s-]{10,20}$/'
@@ -210,10 +210,10 @@ class EmployeeController extends Controller
                 'pan_tax_id' => 'required|string|alpha_num|max:20',
 
                 // Emergency Contact Details
-                'emergency_contact_name' => 'required|string|max:100',
-                'emergency_contact_relation' => 'required|string|max:50',
+                'emergency_contact_name' => 'nullable|string|max:100',
+                'emergency_contact_relation' => 'nullable|string|max:50',
                 'emergency_contact_number' => [
-                    'required',
+                    'nullable',
                     'string',
                     'max:20',
                     'regex:/^\+?[0-9\s-]{10,20}$/'
@@ -271,7 +271,6 @@ class EmployeeController extends Controller
                 'email.unique' => 'This email is already associated with another employee.',
 
                 // Alternative Email
-                'alternative_email.required' => 'Employee alternative email is required.',
                 'alternative_email.email' => 'Please enter a valid alternative email address.',
                 'alternative_email.max' => 'Alternative email address cannot exceed 255 characters.',
 
@@ -283,7 +282,6 @@ class EmployeeController extends Controller
                 'mobile.regex' => 'Please enter a valid mobile number (e.g., +1234567890, 9876543210).',
 
                 // Alternate Mobile
-                'alternate_mobile.required' => 'Employee alternate mobile is required.',
                 'alternate_mobile.string' => 'Alternate mobile number must be a valid string.',
                 'alternate_mobile.max' => 'Alternate mobile number cannot exceed 20 characters.',
                 'alternate_mobile.regex' => 'Please enter a valid alternate mobile number (e.g., +1234567890, 9876543210).',
@@ -414,15 +412,12 @@ class EmployeeController extends Controller
                 'pan_tax_id.alpha_num' => 'PAN/TAX ID must be alphanumeric.',
                 'pan_tax_id.max' => 'PAN/TAX ID cannot exceed 20 characters.',
 
-                'emergency_contact_name.required' => 'Emergency contact name is required.',
                 'emergency_contact_name.string' => 'Emergency contact name must be a valid string.',
                 'emergency_contact_name.max' => 'Emergency contact name cannot exceed 100 characters.',
 
-                'emergency_contact_relation.required' => 'Emergency contact relation is required.',
                 'emergency_contact_relation.string' => 'Emergency contact relation must be a valid string.',
                 'emergency_contact_relation.max' => 'Emergency contact relation cannot exceed 50 characters.',
 
-                'emergency_contact_number.required' => 'Emergency contact number is required.',
                 'emergency_contact_number.regex' => 'Emergency contact number must be a valid phone number.',
                 'emergency_contact_number.max' => 'Emergency contact number cannot exceed 20 characters.',
 
@@ -856,7 +851,7 @@ class EmployeeController extends Controller
                 'first_name' => 'required|string|max:50',
                 'last_name' => 'required|string|max:50',
                 'email' => 'required|email|max:255|unique:admin_employees,email,' . $employee->id,
-                'alternative_email' => 'required|email|max:255',
+                'alternative_email' => 'nullable|email|max:255',
                 'mobile' => [
                     'required',
                     'string',
@@ -864,7 +859,7 @@ class EmployeeController extends Controller
                     'regex:/^\+?[0-9\s-]{10,20}$/'
                 ],
                 'alternate_mobile' => [
-                    'required',
+                    'nullable',
                     'string',
                     'max:20',
                     'regex:/^\+?[0-9\s-]{10,20}$/'
@@ -902,10 +897,10 @@ class EmployeeController extends Controller
                 'pan_tax_id' => 'required|string|alpha_num|max:20',
 
                 // Emergency Contact Details
-                'emergency_contact_name' => 'required|string|max:100',
-                'emergency_contact_relation' => 'required|string|max:50',
+                'emergency_contact_name' => 'nullable|string|max:100',
+                'emergency_contact_relation' => 'nullable|string|max:50',
                 'emergency_contact_number' => [
-                    'required',
+                    'nullable',
                     'string',
                     'max:20',
                     'regex:/^\+?[0-9\s-]{10,20}$/'
@@ -963,7 +958,6 @@ class EmployeeController extends Controller
                 'email.unique' => 'This email is already associated with another employee.',
 
                 // Alternative Email
-                'alternative_email.required' => 'Employee alternative email is required.',
                 'alternative_email.email' => 'Please enter a valid alternative email address.',
                 'alternative_email.max' => 'Alternative email address cannot exceed 255 characters.',
 
@@ -975,7 +969,6 @@ class EmployeeController extends Controller
                 'mobile.regex' => 'Please enter a valid mobile number (e.g., +1234567890, 9876543210).',
 
                 // Alternate Mobile
-                'alternate_mobile.required' => 'Employee alternate mobile is required.',
                 'alternate_mobile.string' => 'Alternate mobile number must be a valid string.',
                 'alternate_mobile.max' => 'Alternate mobile number cannot exceed 20 characters.',
                 'alternate_mobile.regex' => 'Please enter a valid alternate mobile number (e.g., +1234567890, 9876543210).',
@@ -1106,15 +1099,12 @@ class EmployeeController extends Controller
                 'pan_tax_id.alpha_num' => 'PAN/TAX ID must be alphanumeric.',
                 'pan_tax_id.max' => 'PAN/TAX ID cannot exceed 20 characters.',
 
-                'emergency_contact_name.required' => 'Emergency contact name is required.',
                 'emergency_contact_name.string' => 'Emergency contact name must be a valid string.',
                 'emergency_contact_name.max' => 'Emergency contact name cannot exceed 100 characters.',
 
-                'emergency_contact_relation.required' => 'Emergency contact relation is required.',
                 'emergency_contact_relation.string' => 'Emergency contact relation must be a valid string.',
                 'emergency_contact_relation.max' => 'Emergency contact relation cannot exceed 50 characters.',
 
-                'emergency_contact_number.required' => 'Emergency contact number is required.',
                 'emergency_contact_number.regex' => 'Emergency contact number must be a valid phone number.',
                 'emergency_contact_number.max' => 'Emergency contact number cannot exceed 20 characters.',
 
