@@ -48,7 +48,9 @@
 
 <body>
 
-    <!-- Preloader Start -->
+    <!--*******************
+        Preloader start
+    ********************-->
     <div id="preloader">
         <div class="sk-three-bounce">
             <div class="sk-child sk-bounce1"></div>
@@ -80,560 +82,402 @@
         <!-- Content Body Start -->
         <div class="content-body">
             <div class="container-fluid">
-                <div class="form-head page-titles d-flex align-items-center justify-content-between">
-                    <div>
-                        <h4 class="mb-1 fw-bold">Create New Employee</h4>
-                        <nav aria-label="breadcrumb">
-                            <ol class="breadcrumb">
-                                <li class="breadcrumb-item"><a href="{{ route('admin.branches.index') }}">Branches</a>
-                                </li>
-                                <li class="breadcrumb-item"><a
-                                        href="{{ route('admin.branches.show', ['branchSlug' => $branch->slug]) }}">{{ $branch->name }}</a>
-                                </li>
-                                <li class="breadcrumb-item"><a
-                                        href="{{ route('admin.branches.departments.show', ['branchSlug' => $branch->slug, 'departmentSlug' => $department->slug]) }}">{{ $department->name }}</a>
-                                </li>
-                                <li class="breadcrumb-item"><a
-                                        href="{{ route('admin.branches.departments.teams.show', ['branchSlug' => $branch->slug, 'departmentSlug' => $department->slug, 'teamSlug' => $team->slug]) }}">{{ $team->name }}</a>
-                                </li>
-                                <li class="breadcrumb-item active"><a href="javascript:void(0)">Create Employee</a></li>
-                            </ol>
-                        </nav>
-                    </div>
-                    <div class="d-flex gap-2">
-                        <!-- Refresh Button -->
-                        <button class="btn btn-primary rounded light" onclick="location.reload();">
-                            Refresh
-                        </button>
-                    </div>
+                <div class="page-titles">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="javascript:void(0)">Agents</a></li>
+                        <li class="breadcrumb-item active"><a href="javascript:void(0)">Add Agent Wizard</a></li>
+                    </ol>
                 </div>
-
                 <!-- row -->
                 <div class="row">
                     <div class="col-12">
                         <div class="card">
                             <div class="card-header">
-                                <h4 class="card-title">Add Employee</h4>
+                                <h4 class="card-title">Add Agent Wizard</h4>
                             </div>
-                            <div class="card-body">
-                                <form
-                                    action="{{ route('admin.branches.departments.teams.employees.store', ['branchSlug' => $branch->slug, 'departmentSlug' => $department->slug, 'teamSlug' => $team->slug]) }}"
-                                    method="POST" class="needs-validation" id="branchForm" novalidate
-                                    enctype="multipart/form-data">
-                                    @csrf
-                                    <div class="row g-3">
-                                        <!-- Section: Personal Information -->
-                                        <div class="col-12">
-                                            <h5 class="text-primary fw-bold mb-3">Personal Information</h5>
-                                        </div>
-                                        <div class="col-md-4">
-                                            <label for="first_name" class="form-label fw-bold">First Name <span
-                                                    class="text-danger">*</span></label>
-                                            <input type="text" id="first_name" name="first_name" class="form-control"
-                                                placeholder="Enter first name" required>
-                                            <div class="invalid-feedback">First name is required.</div>
-                                        </div>
-                                        <div class="col-md-4">
-                                            <label for="last_name" class="form-label fw-bold">Last Name <span
-                                                    class="text-danger">*</span></label>
-                                            <input type="text" id="last_name" name="last_name"
-                                                class="form-control" placeholder="Enter last name" required>
-                                            <div class="invalid-feedback">Last name is required.</div>
-                                        </div>
-                                        <div class="col-md-4">
-                                            <label for="email" class="form-label fw-bold">Email <span
-                                                    class="text-danger">*</span></label>
-                                            <input type="email" id="email" name="email" class="form-control"
-                                                placeholder="Enter email" required>
-                                            <div class="invalid-feedback">Valid email is required.</div>
-                                        </div>
-                                        <div class="col-md-4">
-                                            <label for="alternative_email" class="form-label fw-bold">Alternative
-                                                Email</label>
-                                            <input type="email" id="alternative_email" name="alternative_email"
-                                                class="form-control" placeholder="Enter alternative email">
-                                        </div>
-                                        <div class="col-md-4">
-                                            <label for="mobile" class="form-label fw-bold">Mobile <span
-                                                    class="text-danger">*</span></label>
-                                            <input type="text" id="mobile" name="mobile" class="form-control"
-                                                placeholder="Enter mobile number" required>
-                                            <div class="invalid-feedback">Valid mobile number is required.</div>
-                                        </div>
-                                        <div class="col-md-4">
-                                            <label for="alternate_mobile" class="form-label fw-bold">Alternate
-                                                Mobile</label>
-                                            <input type="text" id="alternate_mobile" name="alternate_mobile"
-                                                class="form-control" placeholder="Enter alternate mobile number">
-                                            <div class="invalid-feedback">Valid alternate mobile number is required.
-                                            </div>
-                                        </div>
-                                        <div class="col-md-4">
-                                            <label for="date_of_birth" class="form-label fw-bold">Date of Birth <span
-                                                    class="text-danger">*</span></label>
-                                            <input type="date" id="date_of_birth" name="date_of_birth"
-                                                class="form-control" required max="{{ date('Y-m-d') }}">
-                                            <div class="invalid-feedback">Date of birth is required.</div>
-                                        </div>
-                                        <div class="col-md-4">
-                                            <label for="marital_status" class="form-label fw-bold">Marital
-                                                Status</label>
-                                            <select id="marital_status" name="marital_status"
-                                                class="form-select dropdown-select">
-                                                <option value="">Select</option>
-                                                <option value="single">Single</option>
-                                                <option value="married">Married</option>
-                                                <option value="divorced">Divorced</option>
-                                                <option value="widowed">Widowed</option>
-                                            </select>
-                                        </div>
-                                        <div class="col-md-4">
-                                            <label for="nationality" class="form-label fw-bold">Nationality <span
-                                                    class="text-danger">*</span></label>
-                                            <select id="nationality" name="nationality_id"
-                                                class="form-select dropdown-select" required>
-                                                <option value="">Select Nationality</option>
-                                                @foreach ($countries as $country)
-                                                    <option value="{{ $country->id }}">{{ $country->nationality }}
-                                                    </option>
-                                                @endforeach
-                                            </select>
-                                            <div class="invalid-feedback">Country is required.</div>
-                                        </div>
-                                        <div class="col-md-4">
-                                            <label for="blood_group" class="form-label fw-bold">Blood Group</label>
-                                            <select id="blood_group" name="blood_group"
-                                                class="form-select dropdown-select">
-                                                <option value="">Select</option>
-                                                <option value="A+">A+</option>
-                                                <option value="A-">A-</option>
-                                                <option value="B+">B+</option>
-                                                <option value="B-">B-</option>
-                                                <option value="O+">O+</option>
-                                                <option value="O-">O-</option>
-                                                <option value="AB+">AB+</option>
-                                                <option value="AB-">AB-</option>
-                                            </select>
-                                        </div>
-                                        <div class="col-md-4">
-                                            <label for="account_status" class="form-label fw-bold">Status <span
-                                                    class="text-danger">*</span></label>
-                                            <select id="account_status" name="account_status"
-                                                class="form-select dropdown-select" required>
-                                                <option value="">Select status</option>
-                                                <option value="active" selected>Active</option>
-                                                <option value="inactive">Inactive</option>
-                                                <option value="suspended">Suspended</option>
-                                                <option value="archived">Archived</option>
-                                            </select>
-                                            <div class="invalid-feedback">Status is required.</div>
-                                        </div>
-
-                                        <!-- Section: Current Address -->
-                                        <div class="col-12 mt-4">
-                                            <h5 class="text-primary fw-bold mb-3">Current Address</h5>
-                                        </div>
-                                        <div class="col-md-6">
-                                            <label for="current_address_line1" class="form-label fw-bold">Address Line
-                                                1 <span class="text-danger">*</span></label>
-                                            <input type="text" id="current_address_line1"
-                                                name="current_address_line1" class="form-control"
-                                                placeholder="Enter address line 1" required maxlength="100">
-                                            <div class="invalid-feedback">Address Line 1 is required.</div>
-                                        </div>
-                                        <div class="col-md-6">
-                                            <label for="current_address_line2" class="form-label fw-bold">Address Line
-                                                2</label>
-                                            <input type="text" id="current_address_line2"
-                                                name="current_address_line2" class="form-control"
-                                                placeholder="Enter address line 2" maxlength="100">
-                                        </div>
-                                        <div class="col-md-4">
-                                            <label for="current_country" class="form-label fw-bold">Country <span
-                                                    class="text-danger">*</span></label>
-                                            <select id="current_country" name="current_country_id"
-                                                class="form-select dropdown-select"
-                                                data-state-route="{{ route('states.index', '') }}" required>
-                                                <option value="">Select Country</option>
-                                                @foreach ($countries as $country)
-                                                    <option value="{{ $country->id }}">{{ $country->name }}</option>
-                                                @endforeach
-                                            </select>
-                                            <div class="invalid-feedback">Country is required.</div>
-                                        </div>
-                                        <div class="col-md-4">
-                                            <label for="current_state" class="form-label fw-bold">State <span
-                                                    class="text-danger">*</span></label>
-                                            <select id="current_state" name="current_state_id"
-                                                class="form-select dropdown-select"
-                                                data-city-route="{{ route('cities.index', '') }}" required>
-                                                <option value="">Select State</option>
-                                            </select>
-                                            <div class="invalid-feedback">State is required.</div>
-                                        </div>
-                                        <div class="col-md-4">
-                                            <label for="current_city" class="form-label fw-bold">City <span
-                                                    class="text-danger">*</span></label>
-                                            <select id="current_city" name="current_city_id"
-                                                class="form-select dropdown-select" required>
-                                                <option value="">Select City</option>
-                                            </select>
-                                            <div class="invalid-feedback">City is required.</div>
-                                        </div>
-                                        <div class="col-md-6">
-                                            <label for="current_postal_code" class="form-label fw-bold">Postal Code
-                                                <span class="text-danger">*</span></label>
-                                            <input type="text" id="current_postal_code" name="current_postal_code"
-                                                class="form-control" placeholder="Enter postal code" required
-                                                maxlength="10">
-                                            <div class="invalid-feedback">Postal code is required.</div>
-                                        </div>
-
-                                        <!-- Checkbox for Same Address -->
-                                        <div class="col-12 mt-3">
-                                            <div class="form-check form-switch mb-3">
-                                                <input class="form-check-input" type="checkbox"
-                                                    id="same_as_current_address" name="same_as_current_address"
-                                                    value="1">
-                                                <label class="form-check-label fw-bold"
-                                                    for="same_as_current_address">Same as
-                                                    Current Address</label>
-                                            </div>
-                                        </div>
-
-                                        <!-- Section: Permanent Address -->
-                                        <div class="col-12 mt-4">
-                                            <h5 class="text-primary fw-bold mb-3">Permanent Address</h5>
-                                        </div>
-                                        <div class="col-md-6">
-                                            <label for="permanent_address_line1" class="form-label fw-bold">Address
-                                                Line 1 <span class="text-danger">*</span></label>
-                                            <input type="text" id="permanent_address_line1"
-                                                name="permanent_address_line1" class="form-control"
-                                                placeholder="Enter address line 1" required maxlength="100">
-                                            <div class="invalid-feedback">Address Line 1 is required.</div>
-                                        </div>
-                                        <div class="col-md-6">
-                                            <label for="permanent_address_line2" class="form-label fw-bold">Address
-                                                Line 2</label>
-                                            <input type="text" id="permanent_address_line2"
-                                                name="permanent_address_line2" class="form-control"
-                                                placeholder="Enter address line 2" maxlength="100">
-                                        </div>
-                                        <div class="col-md-4">
-                                            <label for="permanent_country" class="form-label fw-bold">Country <span
-                                                    class="text-danger">*</span></label>
-                                            <select id="permanent_country" name="permanent_country_id"
-                                                class="form-select dropdown-select"
-                                                data-state-route="{{ route('states.index', '') }}" required>
-                                                <option value="">Select Country</option>
-                                                @foreach ($countries as $country)
-                                                    <option value="{{ $country->id }}">{{ $country->name }}</option>
-                                                @endforeach
-                                            </select>
-                                            <div class="invalid-feedback">Country is required.</div>
-                                        </div>
-                                        <div class="col-md-4">
-                                            <label for="permanent_state" class="form-label fw-bold">State <span
-                                                    class="text-danger">*</span></label>
-                                            <select id="permanent_state" name="permanent_state_id"
-                                                class="form-select dropdown-select"
-                                                data-city-route="{{ route('cities.index', '') }}" required>
-                                                <option value="">Select State</option>
-                                            </select>
-                                            <div class="invalid-feedback">State is required.</div>
-                                        </div>
-                                        <div class="col-md-4">
-                                            <label for="permanent_city" class="form-label fw-bold">City <span
-                                                    class="text-danger">*</span></label>
-                                            <select id="permanent_city" name="permanent_city_id"
-                                                class="form-select dropdown-select" required>
-                                                <option value="">Select City</option>
-                                            </select>
-                                            <div class="invalid-feedback">City is required.</div>
-                                        </div>
-                                        <div class="col-md-6">
-                                            <label for="permanent_postal_code" class="form-label fw-bold">Postal Code
-                                                <span class="text-danger">*</span></label>
-                                            <input type="text" id="permanent_postal_code"
-                                                name="permanent_postal_code" class="form-control"
-                                                placeholder="Enter postal code" required maxlength="10">
-                                            <div class="invalid-feedback">Postal code is required.</div>
-                                        </div>
-
-                                        <!-- Section: Employment Details -->
-                                        <div class="col-12 mt-4">
-                                            <h5 class="text-primary fw-bold mb-3">Employment Details</h5>
-                                        </div>
-                                        <div class="col-md-4">
-                                            <label for="designation" class="form-label fw-bold">Designation <span
-                                                    class="text-danger">*</span></label>
-                                            <input type="text" id="designation" name="designation"
-                                                class="form-control" placeholder="Enter designation" required>
-                                            <div class="invalid-feedback">Designation is required.</div>
-                                        </div>
-                                        <div class="col-md-4">
-                                            <label for="joining_date" class="form-label fw-bold">Joining Date <span
-                                                    class="text-danger">*</span></label>
-                                            <input name="joining_date" class="form-control pickdate-picker">
-                                            <div class="invalid-feedback">Joining date is required.</div>
-                                        </div>
-                                        <div class="col-md-4">
-                                            <label for="probation_period" class="form-label fw-bold">Probation Period
-                                                (Months)</label>
-                                            <input type="number" id="probation_period" name="probation_period"
-                                                class="form-control" min="0" max="24"
-                                                placeholder="Enter months">
-                                        </div>
-                                        <div class="col-md-4">
-                                            <label for="employment_type" class="form-label fw-bold">Employment
-                                                Type <span class="text-danger">*</span></label>
-                                            <select id="employment_type" name="employment_type"
-                                                class="form-select dropdown-select" required>
-                                                <option value="">Select</option>
-                                                <option value="full_time">Full-Time</option>
-                                                <option value="part_time" selected>Part-Time</option>
-                                                <option value="contract">Contract</option>
-                                                <option value="internship">Internship</option>
-                                            </select>
-                                        </div>
-
-                                        <!-- Section: Salary & Banking -->
-                                        <div class="col-12 mt-4">
-                                            <h5 class="text-primary fw-bold mb-3">Salary & Banking</h5>
-                                        </div>
-                                        <div class="col-md-4">
-                                            <label for="salary" class="form-label fw-bold">Salary <span
-                                                    class="text-danger">*</span></label>
-                                            <input type="number" id="salary" name="salary" class="form-control"
-                                                min="0" step="0.01" placeholder="Enter salary" required>
-                                        </div>
-                                        <div class="col-md-4">
-                                            <label for="bank_account" class="form-label fw-bold">Bank Account
-                                                Number <span class="text-danger">*</span></label>
-                                            <input type="text" id="bank_account" name="bank_account"
-                                                class="form-control" placeholder="Enter account number" required>
-                                        </div>
-                                        <div class="col-md-4">
-                                            <label for="bank_name" class="form-label fw-bold">Bank Name <span
-                                                    class="text-danger">*</span></label>
-                                            <input type="text" id="bank_name" name="bank_name"
-                                                class="form-control" placeholder="Enter bank name" required>
-                                        </div>
-                                        <div class="col-12">
-                                            <label class="form-label fw-bold">Allowances</label>
-                                            <div id="allowanceContainer">
-                                                @php
-                                                    $allowanceTypes = [
-                                                        'house_rent' => 'House Rent Allowance (HRA)',
-                                                        'dearness' => 'Dearness Allowance (DA)',
-                                                        'travel' => 'Travel Allowance (TA)',
-                                                        'medical' => 'Medical Allowance',
-                                                        'conveyance' => 'Conveyance Allowance',
-                                                        'performance_bonus' => 'Performance Bonus',
-                                                        'overtime' => 'Overtime Allowance',
-                                                        'food' => 'Food Allowance',
-                                                        'education' => 'Education Allowance',
-                                                        'special' => 'Special Allowance',
-                                                        'entertainment' => 'Entertainment Allowance',
-                                                        'communication' => 'Communication Allowance',
-                                                        'internet' => 'Internet Allowance',
-                                                        'shift' => 'Shift Allowance',
-                                                        'leave_travel' => 'Leave Travel Allowance (LTA)',
-                                                        'uniform' => 'Uniform Allowance',
-                                                        'child_education' => 'Child Education Allowance',
-                                                    ];
-                                                @endphp
-                                                <div class="row g-2 mb-2 allowance-entry">
-                                                    <div class="col-md-6">
-                                                        <select class="form-select dropdown-select allowance-type"
-                                                            name="allowances[0][type]">
-                                                            <option value="" selected>Select Allowance</option>
-                                                            @foreach ($allowanceTypes as $key => $label)
-                                                                <option value="{{ $key }}">
-                                                                    {{ $label }}</option>
-                                                            @endforeach
-                                                        </select>
+                            <div class="card-body wizard-box">
+                                <div class="wizard-step-container">
+                                    <div class="overflow-auto" style="white-space: nowrap; overflow-x: auto;">
+                                        <ul class="wizard-steps d-flex flex-row">
+                                            <li class="step-container step-1 active">
+                                                <div class="media">
+                                                    <div class="step-icon">
+                                                        <i data-feather="check"></i>
+                                                        <span>1</span>
                                                     </div>
-                                                    <div class="col-md-4">
-                                                        <input type="number" class="form-control allowance-amount"
-                                                            name="allowances[0][amount]" placeholder="Enter amount"
-                                                            step="0.01" min="0">
-                                                    </div>
-                                                    <div class="col-md-2 text-center">
-                                                        <button type="button" id="addAllowanceBtn"
-                                                            class="btn p-2 rounded-circle">
-                                                            <img src="{{ asset('assets/images/iconly/action/plus.png') }}"
-                                                                alt="Add" class="img-fluid"
-                                                                style="max-width: 20px;">
-                                                        </button>
+                                                    <div class="media-body">
+                                                        <h5>Personal Information</h5>
+                                                        <h6>Basic Details & Identification</h6>
                                                     </div>
                                                 </div>
-                                            </div>
-                                            <small class="form-text text-muted">
-                                                Allowances are subject to company policy.
-                                                <a href="{{ asset('assets/docs/policies/company-allowance-policy.pdf') }}"
-                                                    target="_blank">View terms</a>.
-                                            </small>
-                                        </div>
-                                        <div class="col-12">
-                                            <label class="form-label fw-bold">Deductions</label>
-                                            <div id="deductionContainer">
-                                                @php
-                                                    $deductionTypes = [
-                                                        'tax' => 'Tax Deduction',
-                                                        'insurance' => 'Insurance Deduction',
-                                                        'retirement' => 'Retirement Fund',
-                                                        'loan' => 'Loan Repayment',
-                                                        'other' => 'Other Deductions',
-                                                    ];
-                                                @endphp
-                                                <div class="row g-2 mb-2 deduction-entry">
-                                                    <div class="col-md-6">
-                                                        <select class="form-select dropdown-select deduction-type"
-                                                            name="deductions[0][type]">
-                                                            <option value="" selected>Select deduction type
-                                                            </option>
-                                                            @foreach ($deductionTypes as $key => $label)
-                                                                <option value="{{ $key }}">
-                                                                    {{ $label }}</option>
-                                                            @endforeach
-                                                        </select>
+                                            </li>
+                                            <li class="step-container step-2">
+                                                <div class="media">
+                                                    <div class="step-icon">
+                                                        <i data-feather="check"></i>
+                                                        <span>2</span>
                                                     </div>
-                                                    <div class="col-md-4">
-                                                        <input type="number" class="form-control deduction-amount"
-                                                            name="deductions[0][amount]" placeholder="Enter amount"
-                                                            step="0.01" min="0">
-                                                    </div>
-                                                    <div class="col-md-2 text-center">
-                                                        <button type="button" id="addDeductionBtn"
-                                                            class="btn p-2 rounded-circle">
-                                                            <img src="{{ asset('assets/images/iconly/action/plus.png') }}"
-                                                                alt="Add" class="img-fluid"
-                                                                style="max-width: 20px;">
-                                                        </button>
+                                                    <div class="media-body">
+                                                        <h5>Address Details</h5>
+                                                        <h6>Residential & Communication Address</h6>
                                                     </div>
                                                 </div>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-4">
-                                            <label for="ifsc_swift_code" class="form-label fw-bold">IFSC/SWIFT Code
-                                                <span class="text-danger">*</span>
-                                                <span data-toggle="tooltip" data-placement="right"
-                                                    title="Enter IFSC for India or SWIFT for international banks">
-                                                    <i class="las la-info-circle"></i>
-                                                </span>
-                                            </label>
-                                            <input type="text" id="ifsc_swift_code" name="ifsc_swift_code"
-                                                class="form-control" placeholder="Enter IFSC or SWIFT code" required>
-                                        </div>
-                                        <div class="col-md-4">
-                                            <label for="pan_tax_id" class="form-label fw-bold">PAN or Tax ID <span
-                                                    class="text-danger">*</span></label>
-                                            <input type="text" id="pan_tax_id" name="pan_tax_id"
-                                                class="form-control" placeholder="Enter PAN or Tax ID" required>
-                                        </div>
-                                        <div class="col-md-4">
-                                            <label for="salary_frequency" class="form-label fw-bold">Salary Payment
-                                                Frequency <span class="text-danger">*</span></label>
-                                            <select name="salary_frequency" id="salary_frequency"
-                                                class="form-select dropdown-select"
-                                                aria-label="Select Salary Frequency" required>
-                                                <option value="" selected>Select Salary Frequency</option>
-                                                <option value="weekly">Weekly</option>
-                                                <option value="biweekly">Bi-Weekly (Every 2 Weeks)</option>
-                                                <option value="semimonthly">Semi-Monthly (1st & 15th)</option>
-                                                <option value="monthly" selected>Monthly</option>
-                                                <option value="quarterly">Quarterly</option>
-                                                <option value="semiannually">Semi-Annually (Every 6 Months)</option>
-                                                <option value="annually">Annually (Yearly)</option>
-                                            </select>
-                                        </div>
-
-                                        <!-- Section: Emergency Contact -->
-                                        <div class="col-12 mt-4">
-                                            <h5 class="text-primary fw-bold mb-3">Emergency Contact</h5>
-                                        </div>
-                                        <div class="col-md-4">
-                                            <label for="emergency_contact_name"
-                                                class="form-label fw-bold">Name</label>
-                                            <input type="text" id="emergency_contact_name"
-                                                name="emergency_contact_name" class="form-control"
-                                                placeholder="Enter name">
-                                        </div>
-                                        <div class="col-md-4">
-                                            <label for="emergency_contact_relation"
-                                                class="form-label fw-bold">Relationship</label>
-                                            <input type="text" id="emergency_contact_relation"
-                                                name="emergency_contact_relation" class="form-control"
-                                                placeholder="Enter relationship">
-                                        </div>
-                                        <div class="col-md-4">
-                                            <label for="emergency_contact_number" class="form-label fw-bold">Contact
-                                                Number</label>
-                                            <input type="text" id="emergency_contact_number"
-                                                name="emergency_contact_number" class="form-control"
-                                                placeholder="Enter contact number">
-                                        </div>
-
-                                        <!-- Section: Document Uploads -->
-                                        <div class="col-12 mt-4">
-                                            <h5 class="text-primary fw-bold mb-3">Document Uploads</h5>
-                                        </div>
-
-                                        @php
-                                            $fileFields = [
-                                                'resume' => [
-                                                    'label' => 'Resume/CV',
-                                                    'accept' => '.pdf,image/*',
-                                                    'required' => true,
-                                                ],
-                                                'profile_picture' => [
-                                                    'label' => 'Profile Picture',
-                                                    'accept' => 'image/*',
-                                                    'required' => true,
-                                                ],
-                                                'govt_id' => [
-                                                    'label' => 'Government ID',
-                                                    'accept' => '.pdf,image/*',
-                                                    'required' => true,
-                                                    'multiple' => true,
-                                                ],
-                                                'education_certificates' => [
-                                                    'label' => 'Education Certificates',
-                                                    'accept' => '.pdf,image/*',
-                                                    'required' => true,
-                                                    'multiple' => true,
-                                                ],
-                                            ];
-                                        @endphp
-
-                                        @foreach ($fileFields as $name => $field)
-                                            <div class="col-md-6">
-                                                <label for="{{ $name }}" class="form-label fw-bold">
-                                                    {{ $field['label'] }} <span class="text-danger">*</span>
-                                                </label>
-                                                <input type="file" id="{{ $name }}"
-                                                    name="{{ $name }}" class="form-control"
-                                                    accept="{{ $field['accept'] }}"
-                                                    {{ $field['required'] ? 'required' : '' }}
-                                                    {{ isset($field['multiple']) ? 'multiple' : '' }}>
-                                            </div>
-                                        @endforeach
-
-                                        <!-- Submit Buttons -->
-                                        <div class="col-12 text-end mt-4">
-                                            <button type="submit" class="btn btn-primary px-4">
-                                                <span
-                                                    class="spinner-border spinner-submit spinner-border-sm me-2 d-none"
-                                                    role="status" aria-hidden="true"></span>
-                                                <span id="submit-btn-txt">Submit</span>
-                                            </button>
-                                            <button type="reset"
-                                                class="btn btn-outline-secondary ms-2">Cancel</button>
-                                        </div>
+                                            </li>
+                                            <li class="step-container step-3">
+                                                <div class="media">
+                                                    <div class="step-icon">
+                                                        <i data-feather="check"></i>
+                                                        <span>3</span>
+                                                    </div>
+                                                    <div class="media-body">
+                                                        <h5>Employment Details</h5>
+                                                        <h6>Current Job & Work History</h6>
+                                                    </div>
+                                                </div>
+                                            </li>
+                                            <li class="step-container step-4">
+                                                <div class="media">
+                                                    <div class="step-icon">
+                                                        <i data-feather="check"></i>
+                                                        <span>4</span>
+                                                    </div>
+                                                    <div class="media-body">
+                                                        <h5>Salary & Banking</h5>
+                                                        <h6>Payroll & Bank Account Information</h6>
+                                                    </div>
+                                                </div>
+                                            </li>
+                                            <li class="step-container step-5">
+                                                <div class="media">
+                                                    <div class="step-icon">
+                                                        <i data-feather="check"></i>
+                                                        <span>5</span>
+                                                    </div>
+                                                    <div class="media-body">
+                                                        <h5>Emergency Contact</h5>
+                                                        <h6>Primary & Alternate Contact</h6>
+                                                    </div>
+                                                </div>
+                                            </li>
+                                            <li class="step-container step-6">
+                                                <div class="media">
+                                                    <div class="step-icon">
+                                                        <i data-feather="check"></i>
+                                                        <span>6</span>
+                                                    </div>
+                                                    <div class="media-body">
+                                                        <h5>Document Uploads</h5>
+                                                        <h6>Verification & Supporting Documents</h6>
+                                                    </div>
+                                                </div>
+                                            </li>
+                                        </ul>
                                     </div>
-                                </form>
+                                    <form
+                                        action="{{ route('admin.branches.departments.teams.employees.store', ['branchSlug' => $branch->slug, 'departmentSlug' => $department->slug, 'teamSlug' => $team->slug]) }}"
+                                        method="POST" class="needs-validation" id="branchForm" novalidate
+                                        enctype="multipart/form-data">
+                                        @csrf
+                                        <div class="wizard-form-details log-in">
+                                            <div class="wizard-step-1 d-block">
+                                                <div class="row g-3">
+                                                    <div class="col-md-4">
+                                                        <label for="first_name" class="form-label fw-bold">First Name
+                                                            <span class="text-danger">*</span></label>
+                                                        <input type="text" id="first_name" name="first_name"
+                                                            class="form-control" placeholder="Enter first name"
+                                                            required>
+                                                        <div class="invalid-feedback">First name is required.</div>
+                                                    </div>
+                                                    <div class="col-md-4">
+                                                        <label for="last_name" class="form-label fw-bold">Last Name
+                                                            <span class="text-danger">*</span></label>
+                                                        <input type="text" id="last_name" name="last_name"
+                                                            class="form-control" placeholder="Enter last name"
+                                                            required>
+                                                        <div class="invalid-feedback">Last name is required.</div>
+                                                    </div>
+                                                    <div class="col-md-4">
+                                                        <label for="email" class="form-label fw-bold">Email <span
+                                                                class="text-danger">*</span></label>
+                                                        <input type="email" id="email" name="email"
+                                                            class="form-control" placeholder="Enter email" required>
+                                                        <div class="invalid-feedback">Valid email is required.</div>
+                                                    </div>
+                                                    <div class="col-md-4">
+                                                        <label for="alternative_email"
+                                                            class="form-label fw-bold">Alternative
+                                                            Email</label>
+                                                        <input type="email" id="alternative_email"
+                                                            name="alternative_email" class="form-control"
+                                                            placeholder="Enter alternative email">
+                                                    </div>
+                                                    <div class="col-md-4">
+                                                        <label for="mobile" class="form-label fw-bold">Mobile <span
+                                                                class="text-danger">*</span></label>
+                                                        <input type="text" id="mobile" name="mobile"
+                                                            class="form-control" placeholder="Enter mobile number"
+                                                            required>
+                                                        <div class="invalid-feedback">Valid mobile number is required.
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-4">
+                                                        <label for="alternate_mobile"
+                                                            class="form-label fw-bold">Alternate
+                                                            Mobile</label>
+                                                        <input type="text" id="alternate_mobile"
+                                                            name="alternate_mobile" class="form-control"
+                                                            placeholder="Enter alternate mobile number">
+                                                        <div class="invalid-feedback">Valid alternate mobile number is
+                                                            required.
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-4">
+                                                        <label for="date_of_birth" class="form-label fw-bold">Date of
+                                                            Birth
+                                                            <span class="text-danger">*</span></label>
+                                                        <input type="date" id="date_of_birth" name="date_of_birth"
+                                                            class="form-control" required max="{{ date('Y-m-d') }}">
+                                                        <div class="invalid-feedback">Date of birth is required.</div>
+                                                    </div>
+                                                    <div class="col-md-4">
+                                                        <label for="marital_status" class="form-label fw-bold">Marital
+                                                            Status</label>
+                                                        <select id="marital_status" name="marital_status"
+                                                            class="form-select dropdown-select">
+                                                            <option value="">Select</option>
+                                                            <option value="single">Single</option>
+                                                            <option value="married">Married</option>
+                                                            <option value="divorced">Divorced</option>
+                                                            <option value="widowed">Widowed</option>
+                                                        </select>
+                                                    </div>
+                                                    <div class="col-md-4">
+                                                        <label for="nationality"
+                                                            class="form-label fw-bold">Nationality
+                                                            <span class="text-danger">*</span></label>
+                                                        <select id="nationality" name="nationality_id"
+                                                            class="form-select dropdown-select" required>
+                                                            <option value="">Select Nationality</option>
+                                                            @foreach ($countries as $country)
+                                                                <option value="{{ $country->id }}">
+                                                                    {{ $country->nationality }}
+                                                                </option>
+                                                            @endforeach
+                                                        </select>
+                                                        <div class="invalid-feedback">Country is required.</div>
+                                                    </div>
+                                                    <div class="col-md-4">
+                                                        <label for="blood_group" class="form-label fw-bold">Blood
+                                                            Group</label>
+                                                        <select id="blood_group" name="blood_group"
+                                                            class="form-select dropdown-select">
+                                                            <option value="">Select</option>
+                                                            <option value="A+">A+</option>
+                                                            <option value="A-">A-</option>
+                                                            <option value="B+">B+</option>
+                                                            <option value="B-">B-</option>
+                                                            <option value="O+">O+</option>
+                                                            <option value="O-">O-</option>
+                                                            <option value="AB+">AB+</option>
+                                                            <option value="AB-">AB-</option>
+                                                        </select>
+                                                    </div>
+                                                    <div class="col-md-4">
+                                                        <label for="account_status" class="form-label fw-bold">Status
+                                                            <span class="text-danger">*</span></label>
+                                                        <select id="account_status" name="account_status"
+                                                            class="form-select dropdown-select" required>
+                                                            <option value="">Select status</option>
+                                                            <option value="active" selected>Active</option>
+                                                            <option value="inactive">Inactive</option>
+                                                            <option value="suspended">Suspended</option>
+                                                            <option value="archived">Archived</option>
+                                                        </select>
+                                                        <div class="invalid-feedback">Status is required.</div>
+                                                    </div>
+                                                </div>
+                                                <div class="next-btn text-end col-sm-12">
+                                                    <button type="button" class="btn btn-primary next1 btn-sm">Next
+                                                        <i class="fas fa-arrow-right ms-2"></i></button>
+                                                </div>
+                                            </div>
+
+                                            <div class="wizard-step-2 d-none">
+                                                <div class="row g-3">
+                                                    <!-- Section: Current Address -->
+                                                    <div class="col-12 mt-4">
+                                                        <h5 class="text-primary fw-bold mb-3">Current Address</h5>
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <label for="current_address_line1"
+                                                            class="form-label fw-bold">Address Line
+                                                            1 <span class="text-danger">*</span></label>
+                                                        <input type="text" id="current_address_line1"
+                                                            name="current_address_line1" class="form-control"
+                                                            placeholder="Enter address line 1" required
+                                                            maxlength="100">
+                                                        <div class="invalid-feedback">Address Line 1 is required.</div>
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <label for="current_address_line2"
+                                                            class="form-label fw-bold">Address Line
+                                                            2</label>
+                                                        <input type="text" id="current_address_line2"
+                                                            name="current_address_line2" class="form-control"
+                                                            placeholder="Enter address line 2" maxlength="100">
+                                                    </div>
+                                                    <div class="col-md-4">
+                                                        <label for="current_country"
+                                                            class="form-label fw-bold">Country <span
+                                                                class="text-danger">*</span></label>
+                                                        <select id="current_country" name="current_country_id"
+                                                            class="form-select dropdown-select"
+                                                            data-state-route="{{ route('states.index', '') }}"
+                                                            required>
+                                                            <option value="">Select Country</option>
+                                                            @foreach ($countries as $country)
+                                                                <option value="{{ $country->id }}">
+                                                                    {{ $country->name }}</option>
+                                                            @endforeach
+                                                        </select>
+                                                        <div class="invalid-feedback">Country is required.</div>
+                                                    </div>
+                                                    <div class="col-md-4">
+                                                        <label for="current_state" class="form-label fw-bold">State
+                                                            <span class="text-danger">*</span></label>
+                                                        <select id="current_state" name="current_state_id"
+                                                            class="form-select dropdown-select"
+                                                            data-city-route="{{ route('cities.index', '') }}"
+                                                            required>
+                                                            <option value="">Select State</option>
+                                                        </select>
+                                                        <div class="invalid-feedback">State is required.</div>
+                                                    </div>
+                                                    <div class="col-md-4">
+                                                        <label for="current_city" class="form-label fw-bold">City
+                                                            <span class="text-danger">*</span></label>
+                                                        <select id="current_city" name="current_city_id"
+                                                            class="form-select dropdown-select" required>
+                                                            <option value="">Select City</option>
+                                                        </select>
+                                                        <div class="invalid-feedback">City is required.</div>
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <label for="current_postal_code"
+                                                            class="form-label fw-bold">Postal Code
+                                                            <span class="text-danger">*</span></label>
+                                                        <input type="text" id="current_postal_code"
+                                                            name="current_postal_code" class="form-control"
+                                                            placeholder="Enter postal code" required maxlength="10">
+                                                        <div class="invalid-feedback">Postal code is required.</div>
+                                                    </div>
+
+                                                    <!-- Checkbox for Same Address -->
+                                                    <div class="col-12 mt-3">
+                                                        <div class="form-check form-switch mb-3">
+                                                            <input class="form-check-input" type="checkbox"
+                                                                id="same_as_current_address"
+                                                                name="same_as_current_address" value="1">
+                                                            <label class="form-check-label fw-bold"
+                                                                for="same_as_current_address">Same as
+                                                                Current Address</label>
+                                                        </div>
+                                                    </div>
+
+                                                    <!-- Section: Permanent Address -->
+                                                    <div class="col-12 mt-4">
+                                                        <h5 class="text-primary fw-bold mb-3">Permanent Address</h5>
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <label for="permanent_address_line1"
+                                                            class="form-label fw-bold">Address
+                                                            Line 1 <span class="text-danger">*</span></label>
+                                                        <input type="text" id="permanent_address_line1"
+                                                            name="permanent_address_line1" class="form-control"
+                                                            placeholder="Enter address line 1" required
+                                                            maxlength="100">
+                                                        <div class="invalid-feedback">Address Line 1 is required.</div>
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <label for="permanent_address_line2"
+                                                            class="form-label fw-bold">Address
+                                                            Line 2</label>
+                                                        <input type="text" id="permanent_address_line2"
+                                                            name="permanent_address_line2" class="form-control"
+                                                            placeholder="Enter address line 2" maxlength="100">
+                                                    </div>
+                                                    <div class="col-md-4">
+                                                        <label for="permanent_country"
+                                                            class="form-label fw-bold">Country <span
+                                                                class="text-danger">*</span></label>
+                                                        <select id="permanent_country" name="permanent_country_id"
+                                                            class="form-select dropdown-select"
+                                                            data-state-route="{{ route('states.index', '') }}"
+                                                            required>
+                                                            <option value="">Select Country</option>
+                                                            @foreach ($countries as $country)
+                                                                <option value="{{ $country->id }}">
+                                                                    {{ $country->name }}</option>
+                                                            @endforeach
+                                                        </select>
+                                                        <div class="invalid-feedback">Country is required.</div>
+                                                    </div>
+                                                    <div class="col-md-4">
+                                                        <label for="permanent_state" class="form-label fw-bold">State
+                                                            <span class="text-danger">*</span></label>
+                                                        <select id="permanent_state" name="permanent_state_id"
+                                                            class="form-select dropdown-select"
+                                                            data-city-route="{{ route('cities.index', '') }}"
+                                                            required>
+                                                            <option value="">Select State</option>
+                                                        </select>
+                                                        <div class="invalid-feedback">State is required.</div>
+                                                    </div>
+                                                    <div class="col-md-4">
+                                                        <label for="permanent_city" class="form-label fw-bold">City
+                                                            <span class="text-danger">*</span></label>
+                                                        <select id="permanent_city" name="permanent_city_id"
+                                                            class="form-select dropdown-select" required>
+                                                            <option value="">Select City</option>
+                                                        </select>
+                                                        <div class="invalid-feedback">City is required.</div>
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <label for="permanent_postal_code"
+                                                            class="form-label fw-bold">Postal Code
+                                                            <span class="text-danger">*</span></label>
+                                                        <input type="text" id="permanent_postal_code"
+                                                            name="permanent_postal_code" class="form-control"
+                                                            placeholder="Enter postal code" required maxlength="10">
+                                                        <div class="invalid-feedback">Postal code is required.</div>
+                                                    </div>
+                                                </div>
+                                                <div class="next-btn text-end col-sm-12">
+                                                    <button type="button" class="btn btn-primary next1 btn-sm">Next
+                                                        <i class="fas fa-arrow-right ms-2"></i></button>
+                                                </div>
+                                            </div>
+                                            <div class="wizard-step-3 d-none">
+                                                <div class="dropzone-main">
+                                                    <label class="form-label required">Media</label>
+                                                    <form class="dropzone" id="multiFileUpload" action="/upload.php">
+                                                        <div class="dz-message needsclick"><i
+                                                                class="fas fa-cloud-upload-alt"></i>
+                                                            <h6>Drop files here or click to upload.</h6>
+                                                        </div>
+                                                    </form>
+                                                </div>
+                                                <div class="next-btn d-flex">
+                                                    <button type="button" class="btn btn-primary prev2 btn-sm"><i
+                                                            class="fas fa-arrow-left me-2"></i> Previous</button>
+                                                    <button type="button"
+                                                        class="btn btn-primary next3 btn-sm">submit</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </form>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -656,6 +500,7 @@
     <!-- Footer Scripts Section Start -->
     <!-- Required Vendors -->
     <script src="{{ asset('assets/vendor/global/global.min.js') }}"></script>
+    <script src="{{ asset('assets/js/user-wizard.js') }}"></script>
 
     <!-- Plugins -->
     <script src="{{ asset('assets/vendor/select2/js/select2.full.min.js') }}"></script>

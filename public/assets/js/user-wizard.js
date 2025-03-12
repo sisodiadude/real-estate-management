@@ -1,108 +1,169 @@
 (function ($) {
-   "use strict";
+    "use strict";
+    const formInputs = {
+        step1: [
+            { name: "first_name", label: "First name", required: true, type: "text", minLength: 3, maxLength: 50 },
+            { name: "last_name", label: "Last name", required: true, type: "text", minLength: 3, maxLength: 50 },
+            { name: "email", label: "Email", required: true, type: "email", minLength: 5, maxLength: 100, regex: /^[^\s@]+@[^\s@]+\.[^\s@]+$/ },
+            { name: "alternative_email", label: "Alternative email", required: false, type: "email", minLength: 5, maxLength: 100, regex: /^[^\s@]+@[^\s@]+\.[^\s@]+$/ },
+            { name: "mobile", label: "Mobile", required: true, type: "text", minLength: 10, maxLength: 15, regex: /^[0-9]+$/ },
+            { name: "alternate_mobile", label: "Alternative mobile", required: false, type: "text", minLength: 10, maxLength: 15, regex: /^[0-9]+$/ },
+            {
+                name: "date_of_birth",
+                label: "Date of birth",
+                required: true,
+                type: "date",
+                min: "1900-01-01",
+                max: new Date(new Date().setFullYear(new Date().getFullYear() - 18)).toISOString().split('T')[0]
+            },
+            { name: "marital_status", label: "Marital status", required: false, type: "select", options: ["single", "married", "divorced", "widowed"] },
+            { name: "nationality_id", label: "Nationality", required: true, type: "select", externallyManaged: true },
+            { name: "blood_group", label: "Blood group", required: false, type: "select", options: ["A+", "A-", "B+", "B-", "O+", "O-", "AB+", "AB-"] },
+            { name: "account_status", label: "Account status", required: true, type: "select", options: ["active", "inactive", "suspended", "archived"] }
+        ]
+    };
+
+    function validateFormStep(stepNumber) {
+        console.log(`➡️ Validating Step ${stepNumber}...`);
+
+        const form = document.getElementById("branchForm");
+        if (!form) {
+            console.error("❌ Form element not found");
+            return false;
+        }
+
+        let firstErrorField = null;
+        let formIsValid = true;
+
+        const stepInputs = formInputs[`step${stepNumber}`];
+        if (!stepInputs) {
+            console.error(`❌ No inputs found for step ${stepNumber}`);
+            return false;
+        }
+
+        stepInputs.forEach(input => {
+            const field = document.querySelector(`[name="${input.name}"]`);
+            if (!field) return console.warn(`⚠️ '${input.label}' not found in the DOM`);
+
+            let feedback = field.parentElement.querySelector(".invalid-feedback");
+            if (!feedback) {
+                feedback = document.createElement("div");
+                feedback.className = "invalid-feedback";
+                field.parentElement.appendChild(feedback);
+            }
+
+            let isValid = true;
+            const value = field.value.trim();
+
+            // Required validation
+            if (input.required && !value) {
+                feedback.textContent = `${input.label} is required.`;
+                isValid = false;
+            }
+
+            // Min/Max length validation
+            if (value && (input.type === "text" || input.type === "email")) {
+                if (input.minLength && value.length < input.minLength) {
+                    feedback.textContent = `${input.label} should have at least ${input.minLength} characters.`;
+                    isValid = false;
+                }
+                if (input.maxLength && value.length > input.maxLength) {
+                    feedback.textContent = `${input.label} should not exceed ${input.maxLength} characters.`;
+                    isValid = false;
+                }
+            }
+
+            // Regex validation
+            if (input.regex && value && !input.regex.test(value)) {
+                feedback.textContent = `Please enter a valid ${input.label}.`;
+                isValid = false;
+            }
+
+            // Date validation
+            if (input.type === "date" && value) {
+                const enteredDate = new Date(value);
+                const minDate = new Date(input.min);
+                const maxDate = new Date(input.max);
+
+                if (enteredDate < minDate) {
+                    feedback.textContent = `The date for ${input.label} cannot be earlier than ${input.min}.`;
+                    isValid = false;
+                }
+                if (enteredDate > maxDate) {
+                    feedback.textContent = `You must be at least 18 years old to proceed.`;
+                    isValid = false;
+                }
+            }
+
+            // Select field validation
+            if (input.type === "select" && input.required && !input.externallyManaged && input.options && !input.options.includes(value)) {
+                feedback.textContent = `Please select a valid option for ${input.label}.`;
+                isValid = false;
+            }
+
+            // Apply styles
+            if (!isValid) {
+                field.classList.add("is-invalid");
+                if (!firstErrorField) firstErrorField = field;
+                formIsValid = false;
+            } else {
+                field.classList.remove("is-invalid");
+                feedback.textContent = "";
+            }
+        });
+
+        // Focus first error field if any
+        if (firstErrorField) {
+            console.warn(`📌 First invalid field: ${firstErrorField.name}`);
+            form.classList.add("was-validated");
+            firstErrorField.focus();
+            firstErrorField.scrollIntoView({ behavior: "smooth", block: "center" });
+            return false;
+        }
+
+        console.log(`✅ Step ${stepNumber} validation successful.`);
+        return true;
+    }
 
     /*=====================
-    wizard js
+        Wizard JS
     ==========================*/
-    // step 1
-    $("#needs-validation").submit(function(e) {
-     e.preventDefault();
+    // Step 1 validation
+    document.querySelector(".wizard-step-1 .next-btn button").addEventListener("click", function () {
+        if (validateFormStep(1)) {
+            alert("Form validation successful. Proceeding...");
 
-     var UserName = $('#user_name').val();
-     var LastName = $('#last_name').val();
-     var PhoneNum = $('#phone_num').val();
-     var Datepick = $('#datepicker').val();
-   
-      if (UserName !== '' && LastName !== '' && PhoneNum !== '' && Datepick !== ''){
-         $("#needs-validation").addClass("was-validated");  
-         $('.step-1').removeClass('active').addClass('disabled');
-         $('.step-2').addClass('active');
-         $('.wizard-step-2').addClass('d-block').removeClass('d-none');
-         $('.wizard-step-1').removeClass('d-block').addClass('d-none');
-      }
+            // Update step navigation
+            document.querySelector(".step-container.step-1").classList.remove("active");
+            document.querySelector(".step-container.step-1").classList.add("disabled");
+            document.querySelector(".step-container.step-2").classList.add("active");
 
-      $("#needs-validation input").each(function() {
-         if(!isNaN(this.value)) {
-            $("#needs-validation").addClass("was-validated");  
-         }
-     });
-     return false;
-
-   });
-
-   // step 2
-    $(".prev1").on("click", function () {
-       $('.step-1').addClass('active').removeClass('disabled');
-       $('.step-2, .step-3, .step-4').removeClass('active');
-       $('.wizard-step-2, .wizard-step-3, .wizard-step-4').removeClass('d-block').addClass('d-none');
-       $('.wizard-step-1').addClass('d-block').removeClass('d-none');
+            // Toggle step visibility
+            document.querySelector(".wizard-step-2").classList.add("d-block");
+            document.querySelector(".wizard-step-2").classList.remove("d-none");
+            document.querySelector(".wizard-step-1").classList.remove("d-block");
+            document.querySelector(".wizard-step-1").classList.add("d-none");
+        }
     });
 
-     $("#needs-validation1").submit(function(e) {
-      e.preventDefault();
+    document.querySelector(".wizard-step-2 .next-btn button").addEventListener("click", function () {
+        if (validateFormStep(2)) {
+            alert("Form validation successful. Proceeding...");
 
-      var Emailadd = $('#email_add').val();
-      var Pwdd = $('#pwdd').val();
-      var Pwdd1 = $('#pwdd1').val();
-      var Address = $('#address').val();
-      var Zipcode = $('#zip_code').val();
-   
-      if (Emailadd !== '' && Pwdd !== '' && Pwdd1 !== '' && Address !== '' && Zipcode !== ''){
-         $("#needs-validation1").addClass("was-validated");  
-         $('.step-2').removeClass('active').addClass('disabled');
-         $('.step-3').addClass('active');
-         $('.wizard-step-3').addClass('d-block').removeClass('d-none');
-         $('.wizard-step-2').removeClass('d-block').addClass('d-none');
-      }
+            // Update step navigation
+            document.querySelector(".step-container.step-2").classList.remove("active");
+            document.querySelector(".step-container.step-2").classList.add("disabled");
+            document.querySelector(".step-container.step-3").classList.add("active");
 
-
-      $("#needs-validation1 input").each(function() {
-         if(!isNaN(this.value)) {
-            $("#needs-validation1").addClass("was-validated");  
-         }
-     });
-     return false;
+            // Toggle step visibility
+            document.querySelector(".wizard-step-3").classList.add("d-block");
+            document.querySelector(".wizard-step-3").classList.remove("d-none");
+            document.querySelector(".wizard-step-2").classList.remove("d-block");
+            document.querySelector(".wizard-step-2").classList.add("d-none");
+        }
     });
 
-     // step 3
-
-     $(".prev2").on("click", function () {
-        $('.step-2').addClass('active').removeClass('disabled');
-        $('.step-3').removeClass('active').removeClass('disabled');
-        $('.wizard-step-3').removeClass('d-block').addClass('d-none');
-        $('.wizard-step-2').addClass('d-block').removeClass('d-none');
-     });
-
-     $(".next3").on("click", function () {
-        $('.step-3').removeClass('active').addClass('disabled');
-
-        swal({
-           title: "Are you sure you want to submit the form?",
-           text: "please check account details",
-           icon: "success",
-           buttons: [true, "submit"],
-           dangerMode: true,
-       }).then(function(isConfirm) {
-            if(isConfirm){
-               var notify = $.notify('Your Account created successfully.', {
-                  type: 'success',
-                  allow_dismiss: false,
-                  delay: 2000,
-                  placement: {
-                     from: 'top',
-                     align: 'right'
-                  },
-                  timer: 300,
-                  
-               });
-               window.setTimeout(function(){
-                  location.reload();
-               } ,4000);
-               
-
-            }
-           
-        });
-     });
-  
+    document.querySelector(".wizard-step-3 .next-btn button").addEventListener("click", function () {
+        alert("Next button clicked in Wizard Step 3");
+    });
 })(jQuery);
