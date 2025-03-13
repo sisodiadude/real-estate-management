@@ -100,7 +100,7 @@
                             </div>
                             <div class="card-body wizard-box">
                                 <div class="wizard-step-container">
-                                    <div class="overflow-auto" style="white-space: nowrap; overflow-x: auto;">
+                                    <div class="overflow-x-auto overflow-y-hidden" style="white-space: nowrap;">
                                         <ul class="wizard-steps d-flex flex-row">
                                             <li class="step-container step-1 active">
                                                 <div class="media">
@@ -246,7 +246,10 @@
                                                             Birth
                                                             <span class="text-danger">*</span></label>
                                                         <input id="date_of_birth" name="date_of_birth"
-                                                            class="form-control bt-datepicker" required>
+                                                            class="form-control bt-datepicker" required
+                                                            placeholder="Select Date of Birth" data-autoclose="true"
+                                                            data-today-highlight="true" data-default-date="false">
+
                                                         <div class="invalid-feedback">Date of birth is required.</div>
                                                     </div>
                                                     <div class="col-md-4">
@@ -499,7 +502,10 @@
                                                     <div class="col-md-4">
                                                         <label for="joining_date" class="form-label fw-bold">Joining
                                                             Date <span class="text-danger">*</span></label>
-                                                        <input name="joining_date" class="form-control bt-datepicker">
+                                                        <input id="joining_date" name="joining_date"
+                                                            class="form-control bt-datepicker" required
+                                                            placeholder="Select Date of Birth" data-autoclose="true"
+                                                            data-today-highlight="true" data-default-date="false">
                                                         <div class="invalid-feedback">Joining date is required.</div>
                                                     </div>
                                                     <div class="col-md-4">
@@ -642,8 +648,7 @@
                                                                         class="form-select dropdown-select deduction-type"
                                                                         name="deductions[0][type]">
                                                                         <option value="" selected>Select
-                                                                            deduction type
-                                                                        </option>
+                                                                            Deduction</option>
                                                                         @foreach ($deductionTypes as $key => $label)
                                                                             <option value="{{ $key }}">
                                                                                 {{ $label }}</option>
@@ -1091,7 +1096,7 @@
                 allowanceEntry.innerHTML = `
                     <div class="col-md-6">
                         <select class="form-select dropdown-select deduction-type" name="deductions[${index}][type]">
-                            <option value="" selected>Select deduction type</option>
+                            <option value="" selected>Select Deduction</option>
                             <option value="tax">Tax Deduction</option>
                             <option value="insurance">Insurance Deduction</option>
                             <option value="retirement">Retirement Fund</option>
@@ -1351,6 +1356,7 @@
                                 } else {
                                     if (data.errors) {
                                         let firstInput = null; // Initialize firstInput
+                                        let firstInputName = null; // Initialize firstInput
 
                                         Object.entries(data.errors).forEach(([key, value],
                                             index) => {
@@ -1361,6 +1367,7 @@
                                                     firstInput
                                                 ) { // Set firstInput only once
                                                     firstInput = input;
+                                                    firstInputName = key;
                                                 }
 
                                                 input.classList.add("is-invalid");
@@ -1378,16 +1385,47 @@
                                         });
 
                                         if (firstInput) {
-                                            // Find the closest parent with class "wizard-container"
-                                            const wizardContainer = firstInput.closest(
-                                                ".wizard-container");
 
-                                            if (wizardContainer) {
-                                                navigateStep(6, wizardContainer.getAttribute(
-                                                    "data-step"));
-                                                console.log("Wizard Step:", wizardContainer
-                                                    .getAttribute("data-step"));
+                                            console.log("formInputs:", formInputs);
+                                            console.log("Checking if formInputs.step6 exists:", !!
+                                                formInputs.step6);
+
+                                                if (formInputs.step6 && !formInputs.step6.some(field => field.name === firstInputName)) {
+                                                console.log(
+                                                    "Step 6 inputs exist and at least one field has a different name from firstInputName"
+                                                    );
+
+                                                console.log("firstInputName:", firstInputName);
+                                                if (typeof firstInputName === "undefined") {
+                                                    console.error(
+                                                        "ERROR: firstInputName is undefined!");
+                                                } else if (firstInputName === null) {
+                                                    console.error("ERROR: firstInputName is null!");
+                                                } else if (typeof firstInputName !== "string") {
+                                                    console.error(
+                                                        "ERROR: firstInputName is not a string! Type:",
+                                                        typeof firstInputName);
+                                                }
+
+                                                // Find the closest parent with class "wizard-container"
+                                                const wizardContainer = firstInput.closest(
+                                                    ".wizard-container");
+                                                console.log("Wizard container found:",
+                                                    wizardContainer);
+
+                                                if (wizardContainer) {
+                                                    const currentStep = wizardContainer
+                                                        .getAttribute("data-step");
+                                                    console.log("Current Step Data Attribute:",
+                                                        currentStep);
+
+                                                    navigateStep(6, currentStep);
+                                                    console.log("Navigating to Step 6");
+                                                } else {
+                                                    console.log("No wizard-container found");
+                                                }
                                             }
+
 
                                             firstInput.scrollIntoView({
                                                 behavior: "smooth",

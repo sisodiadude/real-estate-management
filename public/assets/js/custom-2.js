@@ -9,24 +9,24 @@ function getCurrentLocation(successCallback, errorCallback) {
             const { latitude, longitude, accuracy } = position.coords;
             const userAgent = navigator.userAgent.toLowerCase();
 
-            let issueMessage = "";
+            // let issueMessage = "";
 
-            if (accuracy > 5000) {
-                issueMessage = "⚠️ Location is based on your internet. Enable GPS for accuracy.";
-            } else if (accuracy > 1000) {
-                issueMessage = "📍 Location may be inaccurate. Move to an open area.";
-            } else if (accuracy > 300) {
-                if (userAgent.includes("windows") || userAgent.includes("mac")) {
-                    issueMessage = "⚠️ Desktop location is less accurate. Use a mobile device.";
-                } else {
-                    issueMessage = "⚠️ Weak GPS signal. Enable 'High Accuracy Mode'.";
-                }
-            }
+            // if (accuracy > 5000) {
+            //     issueMessage = "⚠️ Location is based on your internet. Enable GPS for accuracy.";
+            // } else if (accuracy > 1000) {
+            //     issueMessage = "📍 Location may be inaccurate. Move to an open area.";
+            // } else if (accuracy > 300) {
+            //     if (userAgent.includes("windows") || userAgent.includes("mac")) {
+            //         issueMessage = "⚠️ Desktop location is less accurate. Use a mobile device.";
+            //     } else {
+            //         issueMessage = "⚠️ Weak GPS signal. Enable 'High Accuracy Mode'.";
+            //     }
+            // }
 
-            if (issueMessage) {
-                errorCallback(issueMessage);
-                return;
-            }
+            // if (issueMessage) {
+            //     errorCallback(issueMessage);
+            //     return;
+            // }
 
             successCallback({ latitude, longitude });
         },
@@ -74,7 +74,7 @@ function getCurrentLocation(successCallback, errorCallback) {
         {
             enableHighAccuracy: true,
             timeout: 30000,  // Increased timeout to 30s
-            maximumAge: 10000, // Cache location for 10s to reduce repeated GPS requests
+            maximumAge: 0, // Cache location for 10s to reduce repeated GPS requests
         }
     );
 }

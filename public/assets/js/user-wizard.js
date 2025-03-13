@@ -41,14 +41,14 @@ const formInputs = {
             label: "Joining Date",
             required: true,
             type: "date",
-            min: "1900-01-01",
+            min: new Date().toISOString().split('T')[0],
             max: new Date(new Date().setMonth(new Date().getMonth() + 2)).toISOString().split('T')[0]
         },
         { name: "probation_period", label: "Probation Period (Months)", required: false, type: "number", min: 0, max: 24 },
         { name: "employment_type", label: "Employment Type", required: true, type: "select", options: ["full_time", "part_time", "contract", "internship"] }
     ],
     step4: [
-        { name: "salary", label: "Salary", required: true, type: "number", min: 0, step: 0.01 },
+        { name: "salary", label: "Salary", required: true, type: "number", min: 0 },
         { name: "bank_account", label: "Bank Account Number", required: true, type: "text" },
         { name: "bank_name", label: "Bank Name", required: true, type: "text" },
         {
@@ -69,22 +69,28 @@ const formInputs = {
         { name: "emergency_contact_name", label: "Name", required: false, type: "text", minLength: 3, maxLength: 50 },
         { name: "emergency_contact_relation", label: "Relationship", required: false, type: "text", minLength: 3, maxLength: 50 },
         { name: "emergency_contact_number", label: "Contact Number", required: false, type: "text", minLength: 10, maxLength: 15, regex: /^[0-9]+$/ },
+    ],
+    step6: [
+        { name: "resume", label: "Resume/CV", required: true, type: "file", accept: ".pdf,image/*" },
+        { name: "profile_picture", label: "Profile Picture", required: true, type: "file", accept: "image/*" },
+        { name: "govt_id", label: "Government ID", required: true, type: "file", accept: ".pdf,image/*", multiple: true },
+        { name: "education_certificates", label: "Education Certificates", required: true, type: "file", accept: ".pdf,image/*", multiple: true }
     ]
 };
 
 function navigateStep(current, next) {
-    console.log(`Navigating from step ${current} to step ${next}`);
+    // console.log(`Navigating from step ${current} to step ${next}`);
 
     // Update step container classes
-    console.log(`Removing "active" from step-${current} and adding "disabled"`);
+    // console.log(`Removing "active" from step-${current} and adding "disabled"`);
     document.querySelector(`.step-container.step-${current}`).classList.remove("active");
     document.querySelector(`.step-container.step-${current}`).classList.add("disabled");
 
-    console.log(`Adding "active" to step-${next}`);
+    // console.log(`Adding "active" to step-${next}`);
     document.querySelector(`.step-container.step-${next}`).classList.add("active");
 
     // Toggle visibility of step elements
-    console.log(`Showing step-${next} and hiding step-${current}`);
+    // console.log(`Showing step-${next} and hiding step-${current}`);
     const nextStepElement = document.querySelector(`.wizard-container[data-step="${next}"]`);
     const currentStepElement = document.querySelector(`.wizard-container[data-step="${current}"]`);
 
@@ -102,31 +108,43 @@ function navigateStep(current, next) {
         console.warn(`Element for step-${current} not found!`);
     }
 
-    console.log(`Step transition from ${current} to ${next} completed.`);
+    // console.log(`Step transition from ${current} to ${next} completed.`);
 }
 
+/**
+ * Validates form inputs for a specific wizard step based on predefined rules.
+ * @param {number} stepNumber - The step number to validate (e.g., 1, 2, 3).
+ * @returns {boolean} - True if the step is valid, false otherwise.
+ */
 function validateFormStep(stepNumber) {
     console.log(`➡️ Validating Step ${stepNumber}...`);
 
+    // Ensure the form exists
     const form = document.getElementById("branchForm");
     if (!form) {
-        console.error("❌ Form element not found");
+        console.error("❌ Form element with ID 'branchForm' not found.");
         return false;
     }
 
-    let firstErrorField = null;
-    let formIsValid = true;
-
+    // Get step-specific inputs
     const stepInputs = formInputs[`step${stepNumber}`];
-    if (!stepInputs) {
-        console.error(`❌ No inputs found for step ${stepNumber}`);
+    if (!stepInputs || !Array.isArray(stepInputs)) {
+        console.error(`❌ No valid inputs defined for step ${stepNumber}.`);
         return false;
     }
 
-    stepInputs.forEach(input => {
-        const field = document.querySelector(`[name="${input.name}"]`);
-        if (!field) return console.warn(`⚠️ '${input.label}' not found in the DOM`);
+    let isValid = true;
+    let firstErrorField = null;
 
+    // Iterate over each input in the step
+    stepInputs.forEach(input => {
+        const field = form.querySelector(`[name="${input.name}"]`);
+        if (!field) {
+            console.warn(`⚠️ Field '${input.label}' not found in DOM for step ${stepNumber}.`);
+            return;
+        }
+
+        // Ensure feedback element exists
         let feedback = field.parentElement.querySelector(".invalid-feedback");
         if (!feedback) {
             feedback = document.createElement("div");
@@ -134,100 +152,153 @@ function validateFormStep(stepNumber) {
             field.parentElement.appendChild(feedback);
         }
 
-        let isValid = true;
-        const value = field.value.trim();
+        const value = field.type === "checkbox" ? field.checked : field.value.trim();
+        let fieldIsValid = true;
 
-        // Required validation
-        if (input.required && !value) {
+        // Validation rules
+        if (input.required && !value && (input.type !== "checkbox" || !field.checked)) {
             feedback.textContent = `${input.label} is required.`;
-            isValid = false;
-        }
+            fieldIsValid = false;
+        } else if (value) { // Only validate further if there's a value
+            switch (input.type) {
+                case "text":
+                case "email":
+                    if (input.minLength && value.length < input.minLength) {
+                        feedback.textContent = `${input.label} must be at least ${input.minLength} characters.`;
+                        fieldIsValid = false;
+                    } else if (input.maxLength && value.length > input.maxLength) {
+                        feedback.textContent = `${input.label} must not exceed ${input.maxLength} characters.`;
+                        fieldIsValid = false;
+                    } else if (input.regex && !input.regex.test(value)) {
+                        feedback.textContent = input.type === "email"
+                            ? "Please enter a valid email address."
+                            : `${input.label} must be in a valid format.`;
+                        fieldIsValid = false;
+                    }
+                    break;
 
-        // Min/Max length validation
-        if (value && (input.type === "text" || input.type === "email")) {
-            if (input.minLength && value.length < input.minLength) {
-                feedback.textContent = `${input.label} should have at least ${input.minLength} characters.`;
-                isValid = false;
-            }
-            if (input.maxLength && value.length > input.maxLength) {
-                feedback.textContent = `${input.label} should not exceed ${input.maxLength} characters.`;
-                isValid = false;
-            }
-        }
+                case "number":
+                    const numValue = parseFloat(value);
+                    if (isNaN(numValue)) {
+                        feedback.textContent = `${input.label} must be a valid number.`;
+                        fieldIsValid = false;
+                    } else if (input.min !== undefined && numValue < input.min) {
+                        feedback.textContent = `${input.label} must be at least ${input.min}.`;
+                        fieldIsValid = false;
+                    } else if (input.max !== undefined && numValue > input.max) {
+                        feedback.textContent = `${input.label} must not exceed ${input.max}.`;
+                        fieldIsValid = false;
+                    } else if (input.step && (numValue % input.step !== 0)) {
+                        feedback.textContent = `${input.label} must be in increments of ${input.step}.`;
+                        fieldIsValid = false;
+                    }
+                    break;
 
-        // Regex validation
-        if (input.regex && value && !input.regex.test(value)) {
-            switch (input.name) {
-                case 'ifsc_swift_code':
-                case 'pan_tax_id':
-                    feedback.textContent = `${input.label} must be alphanumeric.`;
+                case "date":
+                    const dateValue = new Date(value);
+                    const minDate = input.min ? new Date(input.min) : null;
+                    const maxDate = input.max ? new Date(input.max) : null;
+
+                    if (isNaN(dateValue.getTime())) {
+                        feedback.textContent = `Please enter a valid date for ${input.label}.`;
+                        fieldIsValid = false;
+                    } else if (minDate && dateValue < minDate) {
+                        feedback.textContent = input.name === "joining_date"
+                            ? `${input.label} cannot be in the past.`
+                            : `${input.label} cannot be earlier than ${input.min}.`;
+                        fieldIsValid = false;
+                    } else if (maxDate && dateValue > maxDate) {
+                        feedback.textContent = input.name === "date_of_birth"
+                            ? "You must be at least 18 years old."
+                            : `${input.label} cannot be later than ${input.max}.`;
+                        fieldIsValid = false;
+                    }
+                    break;
+
+                case "select":
+                    if (!input.externallyManaged && input.options && !input.options.includes(value)) {
+                        feedback.textContent = `Please select a valid option for ${input.label}.`;
+                        fieldIsValid = false;
+                    }
+                    break;
+
+                case "checkbox":
+                    // No additional validation needed beyond required check
+                    break;
+
+                case "file":
+                    const files = field.files;
+                    if (input.required && (!files || files.length === 0)) {
+                        feedback.textContent = `${input.label} is required.`;
+                        fieldIsValid = false;
+                    } else if (files && files.length > 0) {
+                        const accept = input.accept.split(",").map(type => type.trim());
+                        for (let file of files) {
+                            const fileType = file.type || file.name.split('.').pop().toLowerCase();
+                            if (!accept.includes(fileType) && !accept.some(type => fileType.match(type.replace("*", ".*")))) {
+                                feedback.textContent = `${input.label} must be of type: ${input.accept}.`;
+                                fieldIsValid = false;
+                                break;
+                            }
+                        }
+                        if (input.multiple && files.length > 1 && !input.multiple) {
+                            feedback.textContent = `${input.label} allows only one file.`;
+                            fieldIsValid = false;
+                        }
+                    }
+                    break;
+
+                case "array":
+                    // Handle array inputs (allowances, deductions)
+                    const arrayFields = form.querySelectorAll(`[name^="${input.name}["]`);
+                    arrayFields.forEach(arrayField => {
+                        const arrayValue = arrayField.value.trim();
+                        if (arrayValue) {
+                            const nameParts = arrayField.name.match(/\[(\d+)\]\[(type|amount)\]/);
+                            if (nameParts && nameParts[2] === "type" && !input.options.includes(arrayValue)) {
+                                feedback.textContent = `Invalid ${input.label} type selected.`;
+                                fieldIsValid = false;
+                            } else if (nameParts && nameParts[2] === "amount") {
+                                const amount = parseFloat(arrayValue);
+                                if (isNaN(amount) || amount < 0) {
+                                    feedback.textContent = `${input.label} amount must be a positive number.`;
+                                    fieldIsValid = false;
+                                }
+                            }
+                        }
+                    });
                     break;
 
                 default:
-                    feedback.textContent = `Please enter a valid ${input.label}.`;
-                    break;
-            }
-            feedback.textContent = `Please enter a valid ${input.label}.`;
-            isValid = false;
-        }
-
-        // Date validation
-        if (input.type === "date" && value) {
-            const enteredDate = new Date(value);
-            const minDate = new Date(input.min);
-            const maxDate = new Date(input.max);
-
-            if (enteredDate < minDate) {
-                feedback.textContent = `The date for ${input.label} cannot be earlier than ${input.min}.`;
-                isValid = false;
-            }
-            if (enteredDate > maxDate) {
-                switch (input.name) {
-                    case 'date_of_birth':
-                        feedback.textContent = `You must be at least 18 years old to proceed.`;
-                        break;
-
-                    case 'joining_date':
-                        feedback.textContent = `The joining date cannot be later than 2 months from the current date.`;
-                        break;
-
-                    default:
-                        feedback.textContent = `The date for ${input.label} cannot be later than ${input.min}.`;
-                        break;
-                }
-                isValid = false;
+                    console.warn(`⚠️ Unsupported input type '${input.type}' for ${input.label}.`);
             }
         }
 
-        // Select field validation
-        if (input.type === "select" && input.required && !input.externallyManaged && input.options && !input.options.includes(value)) {
-            feedback.textContent = `Please select a valid option for ${input.label}.`;
-            isValid = false;
-        }
-
-        // Apply styles
-        if (!isValid) {
+        // Update field styling and track overall validity
+        if (!fieldIsValid) {
             field.classList.add("is-invalid");
             if (!firstErrorField) firstErrorField = field;
-            formIsValid = false;
+            isValid = false;
         } else {
             field.classList.remove("is-invalid");
             feedback.textContent = "";
         }
     });
 
-    // Focus first error field if any
-    if (firstErrorField) {
-        console.warn(`📌 First invalid field: ${firstErrorField.name}`);
+    // Finalize validation
+    if (!isValid) {
+        console.warn(`❌ Validation failed for step ${stepNumber}.`);
         form.classList.add("was-validated");
-        firstErrorField.focus();
-        firstErrorField.scrollIntoView({ behavior: "smooth", block: "center" });
-        return false;
+        if (firstErrorField) {
+            firstErrorField.focus();
+            firstErrorField.scrollIntoView({ behavior: "smooth", block: "center" });
+        }
+    } else {
+        console.log(`✅ Step ${stepNumber} validated successfully.`);
+        form.classList.remove("was-validated");
     }
 
-    form.classList.remove("was-validated");
-    console.log(`✅ Step ${stepNumber} validation successful.`);
-    return true;
+    return isValid;
 }
 
 /*=====================
@@ -243,10 +314,10 @@ document.querySelectorAll('.wizard-container .next-button, .wizard-container .pr
 
         // Check if the clicked element is a next-button
         if (target.matches('.next-button')) {
-            console.log('Current data-step (Next):', stepNumber);
+            // console.log('Current data-step (Next):', stepNumber);
             if (validateFormStep(stepNumber)) {
-                console.log("Form validation successful. Proceeding to step:", stepNumber + 1);
-                alert("Form validation successful. Proceeding to next step...");
+                // console.log("Form validation successful. Proceeding to step:", stepNumber + 1);
+                // alert("Form validation successful. Proceeding to next step...");
                 navigateStep(stepNumber, stepNumber + 1);
             } else {
                 console.warn("Form validation failed on step:", stepNumber);
@@ -255,9 +326,9 @@ document.querySelectorAll('.wizard-container .next-button, .wizard-container .pr
 
         // Check if the clicked element is a previous-button
         if (target.matches('.previous-button')) {
-            console.log('Current data-step (Previous):', stepNumber);
-            console.log("Navigating to previous step:", stepNumber - 1);
-            alert("Navigating to previous step...");
+            // console.log('Current data-step (Previous):', stepNumber);
+            // console.log("Navigating to previous step:", stepNumber - 1);
+            // alert("Navigating to previous step...");
             navigateStep(stepNumber, stepNumber - 1);
         }
     });
