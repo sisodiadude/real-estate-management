@@ -118,7 +118,6 @@
                                         <div class="col-12">
                                             <h5 class="text-primary fw-bold mb-3">Basic Details</h5>
                                         </div>
-
                                         <div class="col-md-4">
                                             <label for="name" class="form-label fw-bold">Name <span
                                                     class="text-danger">*</span></label>
@@ -127,7 +126,6 @@
                                                 required>
                                             <div class="invalid-feedback">Name is required.</div>
                                         </div>
-
                                         <div class="col-md-4">
                                             <label for="email" class="form-label fw-bold">Email <span
                                                     class="text-danger">*</span></label>
@@ -136,7 +134,6 @@
                                                 required>
                                             <div class="invalid-feedback">Valid email is required.</div>
                                         </div>
-
                                         <div class="col-md-4">
                                             <label for="mobile" class="form-label fw-bold">Mobile <span
                                                     class="text-danger">*</span></label>
@@ -145,15 +142,17 @@
                                                 value="{{ old('mobile', $branch->mobile) }}" required>
                                             <div class="invalid-feedback">Mobile number is required.</div>
                                         </div>
-
                                         <div class="col-md-4">
                                             <label for="date_of_start" class="form-label fw-bold">Date of
-                                                Start</label>
-                                            <input type="date" id="date_of_start" name="date_of_start"
-                                                class="form-control"
-                                                value="{{ old('date_of_start', $branch->date_of_start) }}">
-                                        </div>
+                                                Start <span class="text-danger">*</span></label>
+                                            <input id="date_of_start" name="date_of_start"
+                                                class="form-control bt-datepicker" required
+                                                placeholder="Select Date of Staart" data-autoclose="true"
+                                                data-today-highlight="true" data-default-date="false"
+                                                value="{{ old('date_of_start', $branch->date_of_start) }}" required>
+                                            <div class="invalid-feedback">Start date is required.</div>
 
+                                        </div>
                                         <!-- Type Dropdown -->
                                         <div class="col-md-4">
                                             <label for="type" class="form-label fw-bold">Type <span
@@ -200,12 +199,10 @@
                                             </select>
                                             <div class="invalid-feedback">Status is required.</div>
                                         </div>
-
                                         <div class="col-md-8">
                                             <label for="description" class="form-label fw-bold">Description</label>
                                             <textarea id="description" name="description" class="form-control" rows="3" placeholder="Enter description">{{ old('description', $branch->description) }}</textarea>
                                         </div>
-
                                         <div class="col-12 mt-4">
                                             <label for="logo" class="form-label fw-bold">Logo</label>
                                             <input type="file" id="logo" name="logo" class="form-control"
@@ -216,26 +213,23 @@
                                         <div class="col-12 mt-4">
                                             <h5 class="text-primary fw-bold mb-3">Address Details</h5>
                                         </div>
-
                                         <div class="col-md-6">
                                             <label for="address_line1" class="form-label fw-bold">Address Line 1 <span
                                                     class="text-danger">*</span></label>
                                             <input type="text" id="address_line1" name="address_line1"
                                                 class="form-control" placeholder="Enter address line 1"
-                                                value="{{ old('address_line1', $branch->address_line1 ?? '') }}"
-                                                required maxlength="100">
+                                                value="{{ old('address_line1', $branch->address_line1) }}" required
+                                                maxlength="100">
                                             <div class="invalid-feedback">Primary address line is required.</div>
                                         </div>
-
                                         <div class="col-md-6">
                                             <label for="address_line2" class="form-label fw-bold">Address Line
                                                 2</label>
                                             <input type="text" id="address_line2" name="address_line2"
                                                 class="form-control" placeholder="Enter address line 2"
-                                                value="{{ old('address_line2', $branch->address_line2 ?? '') }}"
-                                                maxlength="100">
+                                                maxlength="100"
+                                                value="{{ old('address_line2', $branch->address_line2) }}">
                                         </div>
-
                                         <div class="col-md-4">
                                             <label for="country" class="form-label fw-bold">Country <span
                                                     class="text-danger">*</span></label>
@@ -288,42 +282,66 @@
                                             <label for="postal_code" class="form-label fw-bold">Postal Code <span
                                                     class="text-danger">*</span></label>
                                             <input type="text" id="postal_code" name="postal_code"
-                                                class="form-control" placeholder="Enter postal code"
-                                                value="{{ old('postal_code', $branch->postal_code ?? '') }}" required
-                                                maxlength="10">
+                                                class="form-control" placeholder="Enter postal code" required
+                                                maxlength="10"
+                                                value="{{ old('postal_code', $branch->postal_code) }}">
                                             <div class="invalid-feedback">Postal code is required.</div>
                                         </div>
 
+                                        <!-- Latitude & Longitude Fields -->
                                         <div class="col-md-3">
-                                            <label for="branch_latitude" class="form-label fw-bold">Latitude</label>
-                                            <input type="number" step="0.0000001" id="branch_latitude"
-                                                name="branch_latitude" class="form-control"
-                                                placeholder="e.g., 12.9716"
-                                                value="{{ old('branch_latitude', $branch->latitude ?? '') }}">
+                                            <label for="branch_latitude" class="form-label fw-bold">Latitude <span
+                                                    class="text-danger">*</span></label>
+                                            <input type="number" id="branch_latitude" name="branch_latitude"
+                                                class="form-control" placeholder="Enter latitude" required
+                                                step="any" min="-90" max="90"
+                                                value="{{ old('latitude', $branch->latitude) }}">
                                             <div class="invalid-feedback">Please enter a valid latitude.</div>
                                         </div>
 
                                         <div class="col-md-3">
-                                            <label for="branch_longitude" class="form-label fw-bold">Longitude</label>
-                                            <input type="number" step="0.0000001" id="branch_longitude"
-                                                name="branch_longitude" class="form-control"
-                                                placeholder="e.g., 77.5946"
-                                                value="{{ old('branch_longitude', $branch->longitude ?? '') }}">
+                                            <label for="branch_longitude" class="form-label fw-bold">Longitude <span
+                                                    class="text-danger">*</span></label>
+                                            <input type="number" id="branch_longitude" name="branch_longitude"
+                                                class="form-control" placeholder="Enter longitude" required
+                                                step="any" min="-180" max="180"
+                                                value="{{ old('longitude', $branch->longitude) }}">
                                             <div class="invalid-feedback">Please enter a valid longitude.</div>
+                                        </div>
+
+                                        <!-- Get Coordinates Button -->
+                                        <div class="col-md-12 text-center mt-3">
+                                            <button type="button" class="btn btn-primary" id="getCoordinates">
+                                                <span
+                                                    class="branchCoordinatesBtnSpinner spinner-border spinner-border-sm me-2 d-none"
+                                                    role="status" aria-hidden="true" id="loadingSpinner"></span>
+                                                <i class="fas fa-map-marker-alt"></i> <span
+                                                    id="branch-coordinates-btn-txt">Get Coordinates</span>
+                                            </button>
+                                            <p id="geoError" class="text-danger mt-2"></p>
                                         </div>
 
                                         <!-- Section: Operating Hours -->
                                         <div class="col-12 mt-4">
                                             <h5 class="text-primary fw-bold mb-3">Operating Hours</h5>
                                         </div>
-
                                         @php
                                             $operatingHours = json_decode($branch->operating_hours, true) ?? [];
                                         @endphp
+                                        <!-- 24/7 Open Checkbox -->
+                                        <div class="col-md-12">
+                                            <div class="form-check form-switch mb-3">
+                                                <input class="form-check-input" type="checkbox" id="open_24_7"
+                                                    name="operating_hours[all][open_24_7]" value="1"
+                                                    {{ !empty($operatingHours['all']['open_24_7']) && $operatingHours['all']['open_24_7'] == 1 ? 'checked' : '' }}>
+                                                <label class="form-check-label fw-bold" for="open_24_7">Open 24/7
+                                                    (Applies to All Days)</label>
+                                            </div>
+                                        </div>
 
-                                        <div class="col-12">
-                                            <label class="form-label fw-bold">Set Operating Hours by Day</label>
-                                            <div id="operatingHoursContainer">
+                                        <div class="operating-hours-container {{ !empty($operatingHours['all']['open_24_7']) && $operatingHours['all']['open_24_7'] == 1 ? 'd-none' : '' }}">
+                                            <div class="col-12">
+                                                <label class="form-label fw-bold">Set Operating Hours by Day</label>
                                                 @foreach (['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'] as $day)
                                                     @php
                                                         $dayKey = strtolower($day);
@@ -383,7 +401,6 @@
                                                 @endforeach
                                             </div>
                                         </div>
-
 
                                         <!-- Section: Social Media Links -->
                                         <div class="col-12 mt-4">
@@ -684,9 +701,9 @@
 
                                         <!-- Submit Buttons -->
                                         <div class="col-12 text-end mt-4">
-                                            <button type="submit" class="btn btn-primary px-4">
+                                            <button type="submit" class="btn btn-primary px-4" id="submitBtn">
                                                 <span
-                                                    class="spinner-border spinner-submit spinner-border-sm me-2 d-none"
+                                                    class="submitBtnSpinner spinner-border spinner-submit spinner-border-sm me-2 d-none"
                                                     role="status" aria-hidden="true"></span>
                                                 <span id="submit-btn-txt">Submit</span>
                                             </button>
@@ -729,7 +746,86 @@
     <script src="{{ asset('assets/js/sisodia-dropzone.js') }}"></script>
     <script src="{{ asset('assets/js/custom-2.js') }}"></script>
 
+    <!-- JavaScript for Geolocation -->
     <script>
+        function getOperatingHours() {
+            const operatingHours = {};
+
+            // Check if "Open 24/7 (All Days)" is enabled
+            const open24AllDaysCheckbox = document.querySelector(`[name="operating_hours[all][open_24_7]"]`);
+            const isOpen24AllDays = open24AllDaysCheckbox?.checked || false;
+
+            if (isOpen24AllDays) {
+                // If Open 24/7 is checked, mark all days as open 24/7
+                operatingHours["all"] = {
+                    open_24_7: true
+                };
+            } else {
+                // Process individual days
+                const days = ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"];
+                days.forEach(day => {
+                    const startInput = document.querySelector(`[name="operating_hours[${day}][start]"]`);
+                    const endInput = document.querySelector(`[name="operating_hours[${day}][end]"]`);
+                    const closedCheckbox = document.querySelector(`[name="operating_hours[${day}][closed]"]`);
+                    const open24Checkbox = document.querySelector(`[name="operating_hours[${day}][open_24]"]`);
+
+                    operatingHours[day] = {
+                        start: startInput?.value || null,
+                        end: endInput?.value || null,
+                        closed: closedCheckbox?.checked || false,
+                        open24: open24Checkbox?.checked || false
+                    };
+                });
+            }
+
+            return operatingHours;
+        }
+
+        document.getElementById("getCoordinates").addEventListener("click", function() {
+            let latInput = document.getElementById("branch_latitude");
+            let lngInput = document.getElementById("branch_longitude");
+            let geoError = document.getElementById("geoError");
+
+            // Show spinner while fetching location
+            toggleButton("#submitBtn", {
+                textSelector: "#branch-coordinates-btn-txt",
+                oldText: "Get Coordinates",
+                newText: "Getting Coordinates...",
+                spinnerSelector: ".branchCoordinatesBtnSpinner"
+            }, true);
+
+            getCurrentLocation(
+                (location) => {
+                    const {
+                        latitude,
+                        longitude
+                    } = location;
+
+
+                    latInput.value = latitude;
+                    lngInput.value = longitude;
+                    geoError.textContent = "";
+
+                    toggleButton("#submitBtn", {
+                        textSelector: "#branch-coordinates-btn-txt",
+                        oldText: "Get Coordinates",
+                        newText: "Getting Coordinates...",
+                        spinnerSelector: ".branchCoordinatesBtnSpinner"
+                    }, false);
+
+                },
+                (errorMessage) => {
+                    geoError.textContent = errorMessage;
+                    toggleButton("#submitBtn", {
+                        textSelector: "#branch-coordinates-btn-txt",
+                        oldText: "Get Coordinates",
+                        newText: "Getting Coordinates...",
+                        spinnerSelector: ".branchCoordinatesBtnSpinner"
+                    }, false);
+                }
+            );
+        });
+
         document.getElementById("use_branch_smtp_credentials").addEventListener("change", function() {
             const smtpFields = document.querySelectorAll(
                 '.smtpFields'); // Get all elements with the class 'smtpFields'
@@ -746,7 +842,6 @@
                     });
                 });
             } else {
-                console.log("Disabled"); // Log when the checkbox is unchecked
                 smtpFields.forEach(function(field) {
                     field.classList.add('d-none');
 
@@ -756,6 +851,73 @@
                     });
                 });
             }
+        });
+
+        document.getElementById("open_24_7").addEventListener("change", function() {
+            const operatingHoursContainer = document.querySelectorAll('.operating-hours-container');
+
+            if (this.checked) {
+                operatingHoursContainer.forEach(function(field) {
+                    field.classList.add('d-none');
+
+                    // Remove 'required' attribute from all inputs except checkboxes for "Closed" and "24 Hours"
+                    field.querySelectorAll('input:not(.closed-checkbox):not(.open-24-checkbox), select')
+                        .forEach(function(input) {
+                            input.removeAttribute('required');
+                        });
+                });
+            } else {
+                operatingHoursContainer.forEach(function(field) {
+                    field.classList.remove('d-none');
+
+                    // Add 'required' attribute back to inputs except checkboxes for "Closed" and "24 Hours"
+                    field.querySelectorAll('input:not(.closed-checkbox):not(.open-24-checkbox), select')
+                        .forEach(function(input) {
+                            if (!input.hasAttribute('required')) {
+                                input.setAttribute('required', true);
+                            }
+                        });
+                });
+            }
+        });
+
+        // Handle 24 Hours and Closed Checkbox
+        document.querySelectorAll('.open-24-checkbox, .closed-checkbox').forEach(checkbox => {
+            checkbox.addEventListener('change', function() {
+
+                const row = this.closest('.operating-hours-row');
+
+                const startInput = row.querySelector('.operating-hour-start');
+                const endInput = row.querySelector('.operating-hour-end');
+                const oppositeCheckbox = row.querySelector(
+                    this.classList.contains('open-24-checkbox') ? '.closed-checkbox' :
+                    '.open-24-checkbox'
+                );
+
+                if (this.checked) {
+                    startInput.setAttribute('disabled', true);
+                    endInput.setAttribute('disabled', true);
+                    oppositeCheckbox.setAttribute('disabled', true);
+
+                    startInput.removeAttribute('required');
+                    endInput.removeAttribute('required');
+
+                    // Apply Bootstrap disabled styles
+                    startInput.classList.add('opacity-50', 'pe-none');
+                    endInput.classList.add('opacity-50', 'pe-none');
+                } else {
+                    startInput.removeAttribute('disabled');
+                    endInput.removeAttribute('disabled');
+                    oppositeCheckbox.removeAttribute('disabled');
+
+                    startInput.setAttribute('required', true);
+                    endInput.setAttribute('required', true);
+
+                    // Remove Bootstrap disabled styles
+                    startInput.classList.remove('opacity-50', 'pe-none');
+                    endInput.classList.remove('opacity-50', 'pe-none');
+                }
+            });
         });
 
         $(document).ready(function() {
@@ -846,31 +1008,7 @@
             const addTaxBtn = document.getElementById("addTaxBtn");
             const socialContainer = document.getElementById("socialContainer");
             const addSocialBtn = document.getElementById("addSocialBtn");
-            const submitBtn = form.querySelector('button[type="submit"]');
-            const spinner = submitBtn.querySelector('.spinner-border');
-            const submitText = submitBtn.querySelector('#submit-btn-txt'); // Get the text inside the submit button
 
-            function toggleSubmitBtn(isDisabled) {
-                if (!submitBtn) return;
-
-                submitBtn.disabled = isDisabled;
-                submitText.textContent = isDisabled ? "Submitting..." : "Submit";
-
-                // Toggle spinner visibility based on the state
-                if (isDisabled) {
-                    // form.style.filter = "blur(5px)";
-                    spinner.classList.remove("d-none");
-                } else {
-                    // form.style.filter = "none";
-                    spinner.classList.add("d-none");
-                }
-
-                if (!isDisabled) return;
-
-                // Clear previous validation errors
-                document.querySelectorAll(".is-invalid").forEach(el => el.classList.remove("is-invalid"));
-                document.querySelectorAll(".invalid-feedback").forEach(el => el.textContent = "");
-            }
             // Add new tax entry
             addTaxBtn.addEventListener("click", function() {
                 const taxEntry = document.createElement("div");
@@ -955,141 +1093,95 @@
             form.addEventListener("submit", function(event) {
                 event.preventDefault(); // Prevent normal form submission
 
-                let isTaxValid = true;
-                let taxData = [];
+                let isValid = true;
+                const taxData = [],
+                    socialData = [];
 
-                let isSocialValid = true;
-                let socialData = [];
+                const validateFields = (entries, selectors, errorMessages, dataStore, fieldKeys) => {
+                    entries.forEach(entry => {
+                        const [field1, field2] = selectors.map(sel => entry.querySelector(sel));
+                        const [error1, error2] = errorMessages.map(msg => field1.parentElement
+                            .querySelector(".invalid-feedback") || createErrorElement(
+                                field1, msg));
 
-                // Validate Tax Inputs
-                document.querySelectorAll(".tax-entry").forEach(entry => {
-                    const titleInput = entry.querySelector(".tax-title");
-                    const percentageInput = entry.querySelector(".tax-percentage");
+                        field1.classList.remove("is-invalid");
+                        field2.classList.remove("is-invalid");
 
-                    const title = titleInput.value.trim();
-                    const percentage = percentageInput.value.trim();
+                        const val1 = field1.value.trim(),
+                            val2 = field2.value.trim();
 
-                    // Clear previous errors
-                    titleInput.classList.remove("is-invalid");
-                    percentageInput.classList.remove("is-invalid");
-
-                    let titleFeedback = titleInput.nextElementSibling;
-                    let percentageFeedback = percentageInput.nextElementSibling;
-
-                    if (!titleFeedback || !titleFeedback.classList.contains("invalid-feedback")) {
-                        titleFeedback = document.createElement("div");
-                        titleFeedback.className = "invalid-feedback";
-                        titleInput.after(titleFeedback);
-                    }
-
-                    if (!percentageFeedback || !percentageFeedback.classList.contains(
-                            "invalid-feedback")) {
-                        percentageFeedback = document.createElement("div");
-                        percentageFeedback.className = "invalid-feedback";
-                        percentageInput.after(percentageFeedback);
-                    }
-
-                    // Validation logic
-                    if ((title && !percentage) || (!title && percentage)) {
-                        isTaxValid = false;
-                        if (!title) {
-                            titleInput.classList.add("is-invalid");
-                            titleFeedback.textContent =
-                                "Tax Title is required if Percentage is filled.";
+                        if ((val1 && !val2) || (!val1 && val2)) {
+                            isValid = false;
+                            if (!val1) showError(field1, error1, errorMessages[0]);
+                            if (!val2) showError(field2, error2, errorMessages[1]);
+                        } else if (val1 && val2) {
+                            if (selectors.includes(".tax-percentage") &&
+                                !/^(0|[1-9]\d*)(\.\d{1,2})?$/.test(val2)) {
+                                showError(field2, error2,
+                                    "Invalid percentage format (e.g., 1, 5.25, 10.99).");
+                                isValid = false;
+                            } else {
+                                // ✅ Dynamically set the index keys based on the provided fieldKeys
+                                dataStore.push({
+                                    [fieldKeys[0]]: val1,
+                                    [fieldKeys[1]]: val2
+                                });
+                            }
                         }
-                        if (!percentage) {
-                            percentageInput.classList.add("is-invalid");
-                            percentageFeedback.textContent =
-                                "Percentage is required if Tax Title is filled.";
-                        }
-                    } else if (title && percentage) {
-                        const percentagePattern =
-                            /^(0|[1-9]\d*)(\.\d{1,2})?$/; // Allows numbers with up to 2 decimal places
+                    });
+                };
 
-                        if (!percentagePattern.test(percentage)) {
-                            isTaxValid = false;
-                            percentageInput.classList.add("is-invalid");
-                            percentageFeedback.textContent =
-                                "Percentage must be a valid number with up to two decimal places (e.g., 1, 5.25, 10.99, 123.00).";
-                        } else {
-                            taxData.push({
-                                title,
-                                percentage
-                            });
-                        }
-                    }
-                });
+                const createErrorElement = (field, message) => {
+                    const errorDiv = document.createElement("div");
+                    errorDiv.className = "invalid-feedback";
+                    errorDiv.textContent = message;
+                    field.parentElement.appendChild(errorDiv);
+                    return errorDiv;
+                };
 
-                document.querySelectorAll(".social-entry").forEach(entry => {
-                    const platformInput = entry.querySelector(".dropdown-select");
-                    const urlInput = entry.querySelector(".form-control");
+                const showError = (field, errorElement, message) => {
+                    field.classList.add("is-invalid");
+                    errorElement.textContent = message;
+                };
 
-                    const platform = platformInput.value.trim();
-                    const url = urlInput.value.trim();
+                // **Run validation with correct field keys**
+                validateFields(document.querySelectorAll(".tax-entry"), [".tax-title", ".tax-percentage"], [
+                    "Tax Title is required.", "Percentage is required."
+                ], taxData, ["title",
+                    "percentage"
+                ]); // ✅ Tax Data stored as { title: val1, percentage: val2 }
 
-                    // Clear previous errors
-                    platformInput.classList.remove("is-invalid");
-                    urlInput.classList.remove("is-invalid");
+                validateFields(document.querySelectorAll(".social-entry"), [".dropdown-select",
+                    ".form-control"
+                ], [
+                    "Platform is required.", "Profile URL is required."
+                ], socialData, ["platform",
+                    "url"
+                ]); // ✅ Social Data stored as { platform: val1, url: val2 }
 
-                    // Ensure platformFeedback is placed correctly
-                    let platformFeedback = platformInput.parentNode.querySelector(
-                        ".platform-feedback");
-                    if (!platformFeedback) {
-                        platformFeedback = document.createElement("div");
-                        platformFeedback.className = "invalid-feedback platform-feedback";
-                        platformInput.parentNode.appendChild(
-                            platformFeedback); // Append inside parent container
-                    }
+                // Validate Mobile Number
+                const mobileInput = document.getElementById("mobile");
+                const mobilePattern = /^\+?[0-9\s-]{10,20}$/; // ✅ Fixed regex
+                const mobileError = mobileInput.parentElement.querySelector(".invalid-feedback") ||
+                    createErrorElement(mobileInput, "Invalid mobile number.");
 
-                    // Ensure urlFeedback is placed correctly
-                    let urlFeedback = urlInput.nextElementSibling;
-                    if (!urlFeedback || !urlFeedback.classList.contains("invalid-feedback")) {
-                        urlFeedback = document.createElement("div");
-                        urlFeedback.className = "invalid-feedback";
-                        urlInput.after(urlFeedback);
-                    }
-
-                    // Validation logic
-                    if ((platform && !url) || (!platform && url)) {
-                        isSocialValid = false;
-                        if (!platform) {
-                            platformInput.classList.add("is-invalid");
-                            platformFeedback.textContent = "Platform is required if URL is filled.";
-                        }
-                        if (!url) {
-                            urlInput.classList.add("is-invalid");
-                            urlFeedback.textContent =
-                                "Profile URL is required if Platform is selected.";
-                        }
-                    } else if (platform && url) {
-                        socialData.push({
-                            platform,
-                            url
-                        });
-                    }
-                });
-
-
-
-                if (!form.checkValidity()) {
-                    form.classList.add("was-validated");
-
-                    // Find the first invalid input field
-                    const firstInvalidInput = form.querySelector(":invalid");
-
-                    if (firstInvalidInput) {
-                        firstInvalidInput.scrollIntoView({
-                            behavior: "smooth",
-                            block: "center"
-                        }); // Scroll to the field
-                        firstInvalidInput.focus(); // Set focus
-                    }
-
-                    return;
+                mobileInput.classList.remove("is-invalid");
+                if (!mobilePattern.test(mobileInput.value.trim())) {
+                    showError(mobileInput, mobileError, "Please enter a valid mobile number.");
                 }
 
-                if (!isTaxValid || !isSocialValid) {
-                    // Scroll to first invalid input if any
+                // Log form validity status
+                if (!form.checkValidity() || !isValid) {
+
+                    form.classList.add("was-validated");
+
+                    // Manually add .is-invalid class to invalid inputs
+                    document.querySelectorAll("input:invalid, select:invalid, textarea:invalid").forEach((
+                        input) => {
+                        input.classList.add("is-invalid");
+                    });
+
+                    // Check for the first invalid field
                     const firstInvalidField = document.querySelector(".is-invalid");
 
                     if (firstInvalidField) {
@@ -1099,55 +1191,36 @@
                         });
                         firstInvalidField.focus();
                     }
-                    toggleSubmitBtn(false);
+
                     return;
                 }
+
+                toggleButton("#submitBtn", {
+                    textSelector: "#submit-btn-txt",
+                    oldText: "Submit",
+                    newText: "Submitting...",
+                    spinnerSelector: ".submitBtnSpinner"
+                }, true);
 
                 // Get the 'use_branch_smtp_credentials' checkbox value
                 const useBranchCredentials = document.getElementById("use_branch_smtp_credentials")
                     .checked ? 1 :
                     0;
 
-                // AJAX Submission
-                toggleSubmitBtn(true);
-
                 getCurrentLocation(
                     (location) => {
-                        console.log("Successfully fetched location:", location);
-
                         const {
                             latitude,
                             longitude
                         } = location;
+
                         const formData = new FormData(form);
                         formData.set("use_branch_smtp_credentials", useBranchCredentials);
                         formData.set("tax_details", JSON.stringify(taxData));
                         formData.set("social_links", JSON.stringify(socialData));
                         formData.set("latitude", latitude);
                         formData.set("longitude", longitude);
-
-                        const operatingHours = {};
-
-                        // Loop through each day to get its values
-                        ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"]
-                        .forEach(
-                            day => {
-                                const startInput = document.querySelector(
-                                    `[name="operating_hours[${day}][start]"]`);
-                                const endInput = document.querySelector(
-                                    `[name="operating_hours[${day}][end]"]`);
-                                const closedCheckbox = document.querySelector(
-                                    `[name="operating_hours[${day}][closed]"]`);
-
-                                operatingHours[day] = {
-                                    start: startInput ? startInput.value : null,
-                                    end: endInput ? endInput.value : null,
-                                    closed: closedCheckbox ? closedCheckbox.checked : false
-                                };
-                            });
-
-                        // Append operating hours JSON to formData
-                        formData.set("operating_hours", JSON.stringify(operatingHours));
+                        formData.set("operating_hours", JSON.stringify(getOperatingHours()));
 
                         fetch("{{ route('admin.branches.edit', ['branchSlug' => $branch->slug]) }}", {
                                 method: "POST",
@@ -1176,46 +1249,28 @@
                                     });
                                 } else {
                                     if (data.errors) {
-                                        let firstInput = null; // Initialize firstInput
-
-                                        Object.entries(data.errors).forEach(([key, value],
-                                            index) => {
+                                        let firstInput = null;
+                                        Object.entries(data.errors).forEach(([key, value]) => {
                                             const input = document.querySelector(
                                                 `[name="${key}"]`);
                                             if (input) {
-                                                if (!
-                                                    firstInput
-                                                ) { // Set firstInput only once
-                                                    firstInput = input;
-                                                }
-
+                                                firstInput = firstInput || input;
                                                 input.classList.add("is-invalid");
-                                                const feedbackElement = input.closest(
-                                                        ".form-group")
-                                                    ?.querySelector(".invalid-feedback");
-                                                if (feedbackElement) {
-                                                    feedbackElement.textContent = value[0];
-                                                } else {
-                                                    input.insertAdjacentHTML("afterend",
-                                                        `<div class="invalid-feedback">${value[0]}</div>`
-                                                    );
-                                                }
+                                                (input.closest(".form-group")
+                                                    ?.querySelector(".invalid-feedback") ||
+                                                    createErrorElement(input, ""))
+                                                .textContent = value[0];
                                             }
                                         });
-
-                                        if (firstInput) {
-                                            firstInput.scrollIntoView({
-                                                behavior: "smooth",
-                                                block: "center"
-                                            }); // Scroll to the first invalid field
-                                            firstInput
-                                                .focus(); // Set focus on the first invalid input
-                                        }
+                                        firstInput?.scrollIntoView({
+                                            behavior: "smooth",
+                                            block: "center"
+                                        }).focus();
                                     } else {
                                         Swal.fire({
                                             icon: "error",
                                             title: "Oops...",
-                                            text: data.message || "Something went wrong!"
+                                            text: defaultMessage || "Something went wrong!"
                                         });
                                     }
                                 }
@@ -1226,11 +1281,21 @@
                                     `<div class="alert alert-danger">An unexpected error occurred.</div>`;
                             })
                             .finally(() => {
-                                toggleSubmitBtn(false);
+                                toggleButton("#submitBtn", {
+                                    textSelector: "#submit-btn-txt",
+                                    oldText: "Submit",
+                                    newText: "Submitting...",
+                                    spinnerSelector: ".submitBtnSpinner"
+                                }, false);
                             });
                     },
                     (errorMessage) => {
-                        toggleSubmitBtn(false);
+                        toggleButton("#submitBtn", {
+                            textSelector: "#submit-btn-txt",
+                            oldText: "Submit",
+                            newText: "Submitting...",
+                            spinnerSelector: ".submitBtnSpinner"
+                        }, false);
                         console.error("Error fetching location:", errorMessage);
                         Swal.fire({
                             icon: "error",

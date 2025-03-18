@@ -288,6 +288,26 @@ class BranchController extends Controller
                 $validatedData['social_links'] = null;
             }
 
+            if (isset($validatedData['tax_details']) && json_decode($validatedData['tax_details']) === []) {
+                $validatedData['tax_details'] = null;
+            }
+
+            // Parse social links if present
+            $socialLinks = [];
+            if (!empty($validatedData['social_links'])) {
+                $socialLinksArray = json_decode($validatedData['social_links'], true);
+                if (is_array($socialLinksArray)) {
+                    foreach ($socialLinksArray as $socialLink) {
+                        if (!empty($socialLink['platform']) && isset($socialLink['url'])) {
+                            $socialLinks[] = [
+                                'platform' => $socialLink['platform'],
+                                'url' => $socialLink['url'],
+                            ];
+                        }
+                    }
+                }
+            }
+
             // Parse tax data if present
             $taxDetails = [];
             if (!empty($validatedData['tax_details'])) {
@@ -305,6 +325,7 @@ class BranchController extends Controller
             }
 
             $validatedData['tax_details'] = json_encode($taxDetails);
+            $validatedData['social_links'] = json_encode($socialLinks);
 
             // Begin transaction
             DB::beginTransaction();
