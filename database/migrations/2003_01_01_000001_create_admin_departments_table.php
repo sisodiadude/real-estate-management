@@ -49,6 +49,7 @@ return new class extends Migration
             /** -------------------------------
              *  Operating Hours
              * ------------------------------- */
+            $table->boolean('use_branch_operating_hours')->default(false)->comment('Flag to indicate use of branch operating hours');
             $table->json('operating_hours')->nullable()->comment('Department open-close timings, e.g., {"Monday": "9am-6pm", "Sunday": "Closed"}');
 
             /** -------------------------------

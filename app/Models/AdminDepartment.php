@@ -41,6 +41,7 @@ class AdminDepartment extends Model
         'mobile_change_otp_expires_at',
 
         // Operating Hours
+        'use_branch_operating_hours',
         'operating_hours',
 
         // Department Status
@@ -75,6 +76,7 @@ class AdminDepartment extends Model
         'mobile_verified_at' => 'datetime',
         'email_change_otp_expires_at' => 'datetime',
         'mobile_change_otp_expires_at' => 'datetime',
+        'use_branch_operating_hours' => 'boolean',
         'operating_hours' => 'array',
     ];
 

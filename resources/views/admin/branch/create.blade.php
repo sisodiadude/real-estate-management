@@ -982,38 +982,54 @@
                 ]); // ✅ Social Data stored as { platform: val1, url: val2 }
 
                 // Validate Mobile Number
-                const mobileInput = document.getElementById("mobile");
-                const mobilePattern = /^\+?[0-9\s-]{10,20}$/; // ✅ Fixed regex
-                const mobileError = mobileInput.parentElement.querySelector(".invalid-feedback") ||
-                    createErrorElement(mobileInput, "Invalid mobile number.");
+                const validateMobile = () => {
+                    const mobileInput = document.getElementById("mobile");
 
-                mobileInput.classList.remove("is-invalid");
-                if (!mobilePattern.test(mobileInput.value.trim())) {
-                    showError(mobileInput, mobileError, "Please enter a valid mobile number.");
-                }
+                    const mobilePattern = /^\+?[0-9\s-]{10,20}$/; // ✅ Fixed regex
 
-                // Log form validity status
-                if (!form.checkValidity() || !isValid) {
+                    const mobileError = mobileInput.parentElement.querySelector(".invalid-feedback") ||
+                        createErrorElement(mobileInput, "Invalid mobile number.");
 
+                    // Remove previous invalid class
+                    mobileInput.classList.remove("is-invalid");
+
+                    const mobileValue = mobileInput.value.trim();
+
+                    if (!mobilePattern.test(mobileValue)) {
+                        showError(mobileInput, mobileError, "Please enter a valid mobile number.");
+                        return false; // Validation failed
+                    } else {
+                        return true; // Validation passed
+                    }
+                };
+
+                function formChecker(form) {
+                    // Run mobile validation before form checking
+                    const isMobileValid = validateMobile();
+
+                    // Add Bootstrap validation styling
                     form.classList.add("was-validated");
 
-                    // Manually add .is-invalid class to invalid inputs
-                    document.querySelectorAll("input:invalid, select:invalid, textarea:invalid").forEach((
-                        input) => {
-                        input.classList.add("is-invalid");
-                    });
+                    // Identify and highlight invalid inputs
+                    const invalidInputs = form.querySelectorAll(".is-invalid");
 
-                    // Check for the first invalid field
-                    const firstInvalidField = document.querySelector(".is-invalid");
-
-                    if (firstInvalidField) {
-                        firstInvalidField.scrollIntoView({
-                            behavior: "smooth",
-                            block: "center"
-                        });
-                        firstInvalidField.focus();
+                    if (invalidInputs.length === 0 && isMobileValid) {
+                        form.classList.remove("was-validated"); // Ensure clean state
+                        return true;
                     }
 
+                    // Focus on the first invalid field
+                    const firstInvalidField = invalidInputs[0];
+                    firstInvalidField.scrollIntoView({
+                        behavior: "smooth",
+                        block: "center"
+                    });
+                    firstInvalidField.focus();
+
+                    return false;
+                }
+
+                if (!formChecker(form)) {
                     return;
                 }
 
@@ -1084,15 +1100,20 @@
                                                 .textContent = value[0];
                                             }
                                         });
-                                        firstInput?.scrollIntoView({
-                                            behavior: "smooth",
-                                            block: "center"
-                                        }).focus();
+
+                                        // Ensure firstInput exists before calling focus
+                                        if (firstInput) {
+                                            firstInput.scrollIntoView({
+                                                behavior: "smooth",
+                                                block: "center"
+                                            });
+                                            firstInput.focus();
+                                        }
                                     } else {
                                         Swal.fire({
                                             icon: "error",
                                             title: "Oops...",
-                                            text: defaultMessage || "Something went wrong!"
+                                            text: data.message || "Something went wrong!"
                                         });
                                     }
                                 }

@@ -102,8 +102,9 @@
                                 <h4 class="card-title">Add Department</h4>
                             </div>
                             <div class="card-body">
-                                <form action="{{ route('admin.branches.departments.store', ['branchSlug' => $branch->slug]) }}"
-                                    method="POST" class="needs-validation" id="branchForm" novalidate>
+                                <form
+                                    action="{{ route('admin.branches.departments.store', ['branchSlug' => $branch->slug]) }}"
+                                    method="POST" class="needs-validation" id="departmentForm" novalidate>
                                     @csrf
                                     <div class="row g-3">
                                         <!-- Section: Basic Details -->
@@ -164,78 +165,95 @@
                                             </div>
                                         </div>
 
+
                                         <div class="operatingHoursContainer">
-                                            <div class="col-12">
-                                                <label class="form-label fw-bold">Set Operating Hours by Day</label>
-                                                @foreach (['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'] as $day)
-                                                    <div class="row align-items-center g-2 mb-2 operating-hours-row">
-                                                        <div class="col-md-2">
-                                                            <label
-                                                                class="form-label fw-bold">{{ $day }}</label>
-                                                        </div>
 
-                                                        <div class="col-md-3">
-                                                            <div class="input-group clockpicker"
-                                                                data-placement="bottom" data-align="top"
-                                                                data-autobtn-close="true">
-                                                                <input type="text"
-                                                                    class="form-control operating-hour-start"
-                                                                    name="operating_hours[{{ strtolower($day) }}][start]"
-                                                                    placeholder="Start Time" required>
-                                                                <span class="input-group-text"><i
-                                                                        class="far fa-clock"></i></span>
-                                                            </div>
-                                                        </div>
-
-                                                        <div class="col-md-3">
-                                                            <div class="input-group clockpicker"
-                                                                data-placement="bottom" data-align="top"
-                                                                data-autobtn-close="true">
-                                                                <input type="text"
-                                                                    class="form-control operating-hour-end"
-                                                                    name="operating_hours[{{ strtolower($day) }}][end]"
-                                                                    placeholder="End Time" required>
-                                                                <span class="input-group-text"><i
-                                                                        class="far fa-clock"></i></span>
-                                                            </div>
-                                                        </div>
-
+                                            <!-- 24/7 Open Checkbox -->
+                                            <div class="col-md-12">
+                                                <div class="form-check form-switch mb-3">
+                                                    <input class="form-check-input" type="checkbox" id="open_24_7"
+                                                        name="operating_hours[all][open_24_7]" value="1">
+                                                    <label class="form-check-label fw-bold" for="open_24_7">Open
+                                                        24/7
+                                                        (Applies to All Days)</label>
+                                                </div>
+                                            </div>
+                                            <div class="operating-hours-container">
+                                                <div class="col-12">
+                                                    <label class="form-label fw-bold">Set Operating Hours by
+                                                        Day</label>
+                                                    @foreach (['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'] as $day)
                                                         <div
-                                                            class="col-md-2 d-flex align-items-center justify-content-center">
-                                                            <div class="form-check">
-                                                                <input class="form-check-input closed-checkbox"
-                                                                    type="checkbox"
-                                                                    name="operating_hours[{{ strtolower($day) }}][closed]"
-                                                                    value="1"
-                                                                    id="closed_{{ strtolower($day) }}">
-                                                                <label class="form-check-label"
-                                                                    for="closed_{{ strtolower($day) }}">Closed</label>
+                                                            class="row align-items-center g-2 mb-2 operating-hours-row">
+                                                            <div class="col-md-2">
+                                                                <label
+                                                                    class="form-label fw-bold">{{ $day }}</label>
                                                             </div>
-                                                        </div>
 
-                                                        <div
-                                                            class="col-md-2 d-flex align-items-center justify-content-center">
-                                                            <div class="form-check">
-                                                                <input class="form-check-input open-24-checkbox"
-                                                                    type="checkbox"
-                                                                    name="operating_hours[{{ strtolower($day) }}][open_24]"
-                                                                    value="1"
-                                                                    id="open_24_{{ strtolower($day) }}">
-                                                                <label class="form-check-label"
-                                                                    for="open_24_{{ strtolower($day) }}">24
-                                                                    Hours</label>
+                                                            <div class="col-md-3">
+                                                                <div class="input-group clockpicker"
+                                                                    data-placement="bottom" data-align="top"
+                                                                    data-autobtn-close="true">
+                                                                    <input type="text"
+                                                                        class="form-control operating-hour-start"
+                                                                        name="operating_hours[{{ strtolower($day) }}][start]"
+                                                                        placeholder="Start Time" required>
+                                                                    <span class="input-group-text"><i
+                                                                            class="far fa-clock"></i></span>
+                                                                </div>
+                                                            </div>
+
+                                                            <div class="col-md-3">
+                                                                <div class="input-group clockpicker"
+                                                                    data-placement="bottom" data-align="top"
+                                                                    data-autobtn-close="true">
+                                                                    <input type="text"
+                                                                        class="form-control operating-hour-end"
+                                                                        name="operating_hours[{{ strtolower($day) }}][end]"
+                                                                        placeholder="End Time" required>
+                                                                    <span class="input-group-text"><i
+                                                                            class="far fa-clock"></i></span>
+                                                                </div>
+                                                            </div>
+
+                                                            <div
+                                                                class="col-md-2 d-flex align-items-center justify-content-center">
+                                                                <div class="form-check">
+                                                                    <input class="form-check-input closed-checkbox"
+                                                                        type="checkbox"
+                                                                        name="operating_hours[{{ strtolower($day) }}][closed]"
+                                                                        value="1"
+                                                                        id="closed_{{ strtolower($day) }}">
+                                                                    <label class="form-check-label"
+                                                                        for="closed_{{ strtolower($day) }}">Closed</label>
+                                                                </div>
+                                                            </div>
+
+                                                            <div
+                                                                class="col-md-2 d-flex align-items-center justify-content-center">
+                                                                <div class="form-check">
+                                                                    <input class="form-check-input open-24-checkbox"
+                                                                        type="checkbox"
+                                                                        name="operating_hours[{{ strtolower($day) }}][open_24]"
+                                                                        value="1"
+                                                                        id="open_24_{{ strtolower($day) }}">
+                                                                    <label class="form-check-label"
+                                                                        for="open_24_{{ strtolower($day) }}">24
+                                                                        Hours</label>
+                                                                </div>
                                                             </div>
                                                         </div>
-                                                    </div>
-                                                @endforeach
+                                                    @endforeach
+                                                </div>
                                             </div>
                                         </div>
 
+
                                         <!-- Submit Buttons -->
                                         <div class="col-12 text-end mt-4">
-                                            <button type="submit" class="btn btn-primary px-4">
+                                            <button type="submit" class="btn btn-primary px-4" id="submitBtn">
                                                 <span
-                                                    class="spinner-border spinner-submit spinner-border-sm me-2 d-none"
+                                                    class="submitBtnSpinner spinner-border spinner-submit spinner-border-sm me-2 d-none"
                                                     role="status" aria-hidden="true"></span>
                                                 <span id="submit-btn-txt">Submit</span>
                                             </button>
@@ -278,6 +296,38 @@
     <script src="{{ asset('assets/js/custom-2.js') }}"></script>
 
     <script>
+        function getOperatingHours() {
+            const operatingHours = {};
+
+            // Check if "Open 24/7 (All Days)" is enabled
+            const open24AllDaysCheckbox = document.querySelector(`[name="operating_hours[all][open_24_7]"]`);
+            const isOpen24AllDays = open24AllDaysCheckbox?.checked || false;
+
+            if (isOpen24AllDays) {
+                // If Open 24/7 is checked, mark all days as open 24/7
+                operatingHours["all"] = {
+                    open_24_7: true
+                };
+            } else {
+                // Process individual days
+                const days = ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"];
+                days.forEach(day => {
+                    const startInput = document.querySelector(`[name="operating_hours[${day}][start]"]`);
+                    const endInput = document.querySelector(`[name="operating_hours[${day}][end]"]`);
+                    const closedCheckbox = document.querySelector(`[name="operating_hours[${day}][closed]"]`);
+                    const open24Checkbox = document.querySelector(`[name="operating_hours[${day}][open_24]"]`);
+
+                    operatingHours[day] = {
+                        start: startInput?.value || null,
+                        end: endInput?.value || null,
+                        closed: closedCheckbox?.checked || false,
+                        open24: open24Checkbox?.checked || false
+                    };
+                });
+            }
+
+            return operatingHours;
+        }
         $(document).ready(function() {
             $('select.dropdown-select').select2({
                 width: '100%',
@@ -322,6 +372,34 @@
             }
         });
 
+        document.getElementById("open_24_7").addEventListener("change", function() {
+            const operatingHoursContainer = document.querySelectorAll('.operating-hours-container');
+
+            if (this.checked) {
+                operatingHoursContainer.forEach(function(field) {
+                    field.classList.add('d-none');
+
+                    // Remove 'required' attribute from all inputs except checkboxes for "Closed" and "24 Hours"
+                    field.querySelectorAll('input:not(.closed-checkbox):not(.open-24-checkbox), select')
+                        .forEach(function(input) {
+                            input.removeAttribute('required');
+                        });
+                });
+            } else {
+                operatingHoursContainer.forEach(function(field) {
+                    field.classList.remove('d-none');
+
+                    // Add 'required' attribute back to inputs except checkboxes for "Closed" and "24 Hours"
+                    field.querySelectorAll('input:not(.closed-checkbox):not(.open-24-checkbox), select')
+                        .forEach(function(input) {
+                            if (!input.hasAttribute('required')) {
+                                input.setAttribute('required', true);
+                            }
+                        });
+                });
+            }
+        });
+
         // Handle 24 Hours and Closed Checkbox
         document.querySelectorAll('.open-24-checkbox, .closed-checkbox').forEach(checkbox => {
             checkbox.addEventListener('change', function() {
@@ -362,50 +440,72 @@
         });
 
         document.addEventListener("DOMContentLoaded", function() {
-            const form = document.getElementById("branchForm");
-            const submitBtn = form.querySelector('button[type="submit"]');
-            const spinner = submitBtn.querySelector('.spinner-border');
-            const submitText = submitBtn.querySelector('#submit-btn-txt'); // Get the text inside the submit button
-
-            function toggleSubmitBtn(isDisabled) {
-                if (!submitBtn) return;
-
-                submitBtn.disabled = isDisabled;
-                submitText.textContent = isDisabled ? "Submitting..." : "Submit";
-
-                // Toggle spinner visibility based on the state
-                if (isDisabled) {
-                    // form.style.filter = "blur(5px)";
-                    spinner.classList.remove("d-none");
-                } else {
-                    // form.style.filter = "none";
-                    spinner.classList.add("d-none");
-                }
-
-                if (!isDisabled) return;
-
-                // Clear previous validation errors
-                document.querySelectorAll(".is-invalid").forEach(el => el.classList.remove("is-invalid"));
-                document.querySelectorAll(".invalid-feedback").forEach(el => el.textContent = "");
-            }
-
+            const form = document.getElementById("departmentForm");
             form.addEventListener("submit", function(event) {
                 event.preventDefault(); // Prevent normal form submission
 
-                if (!form.checkValidity()) {
+                const createErrorElement = (field, message) => {
+                    const errorDiv = document.createElement("div");
+                    errorDiv.className = "invalid-feedback";
+                    errorDiv.textContent = message;
+                    field.parentElement.appendChild(errorDiv);
+                    return errorDiv;
+                };
+
+                const showError = (field, errorElement, message) => {
+                    field.classList.add("is-invalid");
+                    errorElement.textContent = message;
+                };
+
+                // Validate Mobile Number
+                const validateMobile = () => {
+                    const mobileInput = document.getElementById("mobile");
+
+                    const mobilePattern = /^\+?[0-9\s-]{10,20}$/; // ✅ Fixed regex
+
+                    const mobileError = mobileInput.parentElement.querySelector(".invalid-feedback") ||
+                        createErrorElement(mobileInput, "Invalid mobile number.");
+
+                    // Remove previous invalid class
+                    mobileInput.classList.remove("is-invalid");
+
+                    const mobileValue = mobileInput.value.trim();
+
+                    if (!mobilePattern.test(mobileValue)) {
+                        showError(mobileInput, mobileError, "Please enter a valid mobile number.");
+                        return false; // Validation failed
+                    } else {
+                        return true; // Validation passed
+                    }
+                };
+
+                function formChecker(form) {
+                    // Run mobile validation before form checking
+                    const isMobileValid = validateMobile();
+
+                    // Add Bootstrap validation styling
                     form.classList.add("was-validated");
 
-                    // Find the first invalid input field
-                    const firstInvalidInput = form.querySelector(":invalid");
+                    // Identify and highlight invalid inputs
+                    const invalidInputs = form.querySelectorAll(".is-invalid");
 
-                    if (firstInvalidInput) {
-                        firstInvalidInput.scrollIntoView({
-                            behavior: "smooth",
-                            block: "center"
-                        }); // Scroll to the field
-                        firstInvalidInput.focus(); // Set focus
+                    if (invalidInputs.length === 0 && isMobileValid) {
+                        form.classList.remove("was-validated"); // Ensure clean state
+                        return true;
                     }
 
+                    // Focus on the first invalid field
+                    const firstInvalidField = invalidInputs[0];
+                    firstInvalidField.scrollIntoView({
+                        behavior: "smooth",
+                        block: "center"
+                    });
+                    firstInvalidField.focus();
+
+                    return false;
+                }
+
+                if (!formChecker(form)) {
                     return;
                 }
 
@@ -415,7 +515,12 @@
                     0;
 
                 // AJAX Submission
-                toggleSubmitBtn(true);
+                toggleButton("#submitBtn", {
+                    textSelector: "#submit-btn-txt",
+                    oldText: "Submit",
+                    newText: "Submitting...",
+                    spinnerSelector: ".submitBtnSpinner"
+                }, true);
 
                 getCurrentLocation(
                     (location) => {
@@ -430,33 +535,7 @@
                         formData.set("use_branch_operating_hours", useBranchOperatingHours);
                         formData.set("latitude", latitude);
                         formData.set("longitude", longitude);
-
-                        const operatingHours = {};
-
-                        // Loop through each day to get its values
-                        ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"]
-                        .forEach(
-                            day => {
-                                const startInput = document.querySelector(
-                                    `[name="operating_hours[${day}][start]"]`);
-                                const endInput = document.querySelector(
-                                    `[name="operating_hours[${day}][end]"]`);
-                                const closedCheckbox = document.querySelector(
-                                    `[name="operating_hours[${day}][closed]"]`);
-                                const allTimeOpenCheckbox = document.querySelector(
-                                    `[name="operating_hours[${day}][open_24]"]`);
-
-                                operatingHours[day] = {
-                                    start: startInput ? startInput.value : null,
-                                    end: endInput ? endInput.value : null,
-                                    closed: closedCheckbox ? closedCheckbox.checked : false,
-                                    allTimeOpen: allTimeOpenCheckbox ? allTimeOpenCheckbox
-                                        .checked : false
-                                };
-                            });
-
-                        // Append operating hours JSON to formData
-                        formData.set("operating_hours", JSON.stringify(operatingHours));
+                        formData.set("operating_hours", JSON.stringify(getOperatingHours()));
 
                         fetch("{{ route('admin.branches.departments.store', ['branchSlug' => $branch->slug]) }}", {
                                 method: "POST",
@@ -485,40 +564,27 @@
                                     });
                                 } else {
                                     if (data.errors) {
-                                        let firstInput = null; // Initialize firstInput
-
-                                        Object.entries(data.errors).forEach(([key, value],
-                                            index) => {
+                                        let firstInput = null;
+                                        Object.entries(data.errors).forEach(([key, value]) => {
                                             const input = document.querySelector(
                                                 `[name="${key}"]`);
                                             if (input) {
-                                                if (!
-                                                    firstInput
-                                                ) { // Set firstInput only once
-                                                    firstInput = input;
-                                                }
-
+                                                firstInput = firstInput || input;
                                                 input.classList.add("is-invalid");
-                                                const feedbackElement = input.closest(
-                                                        ".form-group")
-                                                    ?.querySelector(".invalid-feedback");
-                                                if (feedbackElement) {
-                                                    feedbackElement.textContent = value[0];
-                                                } else {
-                                                    input.insertAdjacentHTML("afterend",
-                                                        `<div class="invalid-feedback">${value[0]}</div>`
-                                                    );
-                                                }
+                                                (input.closest(".form-group")
+                                                    ?.querySelector(".invalid-feedback") ||
+                                                    createErrorElement(input, ""))
+                                                .textContent = value[0];
                                             }
                                         });
 
+                                        // Ensure firstInput exists before calling focus
                                         if (firstInput) {
                                             firstInput.scrollIntoView({
                                                 behavior: "smooth",
                                                 block: "center"
-                                            }); // Scroll to the first invalid field
-                                            firstInput
-                                                .focus(); // Set focus on the first invalid input
+                                            });
+                                            firstInput.focus();
                                         }
                                     } else {
                                         Swal.fire({
@@ -531,15 +597,23 @@
                             })
                             .catch(error => {
                                 console.error("Error:", error);
-                                document.getElementById("responseMessage").innerHTML =
-                                    `<div class="alert alert-danger">An unexpected error occurred.</div>`;
                             })
                             .finally(() => {
-                                toggleSubmitBtn(false);
+                                toggleButton("#submitBtn", {
+                                    textSelector: "#submit-btn-txt",
+                                    oldText: "Submit",
+                                    newText: "Submitting...",
+                                    spinnerSelector: ".submitBtnSpinner"
+                                }, false);
                             });
                     },
                     (errorMessage) => {
-                        toggleSubmitBtn(false);
+                        toggleButton("#submitBtn", {
+                            textSelector: "#submit-btn-txt",
+                            oldText: "Submit",
+                            newText: "Submitting...",
+                            spinnerSelector: ".submitBtnSpinner"
+                        }, false);
                         console.error("Error fetching location:", errorMessage);
                         Swal.fire({
                             icon: "error",
